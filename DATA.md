@@ -82,7 +82,7 @@ node update/fetch-providers.mjs --only rightel --input rightel.har       # را�
 - طرح‌های **تعرفه آزاد** به‌دلیل نداشتن حجم ثابت در `excluded` قرار می‌گیرند و بسته‌هایی با `buy_of_app=no` با یادداشت «فقط خرید از وب‌سایت» در فهرست می‌مانند.
 
 ### رایتل (یک API، دو مجموعه)
-- پنل `package.rightel.ir/packagesList` ابتدا با `POST portal-api.rightel.ir/user-management/api/v1/auth/authenticate` و بدنه‌ی `{"username":"website"}` یک توکن ناشناس ۲۴ ساعته می‌گیرد و سپس همان‌جا با `Authorization: Bearer` از `GET …/extra-package-direct/web-site/purchasable-package` داده می‌گیرد (۱۲۶ مورد در ۷ دسته؛ طبق HAR ۲۰۲۶-۱۱-۱۴ — خروجی HAR مرورگر مقدار هدر Authorization را نشان نمی‌دهد، به همین دلیل در HAR ۲۰۲۶-۱۱-۰۷ این جریان دیده نشد). قیمت‌ها به **ریال** است و حجم/مدت از عنوان فارسی و `descriptionEn` خوانده می‌شود.
+- پنل `package.rightel.ir/packagesList` ابتدا با `POST portal-api.rightel.ir/user-management/api/v1/auth/authenticate` و بدنه‌ی `{"username":"website"}` یک توکن ناشناس ۲۴ ساعته می‌گیرد و سپس همان‌جا با `Authorization: Bearer` از `GET …/extra-package-direct/web-site/purchasable-package` داده می‌گیرد. قیمت‌ها به **ریال** است و حجم/مدت از عنوان فارسی و `descriptionEn` خوانده می‌شود.
 - دسته‌ی اینترنت همراه و ترکیبی «رایتا» به `rightel.json` (۳۸ بسته پس از ادغام دوقلوهای دائمی/اعتباری یکسان) و دسته‌ی «بسته مودم» به `rightel-tdlte.json` (۱۳ بسته در تب اینترنت ثابت) می‌رود. بسته‌های بدون حجم داده (مکالمه، پیامک، بین‌الملل و رومینگ بدون حجم) در `excluded` ثبت می‌شوند.
 
 ## سیاست پذیرش و حذف بسته‌ها (Purchasability)
