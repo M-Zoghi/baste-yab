@@ -2,10 +2,20 @@
 
 # بسته‌یاب — مقایسه زنده‌ی بسته‌های اینترنت ایران
 
-[نسخه‌ی آنلاین (GitHub Pages)](https://m-zoghi.github.io/baste-yab/) ·
-[راهنمای جمع‌آوری و بروزرسانی داده‌ها (DATA.md)](https://github.com/M-Zoghi/baste-yab/blob/main/DATA.md)
-
 مقایسه‌ی شفاف بسته‌های اینترنت اپراتورهای ایرانی بر پایه‌ی **تومان بر گیگابایت** و **تومان بر (گیگابایت × روز)** — همراه با رتبه‌بندی از به‌صرفه‌ترین به گران‌ترین، تفکیک **اینترنت همراه** و **اینترنت ثابت**، نمای کارتی و جدولی، مقایسه‌ی کنار هم، کپی سریع کد دستوری (USSD) و محاسبه‌ی ۱۰٪ مالیات بر ارزش افزوده. تمامی قیمت‌ها و مشخصات مستقیماً از منابع رسمی هر اپراتور استخراج می‌شوند و هیچ عددی به‌صورت دستی وارد نشده است.
+
+<p align="center">
+  <a href="https://m-zoghi.github.io/baste-yab/">
+    <img src=".github/assets/open-site-button.svg" alt="ورود به سایت بسته‌یاب (نسخه‌ی آنلاین)" width="340" height="56" />
+  </a>
+</p>
+
+<p align="center">
+  برای باز کردن سایت کافی است روی دکمه‌ی سبز بالا بزنید یا مستقیم وارد این نشانی شوید:<br />
+  <a href="https://m-zoghi.github.io/baste-yab/"><strong>https://m-zoghi.github.io/baste-yab/</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/M-Zoghi/baste-yab/blob/main/DATA.md">راهنمای داده‌ها (DATA.md)</a>
+</p>
 
 ## وضعیت فعلی اپراتورها
 

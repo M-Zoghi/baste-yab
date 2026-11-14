@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="56" viewBox="0 0 340 56" role="img" aria-label="ورود به سایت بسته‌یاب">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="338" height="54" rx="12" fill="url(#bg)" stroke="#34d399" stroke-opacity="0.5" stroke-width="1.5" />
+  <g fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" transform="translate(26, 18)">
+    <path d="M12 17H5V5h7" opacity="0.85" />
+    <path d="M16 11H6" />
+    <path d="M10 7l-4 4 4 4" />
+  </g>
+  <text
+    x="186"
+    y="28"
+    fill="#ffffff"
+    font-family="'Vazirmatn', 'Estedad', Tahoma, 'Segoe UI', Arial, sans-serif"
+    font-size="16"
+    font-weight="700"
+    text-anchor="middle"
+    dominant-baseline="central"
+    direction="rtl"
+  >ورود به سایت بسته‌یاب (نسخه‌ی آنلاین)</text>
+</svg>
