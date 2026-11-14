@@ -43,21 +43,32 @@
  *    marks packs sold on the website only (not in the MyIrancell app) — kept
  *    in the ranking with a note. Geo-blocked outside Iran
  *    → refresh manually: --only irancell --input <saved products.json>
- *  • rightel   — PUBLIC portal API (verified 2026-11-07, thanks to a HAR
- *    capture): package.rightel.ir/packagesList is an Angular SPA backed by
+ *  • rightel   — portal API with an anonymous website token (verified from HAR
+ *    captures 2026-11-07 AND 2026-11-14; payloads byte-identical — prices
+ *    unchanged that week). package.rightel.ir/packagesList is an Angular SPA
+ *    that first authenticates as the shared "website" user:
+ *      POST https://portal-api.rightel.ir/user-management/api/v1/auth/authenticate
+ *      body {"username":"website"} → {"data":{"token":"<JWT>"}}
+ *    (JWT roles [Website], valid 24 h) and only then calls
  *      GET https://portal-api.rightel.ir/extra-package/api/v1/extra-package-direct/web-site/purchasable-package?d=<ms>
- *    No login (a {"username":"website"} JWT exists but the GET carries no
- *    Authorization) and CORS *. `data[]` = 126 items in 7 channel categories:
- *    internet (72) → rightel.json; Modem (13, DATA sims) → rightel-tdlte.json;
- *    Hybrid «رایتا» (4) → mobile combos; Call/SMS/International/Roaming (37)
- *    have no data volume → excluded. Prices in RIAL pre-tax (÷10 → toman).
- *    Structured amounts (internetAmount …) are all null — volume/duration
- *    parse from the Persian name «N روزه/ماهه/ساله X گیگابایت/مگابایت».
+ *    with `Authorization: Bearer <token>`. The 2026-11-07 HAR export hid the
+ *    header (Chrome strips Authorization on HAR export) so the first adapter
+ *    called the API without it; the 2026-11-14 capture's OPTIONS preflight
+ *    proves the GET asks for the `authorization` header — the adapter now
+ *    reproduces the full two-step flow (with a no-token fallback in case the
+ *    endpoint itself stays open). CORS *. `data[]` = 126 items in 7 channel
+ *    categories: internet (72) → rightel.json; Modem (13, DATA sims) →
+ *    rightel-tdlte.json; Hybrid «رایتا» (4) → mobile combos;
+ *    Call/SMS/International/Roaming (37) have no data volume → excluded.
+ *    Prices in RIAL pre-tax (÷10 → toman). Structured amounts
+ *    (internetAmount …) are all null — volume/duration parse from the Persian
+ *    name «N روزه/ماهه/ساله X گیگابایت/مگابایت».
  *    PURCHASABILITY: the endpoint returns only purchasable packages (all 126
  *    pass). POSTPAID/PREPAID twins are identical (the lone extra
  *    creditAmount=49000 on id 99 is never rendered by the SPA) → deduped to
  *    one card; time-window packs (۲–۷ صبح / ۶–۱۲) stay ranked with a note.
- *    GEO-BLOCKED outside Iran → refresh manually:
+ *    GEO-BLOCKED outside Iran (verified: all *.rightel.ir hosts time out
+ *    from outside) → refresh manually:
  *      node update/fetch-providers.mjs --only rightel --input <file.har|data.json>
  *  • tci / asiatech — geo-blocked outside Iran or login-gated;
  *    waiting for captures (see DATA.md).
@@ -811,10 +822,16 @@ async function fetchIrancell() {
   });
 }
 
-/* ─────────── rightel — portal "purchasable packages" API (from the 2026-11-07 HAR) ─────────── */
+/* ─────────── rightel — portal "purchasable packages" API (HARs 2026-11-07 + 2026-11-14) ─────────── */
 /* One API feeds two docs: mobile (internet + رایتا combos) and modem data-SIMs
-   (listed on the site as the home/fixed alternative). See header for details. */
+   (listed on the site as the home/fixed alternative). See header for details.
+   The SPA authenticates first: POST auth/authenticate {"username":"website"}
+   → 24 h JWT, then GETs the catalog with `Authorization: Bearer …`. The
+   browser GET's preflight explicitly requests the `authorization` header
+   (2026-11-14 HAR); Chrome strips the header value in HAR exports, which is
+   why the first adapter wrongly called the API unauthenticated. */
 const RIGHTEL_API = 'https://portal-api.rightel.ir/extra-package/api/v1/extra-package-direct/web-site/purchasable-package';
+const RIGHTEL_AUTH = 'https://portal-api.rightel.ir/user-management/api/v1/auth/authenticate';
 const RIGHTEL_PAGE = 'https://package.rightel.ir/packagesList';
 const RIGHTEL_STALE_DAYS = 7;
 
@@ -838,30 +855,77 @@ function rightelItemsFromInput(raw) {
   throw new Error('unrecognized --input shape (expected HAR or data array)');
 }
 
-async function rightelItemsFromApi() {
-  const tokenIdx = process.argv.indexOf('--token');
-  const rawToken =
-    (tokenIdx !== -1 && process.argv[tokenIdx + 1]) || process.env.RIGHTEL_TOKEN || '';
-  const authHeader = rawToken
-    ? { Authorization: rawToken.startsWith('Bearer ') ? rawToken : `Bearer ${rawToken}` }
-    : {};
-
-  const res = await fetch(`${RIGHTEL_API}?d=${Date.now()}`, {
+/** Anonymous "website" login (same as the SPA): {"username":"website"} →
+ *  {"data":{"token":"<JWT>"}}. No password; JWT is roles [Website], 24 h.
+ *  Throws {network:true} errors when the host is unreachable (geo-block),
+ *  plain errors when the endpoint answers but refuses. */
+async function rightelWebsiteToken() {
+  const res = await fetch(RIGHTEL_AUTH, {
+    method: 'POST',
     headers: {
       Accept: 'application/json',
-      Origin: 'https://package.rightel.ir',
+      'Content-Type': 'application/json',
+      Origin: RIGHTEL_PAGE,
       Referer: `${RIGHTEL_PAGE}/`,
       'User-Agent': UA,
-      ...authHeader,
     },
+    body: JSON.stringify({ username: 'website' }),
+    signal: AbortSignal.timeout(20000),
+  }).catch((e) => {
+    const err = new Error(`auth unreachable: ${e.message}`);
+    err.network = true;
+    throw err;
+  });
+  if (!res.ok) throw new Error(`auth HTTP ${res.status}`);
+  const json = await res.json();
+  const token = json?.data?.token;
+  if (!token) throw new Error('auth response carried no data.token');
+  return token;
+}
+
+async function rightelItemsFromApi() {
+  const headers = {
+    Accept: 'application/json',
+    Origin: RIGHTEL_PAGE,
+    Referer: `${RIGHTEL_PAGE}/`,
+    'User-Agent': UA,
+  };
+  // Full browser flow (2026-11-14 HAR): anonymous website JWT → Bearer GET.
+  // Same host serves auth and catalog, so a network-level auth failure means
+  // the host is unreachable (geo-block) — no point trying the catalog. An
+  // HTTP-level auth failure falls back to the bare GET (how the 2026-11-07
+  // adapter worked) in case the catalog endpoint itself stays open.
+  let authNote = '';
+  try {
+    headers.Authorization = `Bearer ${await rightelWebsiteToken()}`;
+  } catch (e) {
+    if (e.network) throw e;
+    authNote = ` (auth failed: ${e.message} — trying without token)`;
+  }
+  let res = await fetch(`${RIGHTEL_API}?d=${Date.now()}`, {
+    headers,
     signal: AbortSignal.timeout(20000),
   });
-  if (res.status === 401) {
-    throw new Error('HTTP 401 — رایتل اکنون توکن/نشست می‌خواهد؛ از HAR مرورگر با --only rightel --input <file.har> استفاده کنید');
+  if (!res.ok && headers.Authorization) {
+    // token rejected (expired/invalid) → one bare retry before failing
+    const bare = { ...headers };
+    delete bare.Authorization;
+    const retry = await fetch(`${RIGHTEL_API}?d=${Date.now()}`, {
+      headers: bare,
+      signal: AbortSignal.timeout(20000),
+    });
+    if (retry.ok) {
+      const j = await retry.json();
+      if (Array.isArray(j?.data)) {
+        console.log(`• rightel: catalog served without token (Bearer got HTTP ${res.status})`);
+        return j.data;
+      }
+    }
+    throw new Error(`HTTP ${res.status} with token, HTTP ${retry.status} without${authNote}`);
   }
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}${authNote}`);
   const json = await res.json();
-  if (!Array.isArray(json?.data)) throw new Error('unexpected response shape');
+  if (!Array.isArray(json?.data)) throw new Error(`unexpected response shape${authNote}`);
   return json.data;
 }
 
@@ -999,7 +1063,7 @@ function rightelDocs(items, fetchedAt) {
     },
     source: {
       kind: 'api',
-      endpoint: 'GET portal-api.rightel.ir/…/web-site/purchasable-package (بدون احراز هویت) — پنل رسمی رایتل',
+      endpoint: 'GET portal-api.rightel.ir/…/web-site/purchasable-package — پنل رسمی رایتل (ابتدا توکن ناشناس website با POST auth/authenticate، سپس GET با Authorization: Bearer — طبق HAR ۲۰۲۶-۱۱-۱۴)',
       fetchedAt,
     },
     prices: { unit: 'toman', includesTax: false, apiUnit: 'rial' },
@@ -1015,7 +1079,7 @@ function rightelDocs(items, fetchedAt) {
     },
     source: {
       kind: 'api',
-      endpoint: 'GET portal-api.rightel.ir/…/web-site/purchasable-package — دسته‌ی «بسته مودم» (سیم‌کارت دیتا)',
+      endpoint: 'GET portal-api.rightel.ir/…/web-site/purchasable-package (با توکن ناشناس website) — دسته‌ی «بسته مودم» (سیم‌کارت دیتا)',
       fetchedAt,
     },
     prices: { unit: 'toman', includesTax: false, apiUnit: 'rial' },

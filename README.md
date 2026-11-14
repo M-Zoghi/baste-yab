@@ -13,7 +13,7 @@
 |---|---|---|---|---|
 | همراه اول | همراه | 🔶 ترکیبی (فروشگاه دستی از ایران + جایگزین خودکار روزانه) | ۴۸ بسته | API فروشگاه رسمی `shop.mci.ir/api/search/v1/products?category=19` (با تفکیک انارستان و صبحانت)؛ جایگزین خودکار: `mci.ir/internet-plans` (۳۰ بسته) |
 | ایرانسل | همراه | 🔶 دستی از داخل ایران | ۳۹ بسته | JSON عمومی `irancell.ir/e/products/5e16bf95d11fd7209ba56b20` |
-| رایتل | همراه | 🔶 دستی از داخل ایران | ۳۸ بسته | API پورتال رسمی `portal-api.rightel.ir/…/purchasable-package` |
+| رایتل | همراه | 🔶 دستی از داخل ایران | ۳۸ بسته | API پورتال رسمی `portal-api.rightel.ir/…/purchasable-package` با توکن ناشناس `website` (ابتدا `POST auth/authenticate`، سپس `Bearer GET`) |
 | رایتل (مودم) | ثابت (سیم‌کارت دیتا) | 🔶 دستی از داخل ایران | ۱۳ بسته | همان API رسمی رایتل (دسته‌ی «بسته مودم») |
 | سامانتل | همراه (اپراتور مجازی) | ✅ خودکار روزانه (۰۷:۰۰ تهران) | ۳۱ بسته | API عمومی درگاه `payment.samantel.ir/api/mediator/samantel/` |
 | آپتل | همراه (اپراتور مجازی) | ✅ خودکار روزانه (۰۷:۰۰ تهران) | ۵۱ بسته | API عمومی `www.aptel.ir/api/ep/query?scope=public` |
@@ -63,7 +63,7 @@ git add src/data/providers && git commit -m "data: refresh" && git push
 
 </div>
 
-> **نکته برای رایتل:** اگر `portal-api.rightel.ir` خطای `HTTP 401` برگرداند (نیاز به توکن نشست جدید داشته باشد)، می‌توانید یک فایل HAR از صفحه‌ی `package.rightel.ir/packagesList` ذخیره و با `--only rightel --input rightel.har` بروزرسانی کنید.
+> **نکته برای رایتل:** آداپتور خودش با `POST auth/authenticate` (کاربر ناشناس `website`) توکن می‌گیرد و با `Authorization: Bearer` کاتالوگ را می‌خواند؛ اگر سرور از محل اجرا در دسترس نبود (مسدودیت جغرافیایی)، با `--only rightel --input rightel.har` از فایل HAR بروزرسانی کنید.
 
 سایر دستورات اسکریپت بروزرسانی:
 
