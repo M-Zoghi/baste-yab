@@ -16,7 +16,7 @@
   "source": {
     "kind": "api",
     "endpoint": "GET irancell.ir/e/products/5e16bf95d11fd7209ba56b20 (public catalog JSON)",
-    "fetchedAt": "2026-11-06T21:05:22Z"
+    "fetchedAt": "2026-11-14T19:43:45.374Z"
   },
   "prices": {
     "unit": "toman",
@@ -235,26 +235,12 @@
       "note": "شامل ۱ گیگ شبانه (۲ تا ۷ صبح)"
     },
     {
-      "id": "irancell-6adaa4e5e24dbf468d5ef6f6",
-      "title": "ترکیب برنده ۶۰ گیگ اینترنت + ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی",
+      "id": "irancell-6adaa42fe24dbf468d5ef6f0",
+      "title": "ترکیب برنده ۳۰ گیگ اینترنت + ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی",
       "kind": "combo",
-      "gb": 60,
+      "gb": 30,
       "days": 30,
-      "price": 697200,
-      "oldPrice": null,
-      "discountPct": null,
-      "group": null,
-      "regulatoryCode": null,
-      "ussd": null,
-      "note": "ترکیبی: ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی"
-    },
-    {
-      "id": "irancell-6adaa4a9e24dbf468d5ef6f4",
-      "title": "ترکیب برنده ۵۰ گیگ اینترنت + ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی",
-      "kind": "combo",
-      "gb": 50,
-      "days": 30,
-      "price": 581000,
+      "price": 348600,
       "oldPrice": null,
       "discountPct": null,
       "group": null,
@@ -277,12 +263,26 @@
       "note": "ترکیبی: ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی"
     },
     {
-      "id": "irancell-6adaa42fe24dbf468d5ef6f0",
-      "title": "ترکیب برنده ۳۰ گیگ اینترنت + ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی",
+      "id": "irancell-6adaa4a9e24dbf468d5ef6f4",
+      "title": "ترکیب برنده ۵۰ گیگ اینترنت + ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی",
       "kind": "combo",
-      "gb": 30,
+      "gb": 50,
       "days": 30,
-      "price": 348600,
+      "price": 581000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ترکیبی: ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی"
+    },
+    {
+      "id": "irancell-6adaa4e5e24dbf468d5ef6f6",
+      "title": "ترکیب برنده ۶۰ گیگ اینترنت + ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی",
+      "kind": "combo",
+      "gb": 60,
+      "days": 30,
+      "price": 697200,
       "oldPrice": null,
       "discountPct": null,
       "group": null,
