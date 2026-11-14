@@ -16,13 +16,13 @@
  *    200 000). Logged-in-only "ویژه آپتل من" deals are kept as
  *    `personalized.samples` (from a 2026-11-06 capture) — public prices are
  *    NOT personalized, so they rank separately with a UI notice.
- *  • mci       — TWO sources, best one wins (both verified 2026-11-06/07 from
- *    HAR captures):
- *    A) PRIMARY — official MCI shop REST API:
+ *  • mci       — THREE sources, merged (shop + portal verified 2026-11-06/14
+ *    from HAR captures; overlapping packs priced IDENTICALLY on both):
+ *    A) SHOP — official MCI shop REST API:
  *       GET https://shop.mci.ir/api/search/v1/products?category=19&page=N&size=16
  *       (paginated until isLast). JSON, no login. 48 products vs the marketing
- *       page's 30 — includes انارستان, combo and صبحانت packs the marketing
- *       page doesn't list. `price` is RIAL pre-tax (÷10 → toman; cross-checked
+ *       page's 30 — includes انارستان, combo and صبحانت packs the portal
+ *       doesn't list. `price` is RIAL pre-tax (÷10 → toman; cross-checked
  *       identical to the mci.ir catalog); the SPA cart charges
  *       `discountPrice ?? price` (verified in main-*.js) and the app config
  *       states taxPercentage=10. Volume attribute «حجم» is MB. PURCHASABILITY:
@@ -31,11 +31,33 @@
  *       GEO-BLOCKED outside Iran → refresh manually: save the HAR (or the
  *       paginated JSON) and run
  *         node update/fetch-providers.mjs --only mci --input <file.har|products.json>
- *       A fresh shop capture (≤7 days) always beats the fallback below.
- *    B) FALLBACK — mci.ir/internet-plans marketing page (reachable outside
+ *       A fresh shop capture (≤14 days) always beats the fallback below.
+ *    B) PORTAL — my.mci.ir («همراه‌من») customer catalog, MERGED into mci.json
+ *       (adds ~19 shop-absent packs: روبیکا, نامحدود/FUP, آی‌نو, ۶-to-۱۲
+ *       windows, بلندمدت, همه‌چیزتمام) and into a NEW mci-modem.json (8
+ *       data-SIM packs, like rightel-tdlte). NO LOGIN EXISTS ON THE WIRE: the
+ *       2026-11-14 logged-in HAR (313 entries) shows the browser sends NO
+ *       Authorization header and NO cookie to any my.mci.ir endpoint — only
+ *       `version` + `platform` custom headers. The catalog personalizes
+ *       solely via the ?phoneNumber= query parameter:
+ *         GET https://my.mci.ir/api/unit/v1/customer/units/normal/internet
+ *         GET https://my.mci.ir/api/unit/v1/customer/units/normal/modem_bundle
+ *       Responses carry ZERO personal data (verified: no msisdn/balance/name
+ *       fields — pure catalog), so the phone number is the only personal bit:
+ *       it is read from the MCI_PHONE env var or the gitignored
+ *       update/my.mci.txt (never a CLI arg, never logged, never committed).
+ *       Usage-personalized sections (madaar_firoozeyi «پیشنهادی», fandom
+ *       «همراهی» — their own rules say «پیشنهادی به مشترکین بنا به الگوی
+ *       مصرف») are SKIPPED. Prices RIAL pre-tax (price × 1.1 = taxAmount);
+ *       volume/duration parse from the Persian offer name («سی روزه» = 30d).
+ *       GEO-BLOCKED outside Iran → refresh from Iran (phone config) or via
+ *       --input with a my.mci.ir HAR (works from anywhere).
+ *    C) FALLBACK — mci.ir/internet-plans marketing page (reachable outside
  *       Iran, auto-refreshes daily): server-side .package-list-item cards,
  *       prices in TOMAN pre-tax, purchasability = خرید آنلاین button carries a
  *       data-package-code (dead listings keep a disabled button → excluded).
+ *       Bootstrap only: fires when no shop capture exists at all (or the shop
+ *       capture is >14 days old); portal packs always ride along on top.
  *  • irancell  — PUBLIC catalog JSON (verified 2026-11-06, thanks to a HAR
  *    capture): GET https://irancell.ir/e/products/5e16bf95d11fd7209ba56b20 —
  *    no login. Prices in TOMAN, pre-tax (the page's own modal computes
@@ -76,6 +98,10 @@
  * Usage: node update/fetch-providers.mjs [--only samantel]
  *        node update/fetch-providers.mjs --only irancell --input products.json
  *          [--fetched-at 2026-11-06T21:05:22Z]   (manual refresh from Iran)
+ *        node update/fetch-providers.mjs --only mci --input my.mci.ir.har
+ *          (portal/shop HAR refresh — works from anywhere; the my.mci.ir
+ *           phone number is only needed for LIVE fetches: MCI_PHONE env or
+ *           update/my.mci.txt, gitignored, never committed)
  * Exit 0 even if some adapters fail (partial refresh is fine); failed
  * providers keep their previous file.
  */
@@ -313,7 +339,7 @@ async function fetchAptel() {
    from this API — the shop only returns what it sells. */
 const MCI_SHOP_API = 'https://shop.mci.ir/api/search/v1/products';
 const MCI_SHOP_PAGE = 'https://shop.mci.ir/products/19/internet-package';
-const MCI_SHOP_STALE_DAYS = 7; // a shop capture up to this age beats the HTML fallback
+const MCI_SHOP_STALE_DAYS = 14; // a shop capture up to this age rides along; older regresses to the HTML page
 
 const shopAttr = (p, title) => {
   const a = (p.attributes || []).find((x) => x.title === title);
@@ -324,6 +350,39 @@ const shopAttr = (p, title) => {
 
 /** «120 روزه» → 120 */
 const shopDays = (v) => parseInt(enDigits(v).replace(/[^\d]/g, ''), 10) || 0;
+
+/** Shared MCI title pipeline (shop + portal): digit↔Persian binding so the
+ *  same pack from either source yields an IDENTICAL string — that equality
+ *  is the merge dedup key. Also strips the «(ویژه مشترکین جدید …)» suffix
+ *  (surfaced as a note instead). */
+function mciCleanTitle(name) {
+  return faDigits(
+    enDigits(name)
+      .replace(/\s+/g, ' ')
+      .replace(/\s*\(\s*ویژه مشترکین جدید[^)]*\)\s*$/, '')
+      .replace(/([\u0600-\u06FF])\s*(\d)/g, '$1 $2')
+      .replace(/(\d)\s*([\u0600-\u06FF])/g, '$1 $2')
+      .replace(/\s*\+\s*/g, ' + ')
+      .replace(/\s*,\s*/g, '، ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+}
+
+/** Dedup key title: the cleaned title with Persian number words folded to
+ *  digits («سی روزه» ≡ «۳۰ روزه») — the shop CMS names some packs with the
+ *  word and the portal with the digit. Display titles stay untouched; this
+ *  exists only for cross-source matching. */
+function mciDedupTitle(title) {
+  const NUM = 'یک|دو|سه|چهار|پنج|شش|شیش|هفت|هشت|نه|ده|یازده|دوازده|سی|چهل|پنجاه|شصت|هفتاد|هشتاد|نود|صد';
+  return String(title).replace(
+    new RegExp(`(${NUM}|\\d+(?:\\.\\d+)?)\\s*(روزه|ماهه|ساله)`, 'g'),
+    (full, n, unit) => {
+      const v = MCI_FA_NUMS[n] != null ? MCI_FA_NUMS[n] : parseFloat(n) || 0;
+      return `${faDigits(String(v))} ${unit}`;
+    },
+  );
+}
 
 /** Accepts a raw HAR, an array of page objects, a single page object, or an
  *  already-merged products array — whatever was easiest to save. */
@@ -381,7 +440,7 @@ async function mciShopItemsFromApi() {
   return items;
 }
 
-function mciShopDoc(items, fetchedAt) {
+function mciShopPacks(items) {
   const packages = [];
   const excluded = [];
   for (const p of items) {
@@ -427,17 +486,7 @@ function mciShopDoc(items, fetchedAt) {
     }
     if (needLogin) notes.push('برای خرید باید وارد حساب همراه اول شوید');
 
-    const title = faDigits(
-      enDigits(name)
-        .replace(/\s*\(\s*ویژه مشترکین جدید[^)]*\)\s*$/, '')
-        // «انارستان۷ روزه» / «30روزه» / «6صبح» — bind digits to neighbors with spaces
-        .replace(/([\u0600-\u06FF])\s*(\d)/g, '$1 $2')
-        .replace(/(\d)\s*([\u0600-\u06FF])/g, '$1 $2')
-        .replace(/\s*\+\s*/g, ' + ')
-        .replace(/\s*,\s*/g, '، ')
-        .replace(/\s+/g, ' ')
-        .trim(),
-    );
+    const title = mciCleanTitle(name); // shared pipeline — identical output to the old inline one, and the merge dedup key
     const oldPrice = oldRial ? Math.round(oldRial / 10) : null;
     packages.push({
       id: `mci-${p.id}`,
@@ -455,24 +504,10 @@ function mciShopDoc(items, fetchedAt) {
   }
   if (!packages.length) throw new Error('no ACTIVE products parsed from shop payload');
   packages.sort((a, b) => a.price / a.gb - b.price / b.gb);
-  return {
-    schema: 2,
-    provider: {
-      id: 'mci', nameFa: 'همراه اول', nameEn: 'MCI', category: 'mobile',
-      tech: '4G/5G', regions: ['سراسری'], accent: '#0095da',
-      site: 'https://mci.ir', buyUrl: MCI_SHOP_PAGE,
-    },
-    source: {
-      kind: 'api',
-      endpoint: 'GET shop.mci.ir/api/search/v1/products?category=19 (paginated) — فروشگاه رسمی همراه اول',
-      fetchedAt,
-    },
-    prices: { unit: 'toman', includesTax: false, apiUnit: 'rial' },
-    packages, excluded,
-  };
+  return { packages, excluded };
 }
 
-/* ─────────── mci — B) mci.ir public catalog page, server-rendered HTML ─────────── */
+/* ─────────── mci — C) mci.ir public catalog page, server-rendered HTML (bootstrap fallback) ─────────── */
 /* mci.ir/internet-plans renders the whole catalog as
    <li class="package-list-item" data-…> cards (no JSON API; verified from a
    2026-11-06 HAR + live fetch — page is public, logged-out, and reachable
@@ -522,7 +557,7 @@ async function getText(url, headers, timeoutMs = 25000) {
   }
 }
 
-async function fetchMciCatalogHtml() {
+async function mciCatalogHtmlPacks() {
   const html = await getText(MCI_URL, {
     Accept: 'text/html', 'Accept-Language': 'fa-IR,fa;q=0.9', 'User-Agent': UA,
   });
@@ -609,6 +644,330 @@ async function fetchMciCatalogHtml() {
   }
   if (!packages.length) throw new Error('no package cards found in HTML');
   packages.sort((a, b) => (a.price / a.gb) - (b.price / b.gb));
+  return { packages, excluded };
+}
+
+/* ─────────── mci — B) «همراه‌من» portal catalog (my.mci.ir, no login on the wire) ─────────── */
+/* The customer portal personalizes its catalog solely through the
+   ?phoneNumber= query parameter — the 2026-11-14 logged-in HAR proves no
+   Authorization header or cookie is ever sent (see the file header). The
+   phone number is the ONLY personal bit involved, so it is never a CLI
+   argument, never logged, never written to the output JSON: it comes from
+   the MCI_PHONE env var or the gitignored update/my.mci.txt. */
+const MY_MCI_BASE = 'https://my.mci.ir/api/unit/v1/customer/units';
+const MY_MCI_PAGE = 'https://my.mci.ir/panel/packages/list';
+const MCI_PORTAL_NOTE = 'کاتالوگ عمومی، بدون احراز هویت';
+
+/** 09123456789 / +989123456789 / 98 912 345 6789 / 9123456789 → '9123456789'
+ *  — the 10-digit form the portal itself puts in ?phoneNumber=. */
+function mciNormalizePhone(s) {
+  const m = String(s || '').replace(/[\s-]/g, '').match(/^(?:\+98|0098|98|0)?(9\d{9})$/);
+  return m ? m[1] : null;
+}
+
+/** Phone number resolution: MCI_PHONE env → update/my.mci.txt (one number per
+ *  line, # comments allowed). Returns the normalized number or null. */
+async function mciPortalPhone() {
+  const fromEnv = mciNormalizePhone(process.env.MCI_PHONE || '');
+  if (fromEnv) return fromEnv;
+  try {
+    const txt = await readFile(path.join(ROOT, 'update', 'my.mci.txt'), 'utf8');
+    for (const line of txt.split(/\r?\n/)) {
+      const s = line.replace(/#.*$/, '').trim();
+      if (!s) continue;
+      const direct = mciNormalizePhone(s);
+      if (direct) return direct;
+      const m = s.match(/(?:\+98|0098|98|0)?(9\d{9})\b/);
+      if (m) return m[1];
+    }
+  } catch { /* no my.mci.txt — fall through */ }
+  return null;
+}
+
+/** Accepts a raw HAR (pulls the internet + modem_bundle unit lists out of the
+ *  captured responses — a HAR may log a response twice, dedup happens by
+ *  viewId later) or a saved object {internet: […|{units}], modem_bundle: […]}.
+ *  A bare array is treated as the internet list. */
+function mciPortalUnitsFromInput(raw) {
+  const out = { internet: [], modem_bundle: [] };
+  if (raw?.log?.entries) {
+    for (const e of raw.log.entries) {
+      const url = String(e.request?.url || '');
+      if (!url.includes('/api/unit/v1/customer/units/')) continue;
+      if ((e.response?.status || 0) !== 200) continue;
+      let text = e.response.content?.text || '';
+      if (!text) continue;
+      if (e.response.content.encoding === 'base64') text = Buffer.from(text, 'base64').toString('utf8');
+      let d;
+      try { d = JSON.parse(text); } catch { continue; }
+      if (!Array.isArray(d?.units)) continue;
+      if (url.includes('/normal/internet')) out.internet.push(...d.units);
+      else if (url.includes('/normal/modem_bundle')) out.modem_bundle.push(...d.units);
+    }
+    if (out.internet.length || out.modem_bundle.length) return out;
+    throw new Error('no /customer/units responses found in HAR');
+  }
+  const arr = (v) => (Array.isArray(v) ? v : Array.isArray(v?.units) ? v.units : null);
+  if (raw && typeof raw === 'object' && (arr(raw.internet) || arr(raw.modem_bundle))) {
+    return { internet: arr(raw.internet) || [], modem_bundle: arr(raw.modem_bundle) || [] };
+  }
+  if (Array.isArray(raw)) return { internet: raw, modem_bundle: [] };
+  throw new Error('unrecognized my.mci.ir shape (expected HAR or {internet, modem_bundle})');
+}
+
+async function mciPortalFetch(unitPath, phone) {
+  const qs = phone ? `?phoneNumber=${phone}` : '';
+  let res;
+  try {
+    res = await fetch(`${MY_MCI_BASE}${unitPath}${qs}`, {
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        version: '1.33.4',
+        platform: 'WEB',
+        Referer: `${MY_MCI_PAGE}/`,
+        'User-Agent': UA,
+      },
+      signal: AbortSignal.timeout(20000),
+    });
+  } catch (e) {
+    const err = new Error(`unreachable: ${e.message}`);
+    err.network = true; // host-level failure (geo-block) — no point retrying with a phone
+    throw err;
+  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const d = await res.json();
+  if (!Array.isArray(d?.units)) throw new Error('unexpected payload (no units[])');
+  return d.units;
+}
+
+/** Live portal fetch. First tries WITHOUT a phone number — if my.mci.ir serves
+ *  the general catalog anonymously, no personal input is needed at all. Only
+ *  if that is refused does it use the locally-configured number. The number is
+ *  never logged. */
+async function mciPortalUnitsFromApi() {
+  try {
+    const internet = await mciPortalFetch('/normal/internet', null);
+    console.log('• mci: my.mci.ir served the catalog without a phone number — no personal input needed');
+    const modem_bundle = await mciPortalFetch('/normal/modem_bundle', null).catch(() => []);
+    return { internet, modem_bundle };
+  } catch (e) {
+    if (e.network) throw e; // geo-blocked from here — stale-keep instead
+  }
+  const phone = await mciPortalPhone();
+  if (!phone) {
+    throw new Error('my.mci.ir asks for a phone number — create update/my.mci.txt (one line, your MCI number, e.g. 09123456789) or set MCI_PHONE; the file is gitignored and never committed');
+  }
+  const internet = await mciPortalFetch('/normal/internet', phone);
+  const modem_bundle = await mciPortalFetch('/normal/modem_bundle', phone).catch(() => []);
+  console.log('• mci: my.mci.ir catalog fetched (personalized view via local phone config — never stored)');
+  return { internet, modem_bundle };
+}
+
+const MCI_FA_NUMS = {
+  یک: 1, دو: 2, سه: 3, چهار: 4, پنج: 5, شش: 6, شیش: 6, هفت: 7, هشت: 8,
+  نه: 9, ده: 10, یازده: 11, دوازده: 12, سی: 30, چهل: 40, پنجاه: 50,
+  شصت: 60, هفتاد: 70, هشتاد: 80, نود: 90, صد: 100,
+};
+
+/** «بسته اینترنت سی روزه 5 گیگابایت» → {gb: 5, days: 30}. Persian word
+ *  numbers included («سی روزه»=30d, «یکماهه»=30d, «دوازده ماهه»=360d);
+ *  «ماهه» ×30 and «ساله» ×365 follow the rightel convention. */
+function mciPortalNameParse(name) {
+  const s = enDigits(String(name).replace(/\s+/g, ' '));
+  const NUM = 'یک|دو|سه|چهار|پنج|شش|شیش|هفت|هشت|نه|ده|یازده|دوازده|سی|چهل|پنجاه|شصت|هفتاد|هشتاد|نود|صد';
+  const val = (m) => (m ? (MCI_FA_NUMS[m[1]] != null ? MCI_FA_NUMS[m[1]] : parseFloat(m[1]) || 0) : 0);
+  let days = val(s.match(new RegExp(`(${NUM}|\\d+(?:\\.\\d+)?)\\s*روزه`)));
+  if (!days) days = val(s.match(new RegExp(`(${NUM}|\\d+(?:\\.\\d+)?)\\s*ماهه`))) * 30;
+  if (!days) days = val(s.match(new RegExp(`(${NUM}|\\d+(?:\\.\\d+)?)\\s*ساله`))) * 365;
+  let gb = 0;
+  let m = s.match(/(\d+(?:\.\d+)?)\s*گیگابایت/);
+  if (m) gb = +m[1];
+  else if ((m = s.match(/(\d+(?:\.\d+)?)\s*مگابایت/))) gb = +m[1] / 1024;
+  return { gb: Math.round(gb * 10000) / 10000, days: Math.round(days) };
+}
+
+/** Portal units → site packs. modem:true marks the data-SIM (modem_bundle)
+ *  list. The unlimited packs rank by their fair-usage cap; Rubika packs are
+ *  domestic-only; window/new-customer/combo facts become notes. */
+function mciPortalPacks(units, { modem = false } = {}) {
+  const packages = [];
+  const excluded = [];
+  const seen = new Set();
+  for (const u of units) {
+    const viewId = String(u.viewId || '');
+    if (!viewId || seen.has(viewId)) continue; // a HAR may log one response twice
+    seen.add(viewId);
+    const rawName = String(u.offerName || '').replace(/\s+/g, ' ').trim();
+    const price = Math.round((Number(u.price) || 0) / 10); // rial → toman, pre-tax
+    const { gb, days } = mciPortalNameParse(rawName);
+    if (!(gb > 0) || !(days > 0) || !(price > 0)) {
+      excluded.push({ title: mciCleanTitle(rawName), reason: 'حجم، مدت یا قیمت نامشخص (پنل همراه‌من)' });
+      continue;
+    }
+    const s = enDigits(rawName);
+    const notes = [];
+    let kind = 'internet';
+    let domesticOnly = false;
+    if (modem) notes.push('ویژه سیم‌کارت دیتا/مودم همراه اول');
+    if (/روبیکا/.test(s)) {
+      domesticOnly = true; // Rubika traffic never leaves Iran's network
+      notes.push('ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی');
+    }
+    if (/نامحدود/.test(s)) notes.push(`مصرف نامحدود (سقف مصرف منصفانه ${faDigits(String(gb))} گیگابایت)`);
+    const win = s.match(/(\d+)\s*(?:بامداد|صبح)\s*تا\s*(\d+)\s*(?:بامداد|صبح|ظهر)/) // «2بامداد تا 9صبح»
+      || s.match(/(\d+)\s*تا\s*(\d+)\s*(?:بامداد|صبح|ظهر)/); // «2 تا 7 صبح» / «6 تا 12ظهر»
+    if (win) notes.push(`قابل استفاده از ${faDigits(win[1])} تا ${faDigits(win[2])} ${/ظهر/.test(win[0]) ? 'ظهر' : 'صبح'}`);
+    if (/مشترکین جدید/.test(s)) notes.push('فقط مشترکین جدید (ثبت‌نام تا ۳۰ روز گذشته)');
+    if (/همه چیز تمام|همه‌چیز تمام/.test(s)) {
+      kind = 'combo';
+      notes.push('ترکیبی: اینترنت + مکالمه و پیامک نامحدود (با حد مصرف روزانه و سیاست مصرف منصفانه)');
+    } else if (/مکالمه/.test(s)) {
+      kind = 'combo';
+    }
+    packages.push({
+      id: `${modem ? 'mci-modem' : 'mci-my'}-${viewId.replace(/-/g, '').slice(0, 8)}`,
+      title: mciCleanTitle(rawName),
+      kind,
+      ...(domesticOnly ? { domesticOnly: true } : {}),
+      gb, days, price,
+      oldPrice: null, discountPct: null,
+      group: null,
+      regulatoryCode: null, ussd: null,
+      note: notes.join(' · ') || null,
+    });
+  }
+  packages.sort((a, b) => a.price / a.gb - b.price / b.gb);
+  return { packages, excluded };
+}
+
+/* ─────────── mci — orchestrator: shop + portal, merged into one doc ─────────── */
+async function fetchMci() {
+  const argv = process.argv;
+  const inputIdx = argv.indexOf('--input');
+  const atIdx = argv.indexOf('--fetched-at');
+  const fetchedAt = atIdx !== -1 && argv[atIdx + 1] ? argv[atIdx + 1] : new Date().toISOString();
+  const inputPath = inputIdx !== -1 && argv[inputIdx + 1] ? argv[inputIdx + 1] : null;
+  let inputRaw = null;
+  if (inputPath) inputRaw = JSON.parse(await readFile(path.resolve(ROOT, inputPath), 'utf-8'));
+
+  /* previous captures — for stale-keep and ride-along carry-over */
+  let prev = null;
+  let prevModem = null;
+  try { prev = JSON.parse(await readFile(path.join(DATA_DIR, 'mci.json'), 'utf8')); } catch { /* none */ }
+  try { prevModem = JSON.parse(await readFile(path.join(DATA_DIR, 'mci-modem.json'), 'utf8')); } catch { /* none */ }
+  const prevShopPacks = (prev?.packages || []).filter((p) => !/^mci-(my|modem)-/.test(p.id));
+  const prevPortalPacks = (prev?.packages || []).filter((p) => /^mci-my-/.test(p.id));
+  const prevShopMeta = prev?.source?.parts?.shop ?? (prev && prev.source?.kind ? prev.source : null);
+  const prevPortalAt = prev?.source?.parts?.portal?.fetchedAt ?? null;
+
+  /* ── A) shop part: --input → live API → stale-keep (≤14d) → HTML bootstrap ── */
+  let shopFromInput = null;
+  let portalFromInput = null;
+  if (inputRaw) {
+    const errs = [];
+    try { shopFromInput = mciShopItemsFromInput(inputRaw); } catch (e) { errs.push(`shop: ${e.message}`); }
+    try { portalFromInput = mciPortalUnitsFromInput(inputRaw); } catch (e) { errs.push(`portal: ${e.message}`); }
+    if (!shopFromInput && !portalFromInput) {
+      // an explicit --input must not silently degrade to another source
+      throw new Error(`--input matched no MCI source (${errs.join(' · ')})`);
+    }
+  }
+
+  let shop = null; // { kind, fetchedAt, packages, excluded, stale? }
+  if (shopFromInput) {
+    const packs = mciShopPacks(shopFromInput);
+    shop = { kind: 'api', fetchedAt, ...packs };
+  } else {
+    try {
+      const items = await mciShopItemsFromApi();
+      if (!items.length) throw new Error('empty shop product list');
+      const packs = mciShopPacks(items);
+      shop = { kind: 'api', fetchedAt, ...packs };
+    } catch (e) {
+      const ageDays = prevShopMeta?.fetchedAt
+        ? (Date.now() - Date.parse(prevShopMeta.fetchedAt)) / 86400000
+        : Infinity;
+      if (prevShopPacks.length && ageDays <= MCI_SHOP_STALE_DAYS) {
+        console.log(
+          `• mci: shop API unreachable from here (${e.message}) — kept the ${prevShopMeta.fetchedAt.slice(0, 10)} shop capture (${ageDays.toFixed(1)}d old ≤ ${MCI_SHOP_STALE_DAYS}d)`,
+        );
+        shop = {
+          kind: prevShopMeta.kind, fetchedAt: prevShopMeta.fetchedAt,
+          packages: prevShopPacks, excluded: prev?.excluded || [], stale: true,
+        };
+      } else {
+        console.log(
+          `• mci: shop API unreachable from here (${e.message})${prevShopPacks.length ? ` — shop capture ${Number.isFinite(ageDays) ? `${ageDays.toFixed(0)}d old (> ${MCI_SHOP_STALE_DAYS}d), regressing to the mci.ir page` : 'unusable, regressing to the mci.ir page'}` : ''}`,
+        );
+      }
+    }
+  }
+  if (!shop) {
+    // mci.ir marketing page — public, reachable outside Iran (bootstrap fallback)
+    const html = await mciCatalogHtmlPacks();
+    shop = { kind: 'html', fetchedAt: new Date().toISOString(), ...html };
+  }
+
+  /* ── B) portal part: --input → live (local phone config) → stale-keep ── */
+  let portal = null; // { fetchedAt, mobile: {packages, excluded}, modem: {packages, excluded} }
+  if (portalFromInput) {
+    portal = {
+      fetchedAt,
+      mobile: mciPortalPacks(portalFromInput.internet),
+      modem: mciPortalPacks(portalFromInput.modem_bundle, { modem: true }),
+    };
+  } else {
+    try {
+      const units = await mciPortalUnitsFromApi();
+      portal = {
+        fetchedAt: new Date().toISOString(),
+        mobile: mciPortalPacks(units.internet),
+        modem: mciPortalPacks(units.modem_bundle, { modem: true }),
+      };
+    } catch (e) {
+      if (prevPortalPacks.length || prevModem) {
+        console.log(`• mci: kept my.mci.ir portal capture${prevPortalAt ? ` from ${prevPortalAt.slice(0, 10)}` : ''} (${e.message})`);
+      } else {
+        console.log(`• mci: no my.mci.ir portal data (${e.message}) — shop-only doc`);
+      }
+    }
+  }
+
+  /* ── C) merge + write ── */
+  if (shop.stale && !portal) {
+    console.log('• mci: nothing fresher than the shipped capture — mci.json and mci-modem.json untouched');
+    return;
+  }
+
+  // portal packs ride along even when the portal itself could not refresh
+  const portalPacks = portal ? portal.mobile.packages : prevPortalPacks;
+  const portalExcluded = portal ? portal.mobile.excluded : [];
+  const portalAt = portal ? portal.fetchedAt : prevPortalAt;
+
+  /* merge: shop first, then portal packs that the shop doesn't already sell.
+   * Key = folded title + gb + days + price: the two sources price overlapping
+   * packs IDENTICALLY (verified 2026-11-06 shop vs 2026-11-14 portal), and the
+   * regular/new-customer twins share a title but differ in price — the price
+   * keeps them apart. */
+  const seen = new Set();
+  const merged = [];
+  const key = (p) => `${mciDedupTitle(p.title)}|${p.gb}|${p.days}|${p.price}`;
+  for (const p of shop.packages) {
+    const k = key(p);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    merged.push(p);
+  }
+  for (const p of portalPacks) {
+    const k = key(p);
+    if (seen.has(k)) continue; // already sold by the shop — the shop card wins
+    seen.add(k);
+    merged.push(p);
+  }
+  merged.sort((a, b) => a.price / a.gb - b.price / b.gb);
+  const excluded = [...shop.excluded, ...portalExcluded];
+  const fetchedAtAll = [shop.fetchedAt, portalAt].filter(Boolean).sort().pop();
 
   await writeProvider('mci', {
     schema: 2,
@@ -617,53 +976,56 @@ async function fetchMciCatalogHtml() {
       tech: '4G/5G', regions: ['سراسری'], accent: '#0095da',
       site: 'https://mci.ir', buyUrl: MCI_SHOP_PAGE,
     },
-    source: { kind: 'html', endpoint: 'GET mci.ir/internet-plans (.package-list-item cards)', fetchedAt: new Date().toISOString() },
-    prices: { unit: 'toman', includesTax: false, apiUnit: 'toman' },
-    packages, excluded,
+    source: {
+      kind: shop.kind,
+      endpoint: shop.kind === 'api'
+        ? `ادغام دو منبع: فروشگاه رسمی shop.mci.ir/api/search/v1/products?category=19 + پنل همراه‌من my.mci.ir (${MCI_PORTAL_NOTE})`
+        : `صفحه mci.ir/internet-plans + بسته‌های پنل همراه‌من my.mci.ir (${MCI_PORTAL_NOTE})`,
+      fetchedAt: fetchedAtAll,
+      parts: {
+        shop: {
+          kind: shop.kind,
+          endpoint: shop.kind === 'api'
+            ? 'GET shop.mci.ir/api/search/v1/products?category=19 (paginated) — فروشگاه رسمی همراه اول'
+            : 'GET mci.ir/internet-plans (.package-list-item cards)',
+          fetchedAt: shop.fetchedAt,
+        },
+        ...(portalPacks.length
+          ? {
+            portal: {
+              kind: 'api',
+              endpoint: `GET my.mci.ir/api/unit/v1/customer/units/normal/internet — پنل همراه‌من (${MCI_PORTAL_NOTE}؛ شماره خط فقط از تنظیمات محلی و در خروجی ثبت نمی‌شود)`,
+              fetchedAt: portalAt,
+            },
+          }
+          : {}),
+      },
+    },
+    prices: { unit: 'toman', includesTax: false, apiUnit: shop.kind === 'html' ? 'toman' : 'rial' },
+    packages: merged,
+    excluded,
   });
-}
 
-/* ─────────── mci — orchestrator: shop API → fresh-shop-keep → catalog HTML ─────────── */
-async function fetchMci() {
-  const argv = process.argv;
-  const inputIdx = argv.indexOf('--input');
-  const atIdx = argv.indexOf('--fetched-at');
-  const fetchedAt = atIdx !== -1 && argv[atIdx + 1] ? argv[atIdx + 1] : new Date().toISOString();
-
-  // A) official shop API — direct (works from inside Iran) or via --input
-  //    (HAR / saved JSON; works from anywhere)
-  try {
-    const items = inputIdx !== -1 && argv[inputIdx + 1]
-      ? mciShopItemsFromInput(JSON.parse(await readFile(path.resolve(ROOT, argv[inputIdx + 1]), 'utf-8')))
-      : await mciShopItemsFromApi();
-    if (!items.length) throw new Error('empty shop product list');
-    const doc = mciShopDoc(items, fetchedAt);
-    await writeProvider('mci', doc);
-    return;
-  } catch (e) {
-    // an explicit --input must not silently degrade to another source
-    if (inputIdx !== -1 && argv[inputIdx + 1]) throw e;
-    console.log(`• mci: shop API unreachable from here (${e.message}) — trying fallbacks`);
+  /* modem/data-SIM doc — written only from a fresh portal capture; otherwise
+   * the shipped mci-modem.json keeps riding along untouched. */
+  if (portal && portal.modem.packages.length) {
+    await writeProvider('mci-modem', {
+      schema: 2,
+      provider: {
+        id: 'mci-modem', nameFa: 'همراه اول (مودم)', nameEn: 'MCI Modem', category: 'home',
+        tech: 'سیم‌کارت دیتا · 4G/5G', regions: ['سراسری'], accent: '#0095da',
+        site: 'https://mci.ir', buyUrl: MY_MCI_PAGE,
+      },
+      source: {
+        kind: 'api',
+        endpoint: `GET my.mci.ir/api/unit/v1/customer/units/normal/modem_bundle — پنل همراه‌من (${MCI_PORTAL_NOTE})`,
+        fetchedAt: portal.fetchedAt,
+      },
+      prices: { unit: 'toman', includesTax: false, apiUnit: 'rial' },
+      packages: portal.modem.packages,
+      excluded: portal.modem.excluded,
+    });
   }
-
-  // B) keep a recent shop capture rather than regressing to the 30-pack page
-  try {
-    const prev = JSON.parse(await readFile(path.join(DATA_DIR, 'mci.json'), 'utf-8'));
-    const ageDays = prev.source?.fetchedAt
-      ? (Date.now() - Date.parse(prev.source.fetchedAt)) / 86400000
-      : Infinity;
-    if (prev.source?.kind === 'api' && ageDays <= MCI_SHOP_STALE_DAYS) {
-      console.log(
-        `• mci: kept shop capture from ${prev.source.fetchedAt} ` +
-        `(${ageDays.toFixed(1)}d old ≤ ${MCI_SHOP_STALE_DAYS}d) — fresher than the marketing page;` +
-        ` refresh with: node update/fetch-providers.mjs --only mci --input <har|json>`,
-      );
-      return;
-    }
-  } catch { /* no previous file — fall through */ }
-
-  // C) mci.ir marketing page — public and reachable outside Iran
-  await fetchMciCatalogHtml();
 }
 
 /* ─────────── irancell — public products JSON (from the 2026-11-06 HAR) ─────────── */
@@ -1129,6 +1491,7 @@ const ADAPTERS = {
   samantel: fetchSamantel,
   aptel: fetchAptel,
   mci: fetchMci,
+  'mci-modem': fetchMci,
   irancell: fetchIrancell,
   rightel: fetchRightel,
   'rightel-tdlte': fetchRightel,

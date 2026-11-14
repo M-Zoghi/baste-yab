@@ -15,8 +15,20 @@
   },
   "source": {
     "kind": "api",
-    "endpoint": "GET shop.mci.ir/api/search/v1/products?category=19 (paginated) — فروشگاه رسمی همراه اول",
-    "fetchedAt": "2026-11-14T19:43:43.644Z"
+    "endpoint": "ادغام دو منبع: فروشگاه رسمی shop.mci.ir/api/search/v1/products?category=19 + پنل همراه‌من my.mci.ir (کاتالوگ عمومی، بدون احراز هویت)",
+    "fetchedAt": "2026-11-14T19:55:55.376Z",
+    "parts": {
+      "shop": {
+        "kind": "api",
+        "endpoint": "GET shop.mci.ir/api/search/v1/products?category=19 (paginated) — فروشگاه رسمی همراه اول",
+        "fetchedAt": "2026-11-14T19:43:43.644Z"
+      },
+      "portal": {
+        "kind": "api",
+        "endpoint": "GET my.mci.ir/api/unit/v1/customer/units/normal/internet — پنل همراه‌من (کاتالوگ عمومی، بدون احراز هویت؛ شماره خط فقط از تنظیمات محلی و در خروجی ثبت نمی‌شود)",
+        "fetchedAt": "2026-11-14T19:55:55.376Z"
+      }
+    }
   },
   "prices": {
     "unit": "toman",
@@ -24,6 +36,48 @@
     "apiUnit": "rial"
   },
   "packages": [
+    {
+      "id": "mci-my-e4825621",
+      "title": "بسته اینترنت نامحدود یکروزه (۲ تا ۷ صبح، مصرف منصفانه ۱۰ گیگابایت)",
+      "kind": "internet",
+      "gb": 10,
+      "days": 1,
+      "price": 6800,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "مصرف نامحدود (سقف مصرف منصفانه ۱۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح"
+    },
+    {
+      "id": "mci-my-ff1dd158",
+      "title": "بسته اینترنت نامحدود ۷ روزه (۲ تا ۷ صبح، مصرف منصفانه ۲۰ گیگابایت)",
+      "kind": "internet",
+      "gb": 20,
+      "days": 7,
+      "price": 13800,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "مصرف نامحدود (سقف مصرف منصفانه ۲۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح"
+    },
+    {
+      "id": "mci-my-e63919e3",
+      "title": "بسته اینترنت نامحدود سی روزه (۲ بامداد تا ۹ صبح، مصرف منصفانه ۸۰ گیگابایت)",
+      "kind": "internet",
+      "gb": 80,
+      "days": 30,
+      "price": 105000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "مصرف نامحدود (سقف مصرف منصفانه ۸۰ گیگابایت) · قابل استفاده از ۲ تا ۹ صبح"
+    },
     {
       "id": "mci-735485",
       "title": "بسته اینترنت صبحانت ۱۲ گیگابایت سی روزه (۶ صبح تا ۱۲ ظهر)",
@@ -37,6 +91,118 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "صبحانت — قابل استفاده از ۶ صبح تا ۱۲ ظهر"
+    },
+    {
+      "id": "mci-my-d9a18e11",
+      "title": "بسته اینترنت ۱ گیگابایت ۱ روزه (۶ تا ۱۲ ظهر)",
+      "kind": "internet",
+      "gb": 1,
+      "days": 1,
+      "price": 2780,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "قابل استفاده از ۶ تا ۱۲ ظهر"
+    },
+    {
+      "id": "mci-my-4062656f",
+      "title": "بسته اینترنت ۵۰ گیگابایت ۳۰ روزه (۶ تا ۱۲ ظهر)",
+      "kind": "internet",
+      "gb": 50,
+      "days": 30,
+      "price": 140000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "قابل استفاده از ۶ تا ۱۲ ظهر"
+    },
+    {
+      "id": "mci-my-320461f2",
+      "title": "بسته اینترنت ۲۵ گیگابایت ۳۰ روزه (۶ تا ۱۲ ظهر)",
+      "kind": "internet",
+      "gb": 25,
+      "days": 30,
+      "price": 81000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "قابل استفاده از ۶ تا ۱۲ ظهر"
+    },
+    {
+      "id": "mci-my-cddd5293",
+      "title": "بسته اینترنت ۵ گیگابایت ۷ روزه (۶ تا ۱۲ ظهر)",
+      "kind": "internet",
+      "gb": 5,
+      "days": 7,
+      "price": 17500,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "قابل استفاده از ۶ تا ۱۲ ظهر"
+    },
+    {
+      "id": "mci-my-08106c83",
+      "title": "بسته آی‌نو ۱۵ گیگابایت ۹۰ روزه",
+      "kind": "internet",
+      "gb": 15,
+      "days": 90,
+      "price": 62300,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null
+    },
+    {
+      "id": "mci-my-4795880b",
+      "title": "بسته آی‌نو ۴ گیگابایت ۳۰ روزه",
+      "kind": "internet",
+      "gb": 4,
+      "days": 30,
+      "price": 17200,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null
+    },
+    {
+      "id": "mci-my-2e712615",
+      "title": "بسته آی‌نو ۱ گیگابایت ۳۰ روزه",
+      "kind": "internet",
+      "gb": 1,
+      "days": 30,
+      "price": 6100,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null
+    },
+    {
+      "id": "mci-my-bba204eb",
+      "title": "بسته آی‌نو ۵ گیگابایت ۶۰ روزه",
+      "kind": "internet",
+      "gb": 5,
+      "days": 60,
+      "price": 32600,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null
     },
     {
       "id": "mci-1252746",
@@ -96,6 +262,21 @@
       "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی"
     },
     {
+      "id": "mci-my-fd338208",
+      "title": "بسته اینترنت ۳۰ روزه ۲۲ گیگابایت ویژه روبیکا",
+      "kind": "internet",
+      "domesticOnly": true,
+      "gb": 22,
+      "days": 30,
+      "price": 175000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
+    },
+    {
       "id": "mci-735494",
       "title": "بسته اینترنت سی روزه ۵ گیگابایت",
       "kind": "internet",
@@ -108,6 +289,21 @@
       "regulatoryCode": "535074266885",
       "ussd": null,
       "note": "فقط مشترکین جدید (ثبت‌نام تا ۳۰ روز گذشته)"
+    },
+    {
+      "id": "mci-my-1f2b39e0",
+      "title": "بسته اینترنت ۳۰ روزه ۱۱ گیگابایت ویژه روبیکا",
+      "kind": "internet",
+      "domesticOnly": true,
+      "gb": 11,
+      "days": 30,
+      "price": 90000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
     },
     {
       "id": "mci-153384",
@@ -138,6 +334,35 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی"
+    },
+    {
+      "id": "mci-my-0e236342",
+      "title": "بسته اینترنت ۳۰ روزه ۶ گیگابایت ویژه روبیکا",
+      "kind": "internet",
+      "domesticOnly": true,
+      "gb": 6,
+      "days": 30,
+      "price": 53000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
+    },
+    {
+      "id": "mci-my-52e4d44d",
+      "title": "بسته اینترنت بلندمدت ۱۸۰ روزه ۱۶۵ گیگابایت (فعالسازی همزمان، تمام بها)، به همراه اشتراک سرویس دیجیتال",
+      "kind": "internet",
+      "gb": 165,
+      "days": 180,
+      "price": 1485400,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null
     },
     {
       "id": "mci-153383",
@@ -185,6 +410,20 @@
       "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی"
     },
     {
+      "id": "mci-my-da062000",
+      "title": "بسته اینترنت بلندمدت ۱۲۰ روزه ۱۲۰ گیگابایت (فعالسازی همزمان، تمام بها)، به همراه اشتراک سرویس دیجیتال",
+      "kind": "internet",
+      "gb": 120,
+      "days": 120,
+      "price": 1149900,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null
+    },
+    {
       "id": "mci-153387",
       "title": "بسته اینترنت انارستان ۳۶۵ روزه ۳۰ گیگابایت",
       "kind": "internet",
@@ -198,6 +437,35 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی"
+    },
+    {
+      "id": "mci-my-32430572",
+      "title": "بسته اینترنت ۷ روزه ۳ گیگابایت ویژه روبیکا",
+      "kind": "internet",
+      "domesticOnly": true,
+      "gb": 3,
+      "days": 7,
+      "price": 30000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
+    },
+    {
+      "id": "mci-my-d789b6eb",
+      "title": "بسته اینترنت بلندمدت ۹۰ روزه ۷۵ گیگابایت (فعالسازی همزمان، تمام بها)، به همراه اشتراک سرویس دیجیتال",
+      "kind": "internet",
+      "gb": 75,
+      "days": 90,
+      "price": 780800,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null
     },
     {
       "id": "mci-153385",
@@ -314,6 +582,20 @@
       "note": null
     },
     {
+      "id": "mci-my-79a34933",
+      "title": "بسته همه چیز تمام ۳۰ روزه ( اینترنت باحد مصرف ۲۵ گیگابایت + پیامک + مکالمه )",
+      "kind": "combo",
+      "gb": 25,
+      "days": 30,
+      "price": 273000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ترکیبی: اینترنت + مکالمه و پیامک نامحدود (با حد مصرف روزانه و سیاست مصرف منصفانه)"
+    },
+    {
       "id": "mci-735496",
       "title": "بسته اینترنت سی روزه ۳ گیگابایت",
       "kind": "internet",
@@ -340,6 +622,21 @@
       "regulatoryCode": "535074266863",
       "ussd": null,
       "note": null
+    },
+    {
+      "id": "mci-my-52887926",
+      "title": "بسته اینترنت ۳ روزه ۱ گیگابایت ویژه روبیکا",
+      "kind": "internet",
+      "domesticOnly": true,
+      "gb": 1,
+      "days": 3,
+      "price": 11200,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
     },
     {
       "id": "mci-153382",

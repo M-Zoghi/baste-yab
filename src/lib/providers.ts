@@ -6,6 +6,7 @@
 import samantelDoc from "@/data/providers/samantel.json";
 import aptelDoc from "@/data/providers/aptel.json";
 import mciDoc from "@/data/providers/mci.json";
+import mciModemDoc from "@/data/providers/mci-modem.json";
 import irancellDoc from "@/data/providers/irancell.json";
 import rightelDoc from "@/data/providers/rightel.json";
 import rightelTdlteDoc from "@/data/providers/rightel-tdlte.json";
@@ -94,6 +95,7 @@ const DOCS: Record<string, ProviderDoc> = {
   samantel: samantelDoc as ProviderDoc,
   aptel: aptelDoc as ProviderDoc,
   mci: mciDoc as ProviderDoc,
+  "mci-modem": mciModemDoc as ProviderDoc,
   irancell: irancellDoc as ProviderDoc,
   rightel: rightelDoc as ProviderDoc,
   "rightel-tdlte": rightelTdlteDoc as ProviderDoc,
@@ -133,14 +135,22 @@ export const ENTRIES: Entry[] = [
     updateMode: "manual",
     updateNote: "بروزرسانی دستی از داخل ایران (هم‌زمان با رایتل همراه)",
   },
+  {
+    key: "mci-modem", nameFa: "همراه اول (مودم)", nameEn: "MCI Modem", category: "home",
+    tech: "سیم‌کارت دیتا · 4G/5G", regions: ["سراسری"], accent: "#0095da",
+    site: "https://mci.ir", buyUrl: "https://my.mci.ir/panel/packages/list",
+    status: "live", doc: DOCS["mci-modem"],
+    updateMode: "manual",
+    updateNote: "بروزرسانی دستی از داخل ایران (هم‌زمان با همراه اول)",
+  },
   /* ── mobile (همراه) ── */
   {
     key: "mci", nameFa: "همراه اول", nameEn: "MCI", category: "mobile",
     tech: "4G/5G", regions: ["سراسری"], accent: "#0095da",
-    site: "https://mci.ir", buyUrl: "https://mci.ir/internet-plans",
+    site: "https://mci.ir", buyUrl: "https://shop.mci.ir/products/19/internet-package",
     status: "live", doc: DOCS.mci,
     updateMode: "hybrid",
-    updateNote: "فروشگاه کامل (۴۸ بسته): دستی از ایران · صفحه اصلی (۳۰ بسته): خودکار روزانه",
+    updateNote: "ادغام فروشگاه + پنل همراه‌من (۶۸ بسته): دستی از ایران · صفحه اصلی: خودکار روزانه",
   },
   {
     key: "samantel", nameFa: "سامانتل", nameEn: "Samantel", category: "mobile",
@@ -212,7 +222,7 @@ export function allPackages(): DerivedPkg[] {
         p.domesticOnly || /انارستان|فقط اینترنت داخلی/.test(text),
       );
       const restrictions: RestrictionTag[] = [];
-      if (/شبانه|شبانت|۲ تا ۷|2 تا 7/.test(text)) restrictions.push("night");
+      if (/شبانه|شبانت|بامداد|۲ تا ۷|2 تا 7/.test(text)) restrictions.push("night");
       if (/صبحانت|صبحانه|۶ صبح تا ۱۲|۶ تا ۱۲|6 تا 12/.test(text)) restrictions.push("morning");
       if (domesticOnly) restrictions.push("domestic");
       if (/مشترکین جدید/.test(text)) restrictions.push("newUser");

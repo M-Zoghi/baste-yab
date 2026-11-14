@@ -1,0 +1,141 @@
+{
+  "schema": 2,
+  "provider": {
+    "id": "mci-modem",
+    "nameFa": "همراه اول (مودم)",
+    "nameEn": "MCI Modem",
+    "category": "home",
+    "tech": "سیم‌کارت دیتا · 4G/5G",
+    "regions": [
+      "سراسری"
+    ],
+    "accent": "#0095da",
+    "site": "https://mci.ir",
+    "buyUrl": "https://my.mci.ir/panel/packages/list"
+  },
+  "source": {
+    "kind": "api",
+    "endpoint": "GET my.mci.ir/api/unit/v1/customer/units/normal/modem_bundle — پنل همراه‌من (کاتالوگ عمومی، بدون احراز هویت)",
+    "fetchedAt": "2026-11-14T19:55:55.376Z"
+  },
+  "prices": {
+    "unit": "toman",
+    "includesTax": false,
+    "apiUnit": "rial"
+  },
+  "packages": [
+    {
+      "id": "mci-modem-ef850798",
+      "title": "بسته اینترنت دوازده ماهه ۶۰۰ گیگابایت",
+      "kind": "internet",
+      "gb": 600,
+      "days": 360,
+      "price": 3800000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+    },
+    {
+      "id": "mci-modem-c4067885",
+      "title": "بسته اینترنت نه ماهه ۳۵۰ گیگابایت",
+      "kind": "internet",
+      "gb": 350,
+      "days": 270,
+      "price": 2300000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+    },
+    {
+      "id": "mci-modem-3ba4084d",
+      "title": "بسته اینترنت شش ماهه ۲۵۰ گیگابایت",
+      "kind": "internet",
+      "gb": 250,
+      "days": 180,
+      "price": 1677900,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+    },
+    {
+      "id": "mci-modem-34f86f7a",
+      "title": "بسته اینترنت چهار ماهه ۱۰۰ گیگابایت",
+      "kind": "internet",
+      "gb": 100,
+      "days": 120,
+      "price": 700800,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+    },
+    {
+      "id": "mci-modem-d29ae701",
+      "title": "بسته اینترنت سه ماهه ۶۰ گیگابایت",
+      "kind": "internet",
+      "gb": 60,
+      "days": 90,
+      "price": 426000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+    },
+    {
+      "id": "mci-modem-04a792b4",
+      "title": "بسته اینترنت یکماهه ۳۲ گیگابایت (تمام بها)",
+      "kind": "internet",
+      "gb": 32,
+      "days": 30,
+      "price": 348400,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+    },
+    {
+      "id": "mci-modem-4429125a",
+      "title": "بسته اینترنت یکماهه ۲۰ گیگابایت (تمام بها)",
+      "kind": "internet",
+      "gb": 20,
+      "days": 30,
+      "price": 218400,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+    },
+    {
+      "id": "mci-modem-ef314af4",
+      "title": "بسته اینترنت یکماهه ۱۲ گیگابایت (تمام بها)",
+      "kind": "internet",
+      "gb": 12,
+      "days": 30,
+      "price": 133000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+    }
+  ],
+  "excluded": []
+}

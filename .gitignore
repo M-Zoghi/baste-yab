@@ -56,3 +56,7 @@ server.log
 /tool-results/
 /upload/
 /db/
+
+# local secrets — never commit (see update/fetch-providers.mjs header)
+# my.mci.txt holds the MCI phone number used by the my.mci.ir portal adapter
+update/my.mci.txt
