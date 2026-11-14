@@ -53,8 +53,8 @@
  *       GEO-BLOCKED outside Iran → refresh from Iran (phone config) or via
  *       --input with a my.mci.ir HAR (works from anywhere).
  *       Portal-only packs (offered by the portal but NOT by shop.mci.ir) are
- *       stamped portalOnly:true + buyUrl → the همراه‌من packages page, so the
- *       site can label them «فروش فقط از اپ هم‌راه‌من / my.mci.ir» — the web
+ *       stamped portalOnly:true + buyUrl → the همراه من packages page, so the
+ *       site can label them «فروش فقط از اپ همراه من / my.mci.ir» — the web
  *       shop cannot sell them. Modem packs are portal-only by definition.
  *    C) FALLBACK — mci.ir/internet-plans marketing page (reachable outside
  *       Iran, auto-refreshes daily): server-side .package-list-item cards,
@@ -974,14 +974,14 @@ async function fetchMci() {
     if (seen.has(k)) continue; // already sold by the shop — the shop card wins
     seen.add(k);
     /* portal-only: the shop does not sell it → purchasable just via the
-       همراه‌من app / my.mci.ir. Stamp for the UI badge + per-package buy
+       همراه من app / my.mci.ir. Stamp for the UI badge + per-package buy
        link; re-stamping ride-along packs is idempotent (same key order). */
     merged.push({ ...p, portalOnly: true, buyUrl: MY_MCI_INTERNET_PAGE });
     portalOnlyCount += 1;
   }
   merged.sort((a, b) => a.price / a.gb - b.price / b.gb);
   if (portalOnlyCount) {
-    console.log(`• mci: ${portalOnlyCount} portal-only pack(s) → «فروش فقط از اپ هم‌راه‌من / my.mci.ir» (buyUrl → ${MY_MCI_INTERNET_PAGE})`);
+    console.log(`• mci: ${portalOnlyCount} portal-only pack(s) → «فروش فقط از اپ همراه من / my.mci.ir» (buyUrl → ${MY_MCI_INTERNET_PAGE})`);
   }
   const excluded = [...shop.excluded, ...portalExcluded];
   const fetchedAtAll = [shop.fetchedAt, portalAt].filter(Boolean).sort().pop();

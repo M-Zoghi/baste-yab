@@ -106,18 +106,18 @@ export function OperatorNoticesSection({
           <div className="rounded-xl border border-border bg-card p-4 text-xs leading-6">
             <div className="flex items-center gap-2 font-bold text-foreground">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: mciEntry.accent }} />
-              <span>همراه اول — فروشگاه رسمی + اپ هم‌راه‌من</span>
+              <span>همراه اول — فروشگاه رسمی + اپ همراه من</span>
             </div>
             <p className="mt-1.5 text-muted-foreground">
               بسته‌های سیم‌کارت <strong className="text-foreground">انارستان</strong> فقط برای
               ترافیک <strong className="text-foreground">اینترنت داخلی</strong> هستند و با برچسب
               «فقط اینترنت داخلی» مشخص شده‌اند. کاتالوگ این اپراتور از دو منبع ادغام می‌شود:
               فروشگاه رسمی <span className="font-mono">shop.mci.ir</span> و پنل/اپلیکیشن{" "}
-              <strong className="text-foreground">همراه‌من</strong> (my.mci.ir). برخی بسته‌ها —
+              <strong className="text-foreground">همراه من</strong> (my.mci.ir). برخی بسته‌ها —
               روبیکا، نامحدود با سقف مصرف منصفانه، آی‌نو، پنجره‌ی ۶ تا ۱۲، بلندمدت و «همه‌چیز
-              تمام» — <strong className="text-foreground">فقط از اپلیکیشن هم‌راه‌من یا my.mci.ir
+              تمام» — <strong className="text-foreground">فقط از اپ همراه من (my.mci.ir)
               قابل خریدند</strong> و در فروشگاه آنلاین نیستند؛ این بسته‌ها با برچسب «فروش فقط
-              از اپ هم‌راه‌من» مشخص شده‌اند و دکمه‌ی خریدشان مستقیم به my.mci.ir می‌رود.
+              از اپ همراه من / my.mci.ir» مشخص شده‌اند و دکمه‌ی خریدشان مستقیم به my.mci.ir می‌رود.
             </p>
           </div>
         )}
@@ -203,15 +203,12 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
           داخل پوشه‌ی پروژه (پیشنهاد: کلون‌شده با{" "}
           <code dir="ltr" className="font-mono text-foreground">git clone</code> نه فایل ZIP) این
           دستور را اجرا کنید تا{" "}
-          <strong className="text-foreground">فروشگاه همراه اول</strong> و{" "}
-          <strong className="text-foreground">ایرانسل</strong> مستقیماً تازه شوند، سپس فایل‌های
-          تغییریافته‌ی <code dir="ltr" className="font-mono text-foreground">src/data/providers/</code>{" "}
-          را push یا در گیت‌هاب آپلود کنید.{" "}
-          <span className="text-muted-foreground/90">
-            (اگر رایتل خطای ۴۰۱ داد، یک HAR از{" "}
-            <span dir="ltr" className="font-mono">package.rightel.ir</span> با گزینه‌ی{" "}
-            <code dir="ltr" className="font-mono">--only rightel --input rightel.har</code> بدهید.)
-          </span>
+          <strong className="text-foreground">فروشگاه همراه اول</strong>،{" "}
+          <strong className="text-foreground">ایرانسل</strong> و{" "}
+          <strong className="text-foreground">رایتل (همراه و مودم)</strong> مستقیماً تازه شوند،
+          سپس فایل‌های تغییریافته‌ی{" "}
+          <code dir="ltr" className="font-mono text-foreground">src/data/providers/</code>{" "}
+          را push یا در گیت‌هاب آپلود کنید.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <code

@@ -21,7 +21,7 @@ export interface Pkg {
   title: string;
   kind?: Kind;              // internet (default) | combo (voice+sms) | roaming
   domesticOnly?: boolean;   // e.g. MCI Anarestan — domestic Iranian traffic only
-  portalOnly?: boolean;     // sold ONLY via the operator app/portal (MCI همراه‌من / my.mci.ir), not the public web shop
+  portalOnly?: boolean;     // sold ONLY via the operator app/portal (MCI همراه من / my.mci.ir), not the public web shop
   gb: number;
   days: number;
   price: number;            // toman, pre-tax (as printed on the provider card)
@@ -131,7 +131,7 @@ export const ENTRIES: Entry[] = [
   },
   {
     key: "rightel-tdlte", nameFa: "رایتل (مودم)", nameEn: "Rightel Modem", category: "home",
-    tech: "سیم‌کارت دیتا · 4G/5G", regions: ["سراسری"], accent: "#8b5cf6",
+    tech: "سیم‌کارت دیتا · 4G/5G", regions: ["سراسری"], accent: "#7c3aed",
     site: "https://www.rightel.ir", buyUrl: "https://package.rightel.ir/packagesList",
     status: "live", doc: DOCS["rightel-tdlte"],
     updateMode: "manual",
@@ -152,7 +152,7 @@ export const ENTRIES: Entry[] = [
     site: "https://mci.ir", buyUrl: "https://shop.mci.ir/products/19/internet-package",
     status: "live", doc: DOCS.mci,
     updateMode: "hybrid",
-    updateNote: "ادغام فروشگاه + پنل همراه‌من (۶۸ بسته): دستی از ایران · صفحه اصلی: خودکار روزانه",
+    updateNote: "ادغام فروشگاه + پنل همراه من (۶۸ بسته): دستی از ایران · صفحه اصلی: خودکار روزانه",
   },
   {
     key: "samantel", nameFa: "سامانتل", nameEn: "Samantel", category: "mobile",
@@ -180,7 +180,7 @@ export const ENTRIES: Entry[] = [
   },
   {
     key: "rightel", nameFa: "رایتل", nameEn: "Rightel", category: "mobile",
-    tech: "4G/5G", regions: ["سراسری"], accent: "#8b5cf6",
+    tech: "4G/5G", regions: ["سراسری"], accent: "#7c3aed",
     site: "https://www.rightel.ir", buyUrl: "https://package.rightel.ir/packagesList",
     status: "live", doc: DOCS.rightel,
     updateMode: "manual",

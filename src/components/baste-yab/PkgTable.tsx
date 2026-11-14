@@ -13,7 +13,7 @@ import {
   type Row,
 } from "@/lib/providers";
 import { useToast } from "@/hooks/use-toast";
-import { KIND_LABEL, valueColor } from "./helpers";
+import { KIND_LABEL, valueBadgeStyle, valueColor } from "./helpers";
 
 interface PkgTableProps {
   rows: (Row & { t?: number })[];
@@ -73,6 +73,7 @@ export function PkgTable({
               const uid = `${r.entryKey}:${r.id}`;
               const t = r.t ?? 0;
               const meterColor = valueColor(t, dark);
+              const rankBadgeStyle = valueBadgeStyle(t, dark);
               const price = r.price * (vat ? 1 + VAT_RATE : 1);
               const old = r.oldPrice != null ? r.oldPrice * (vat ? 1 + VAT_RATE : 1) : null;
               const isCompared = compareIds.includes(uid);
@@ -88,8 +89,8 @@ export function PkgTable({
                   {/* Rank */}
                   <td className="py-3.5 ps-4 pe-2 text-center align-top">
                     <span
-                      className="fa-num mt-0.5 inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1.5 text-xs font-bold text-white"
-                      style={{ backgroundColor: meterColor }}
+                      className="fa-num mt-0.5 inline-flex h-6 min-w-6 items-center justify-center rounded-md border px-1.5 text-xs font-extrabold"
+                      style={rankBadgeStyle}
                     >
                       {faDigits(r.rank)}
                     </span>
@@ -130,7 +131,7 @@ export function PkgTable({
                           <span aria-hidden="true" className="text-border">·</span>
                           <span className="inline-flex items-center gap-1 font-semibold text-sky-700 dark:text-sky-300">
                             <Smartphone className="h-3 w-3 shrink-0" />
-                            فروش فقط از اپ هم‌راه‌من / my.mci.ir
+                            فروش فقط از اپ همراه من / my.mci.ir
                           </span>
                         </>
                       )}

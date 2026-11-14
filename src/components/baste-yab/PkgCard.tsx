@@ -14,7 +14,7 @@ import {
   type Row,
 } from "@/lib/providers";
 import { useToast } from "@/hooks/use-toast";
-import { KIND_LABEL, valueColor } from "./helpers";
+import { KIND_LABEL, valueBadgeStyle, valueColor } from "./helpers";
 
 interface PkgCardProps {
   r: Row & { t?: number };
@@ -43,6 +43,7 @@ export function PkgCard({
   const t = r.t ?? 0;
   const uid = `${r.entryKey}:${r.id}`;
   const meterColor = valueColor(t, dark);
+  const rankBadgeStyle = valueBadgeStyle(t, dark);
 
   const handleCopyUssd = async () => {
     if (!r.ussd) return;
@@ -83,8 +84,8 @@ export function PkgCard({
       <div className="flex items-center justify-between gap-2 text-[13px]">
         <div className="flex min-w-0 items-center gap-2">
           <span
-            className="fa-num inline-flex h-7 min-w-7 items-center justify-center rounded-md px-2 text-xs font-bold text-white"
-            style={{ backgroundColor: meterColor }}
+            className="fa-num inline-flex h-7 min-w-7 items-center justify-center rounded-md border px-2 text-xs font-extrabold"
+            style={rankBadgeStyle}
           >
             {faDigits(r.rank)}
           </span>
@@ -147,7 +148,7 @@ export function PkgCard({
             {r.portalOnly && (
               <span className="inline-flex items-center gap-1.5 rounded-md bg-sky-500/12 px-2 py-0.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
                 <Smartphone className="h-3.5 w-3.5 shrink-0" />
-                <span>فروش فقط از اپ هم‌راه‌من / my.mci.ir</span>
+                <span>فروش فقط از اپ همراه من / my.mci.ir</span>
               </span>
             )}
           </div>
@@ -241,7 +242,7 @@ export function PkgCard({
               href={r.buyUrl}
               target="_blank"
               rel="noreferrer"
-              title={r.portalOnly ? "خرید از اپلیکیشن هم‌راه‌من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست" : undefined}
+              title={r.portalOnly ? "خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست" : undefined}
               className="mt-2 inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-lg bg-secondary px-4 py-1.5 text-[13px] font-bold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground whitespace-nowrap shrink-0"
             >
               <span>خرید</span>

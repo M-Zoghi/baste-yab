@@ -14,7 +14,7 @@ import {
   type Kind,
   type RestrictionTag,
 } from "@/lib/providers";
-import { KIND_LABEL, RESTRICTION_OPTIONS } from "./helpers";
+import { KIND_LABEL, RESTRICTION_OPTIONS, contrastInk } from "./helpers";
 
 interface FilterPanelProps {
   query: string;
@@ -141,6 +141,8 @@ export function FilterPanel({
           {liveEntries.map((e) => {
             const on = provSel.has(e.key);
             const cnt = provCounts[e.key] ?? 0;
+            const ink = contrastInk(e.accent);
+            const isDarkInk = ink === "#0b1117";
             return (
               <button
                 key={e.key}
@@ -149,19 +151,25 @@ export function FilterPanel({
                 aria-pressed={on}
                 className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12.5px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   on
-                    ? "border-transparent text-white shadow-xs"
+                    ? "border-transparent shadow-xs"
                     : "border-border bg-background/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
                 }`}
-                style={on ? { backgroundColor: e.accent } : undefined}
+                style={on ? { backgroundColor: e.accent, color: ink } : undefined}
               >
                 <span
                   className="h-2 w-2 rounded-full shrink-0"
-                  style={{ backgroundColor: on ? "rgba(255,255,255,0.9)" : e.accent }}
+                  style={{
+                    backgroundColor: on
+                      ? isDarkInk
+                        ? "rgba(11, 17, 23, 0.72)"
+                        : "rgba(255, 255, 255, 0.9)"
+                      : e.accent,
+                  }}
                 />
                 <span>{e.nameFa}</span>
                 <span
-                  className={`fa-num text-[11px] font-medium ${
-                    on ? "text-white/85" : "text-muted-foreground/80"
+                  className={`fa-num text-[11px] font-semibold ${
+                    on ? (isDarkInk ? "opacity-80" : "text-white/90") : "text-muted-foreground/80"
                   }`}
                 >
                   {faDigits(cnt)}
