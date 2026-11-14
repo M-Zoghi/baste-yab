@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Award, Check, Copy, ExternalLink, Gift, Scale, ShieldAlert } from "lucide-react";
+import { Award, Check, Copy, ExternalLink, Gift, Scale, ShieldAlert, Smartphone } from "lucide-react";
 
 import {
   VAT_RATE,
@@ -121,6 +121,16 @@ export function PkgTable({
                           <span className="inline-flex items-center gap-1 font-semibold text-amber-700 dark:text-amber-300">
                             <ShieldAlert className="h-3 w-3 shrink-0" />
                             فقط اینترنت داخلی
+                          </span>
+                        </>
+                      )}
+
+                      {r.portalOnly && (
+                        <>
+                          <span aria-hidden="true" className="text-border">·</span>
+                          <span className="inline-flex items-center gap-1 font-semibold text-sky-700 dark:text-sky-300">
+                            <Smartphone className="h-3 w-3 shrink-0" />
+                            فروش فقط از اپ هم‌راه‌من / my.mci.ir
                           </span>
                         </>
                       )}

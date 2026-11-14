@@ -52,6 +52,10 @@
  *       volume/duration parse from the Persian offer name («سی روزه» = 30d).
  *       GEO-BLOCKED outside Iran → refresh from Iran (phone config) or via
  *       --input with a my.mci.ir HAR (works from anywhere).
+ *       Portal-only packs (offered by the portal but NOT by shop.mci.ir) are
+ *       stamped portalOnly:true + buyUrl → the همراه‌من packages page, so the
+ *       site can label them «فروش فقط از اپ هم‌راه‌من / my.mci.ir» — the web
+ *       shop cannot sell them. Modem packs are portal-only by definition.
  *    C) FALLBACK — mci.ir/internet-plans marketing page (reachable outside
  *       Iran, auto-refreshes daily): server-side .package-list-item cards,
  *       prices in TOMAN pre-tax, purchasability = خرید آنلاین button carries a
@@ -655,7 +659,12 @@ async function mciCatalogHtmlPacks() {
    argument, never logged, never written to the output JSON: it comes from
    the MCI_PHONE env var or the gitignored update/my.mci.txt. */
 const MY_MCI_BASE = 'https://my.mci.ir/api/unit/v1/customer/units';
-const MY_MCI_PAGE = 'https://my.mci.ir/panel/packages/list';
+const MY_MCI_PAGE = 'https://my.mci.ir/panel/packages/list'; // Referer for the API calls
+/* Buy destinations for portal-only packs — deep links verified from the
+   2026-11-14 HAR referers. The portal gates its PAGES behind login (only the
+   API is open), so these land on sign-in first, then the packages list. */
+const MY_MCI_INTERNET_PAGE = 'https://my.mci.ir/panel/packages/list/internet';
+const MY_MCI_MODEM_PAGE = 'https://my.mci.ir/panel/packages/list/modem_bundle';
 const MCI_PORTAL_NOTE = 'کاتالوگ عمومی، بدون احراز هویت';
 
 /** 09123456789 / +989123456789 / 98 912 345 6789 / 9123456789 → '9123456789'
@@ -959,13 +968,21 @@ async function fetchMci() {
     seen.add(k);
     merged.push(p);
   }
+  let portalOnlyCount = 0;
   for (const p of portalPacks) {
     const k = key(p);
     if (seen.has(k)) continue; // already sold by the shop — the shop card wins
     seen.add(k);
-    merged.push(p);
+    /* portal-only: the shop does not sell it → purchasable just via the
+       همراه‌من app / my.mci.ir. Stamp for the UI badge + per-package buy
+       link; re-stamping ride-along packs is idempotent (same key order). */
+    merged.push({ ...p, portalOnly: true, buyUrl: MY_MCI_INTERNET_PAGE });
+    portalOnlyCount += 1;
   }
   merged.sort((a, b) => a.price / a.gb - b.price / b.gb);
+  if (portalOnlyCount) {
+    console.log(`• mci: ${portalOnlyCount} portal-only pack(s) → «فروش فقط از اپ هم‌راه‌من / my.mci.ir» (buyUrl → ${MY_MCI_INTERNET_PAGE})`);
+  }
   const excluded = [...shop.excluded, ...portalExcluded];
   const fetchedAtAll = [shop.fetchedAt, portalAt].filter(Boolean).sort().pop();
 
@@ -1014,7 +1031,7 @@ async function fetchMci() {
       provider: {
         id: 'mci-modem', nameFa: 'همراه اول (مودم)', nameEn: 'MCI Modem', category: 'home',
         tech: 'سیم‌کارت دیتا · 4G/5G', regions: ['سراسری'], accent: '#0095da',
-        site: 'https://mci.ir', buyUrl: MY_MCI_PAGE,
+        site: 'https://mci.ir', buyUrl: MY_MCI_MODEM_PAGE,
       },
       source: {
         kind: 'api',
@@ -1022,7 +1039,7 @@ async function fetchMci() {
         fetchedAt: portal.fetchedAt,
       },
       prices: { unit: 'toman', includesTax: false, apiUnit: 'rial' },
-      packages: portal.modem.packages,
+      packages: portal.modem.packages.map((p) => ({ ...p, portalOnly: true, buyUrl: MY_MCI_MODEM_PAGE })),
       excluded: portal.modem.excluded,
     });
   }

@@ -21,6 +21,7 @@ export interface Pkg {
   title: string;
   kind?: Kind;              // internet (default) | combo (voice+sms) | roaming
   domesticOnly?: boolean;   // e.g. MCI Anarestan — domestic Iranian traffic only
+  portalOnly?: boolean;     // sold ONLY via the operator app/portal (MCI همراه‌من / my.mci.ir), not the public web shop
   gb: number;
   days: number;
   price: number;            // toman, pre-tax (as printed on the provider card)
@@ -29,6 +30,7 @@ export interface Pkg {
   group: string | null;
   regulatoryCode: string | null;
   ussd?: string | null;
+  buyUrl?: string;          // per-package buy link (portal-only packs deep-link to my.mci.ir)
   note: string | null;
 }
 
@@ -138,7 +140,7 @@ export const ENTRIES: Entry[] = [
   {
     key: "mci-modem", nameFa: "همراه اول (مودم)", nameEn: "MCI Modem", category: "home",
     tech: "سیم‌کارت دیتا · 4G/5G", regions: ["سراسری"], accent: "#0095da",
-    site: "https://mci.ir", buyUrl: "https://my.mci.ir/panel/packages/list",
+    site: "https://mci.ir", buyUrl: "https://my.mci.ir/panel/packages/list/modem_bundle",
     status: "live", doc: DOCS["mci-modem"],
     updateMode: "manual",
     updateNote: "بروزرسانی دستی از داخل ایران (هم‌زمان با همراه اول)",
@@ -197,6 +199,7 @@ export interface DerivedPkg extends Pkg {
   sourceKind: string;
   kind: Kind; // materialized with default
   domesticOnly: boolean;
+  portalOnly: boolean;
   restrictions: RestrictionTag[];
 }
 
@@ -232,11 +235,12 @@ export function allPackages(): DerivedPkg[] {
         ...p,
         kind: p.kind ?? "internet",
         domesticOnly,
+        portalOnly: Boolean(p.portalOnly),
         restrictions,
         entryKey: e.key,
         providerName: e.nameFa,
         providerAccent: e.accent,
-        buyUrl: e.buyUrl ?? e.site,
+        buyUrl: p.buyUrl ?? e.buyUrl ?? e.site,
         fetchedAt: e.doc.source.fetchedAt,
         sourceKind: e.doc.source.kind,
       });

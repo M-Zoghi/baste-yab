@@ -11,7 +11,7 @@
     ],
     "accent": "#0095da",
     "site": "https://mci.ir",
-    "buyUrl": "https://my.mci.ir/panel/packages/list"
+    "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
   },
   "source": {
     "kind": "api",
@@ -36,7 +36,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
     {
       "id": "mci-modem-c4067885",
@@ -50,7 +52,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
     {
       "id": "mci-modem-3ba4084d",
@@ -64,7 +68,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
     {
       "id": "mci-modem-34f86f7a",
@@ -78,7 +84,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
     {
       "id": "mci-modem-d29ae701",
@@ -92,7 +100,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
     {
       "id": "mci-modem-04a792b4",
@@ -106,7 +116,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
     {
       "id": "mci-modem-4429125a",
@@ -120,7 +132,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
     {
       "id": "mci-modem-ef314af4",
@@ -134,7 +148,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول"
+      "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     }
   ],
   "excluded": []

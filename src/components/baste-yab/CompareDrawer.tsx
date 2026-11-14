@@ -191,6 +191,7 @@ export function CompareDrawer({
                       <td key={`${item.entryKey}:${item.id}`} className="py-3 px-3 text-muted-foreground">
                         {KIND_LABEL[item.kind]}
                         {item.domesticOnly ? " · فقط اینترنت داخلی" : ""}
+                        {item.portalOnly ? " · فروش فقط از اپ هم‌راه‌من / my.mci.ir" : ""}
                         {item.discountPct != null ? ` · ${faDigits(item.discountPct)}٪ تخفیف` : ""}
                       </td>
                     ))}

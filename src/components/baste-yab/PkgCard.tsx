@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Award, Check, Copy, ExternalLink, Gift, Scale, ShieldAlert } from "lucide-react";
+import { Award, Check, Copy, ExternalLink, Gift, Scale, ShieldAlert, Smartphone } from "lucide-react";
 
 import {
   VAT_RATE,
@@ -136,10 +136,20 @@ export function PkgCard({
       {/* Title + Traffic scope / Note */}
       <div className="mt-3">
         <h3 className="text-[15.5px] font-bold leading-7 text-foreground">{r.title}</h3>
-        {r.domesticOnly && (
-          <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-md bg-amber-500/12 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
-            <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
-            <span>فقط اینترنت داخلی</span>
+        {(r.domesticOnly || r.portalOnly) && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            {r.domesticOnly && (
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/12 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
+                <span>فقط اینترنت داخلی</span>
+              </span>
+            )}
+            {r.portalOnly && (
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-sky-500/12 px-2 py-0.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
+                <Smartphone className="h-3.5 w-3.5 shrink-0" />
+                <span>فروش فقط از اپ هم‌راه‌من / my.mci.ir</span>
+              </span>
+            )}
           </div>
         )}
         {r.note && (
@@ -231,6 +241,7 @@ export function PkgCard({
               href={r.buyUrl}
               target="_blank"
               rel="noreferrer"
+              title={r.portalOnly ? "خرید از اپلیکیشن هم‌راه‌من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست" : undefined}
               className="mt-2 inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-lg bg-secondary px-4 py-1.5 text-[13px] font-bold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground whitespace-nowrap shrink-0"
             >
               <span>خرید</span>

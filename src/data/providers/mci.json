@@ -48,7 +48,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "مصرف نامحدود (سقف مصرف منصفانه ۱۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح"
+      "note": "مصرف نامحدود (سقف مصرف منصفانه ۱۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-ff1dd158",
@@ -62,7 +64,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "مصرف نامحدود (سقف مصرف منصفانه ۲۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح"
+      "note": "مصرف نامحدود (سقف مصرف منصفانه ۲۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-e63919e3",
@@ -76,7 +80,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "مصرف نامحدود (سقف مصرف منصفانه ۸۰ گیگابایت) · قابل استفاده از ۲ تا ۹ صبح"
+      "note": "مصرف نامحدود (سقف مصرف منصفانه ۸۰ گیگابایت) · قابل استفاده از ۲ تا ۹ صبح",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-735485",
@@ -104,7 +110,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "قابل استفاده از ۶ تا ۱۲ ظهر"
+      "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-4062656f",
@@ -118,7 +126,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "قابل استفاده از ۶ تا ۱۲ ظهر"
+      "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-320461f2",
@@ -132,7 +142,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "قابل استفاده از ۶ تا ۱۲ ظهر"
+      "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-cddd5293",
@@ -146,7 +158,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "قابل استفاده از ۶ تا ۱۲ ظهر"
+      "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-08106c83",
@@ -160,7 +174,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": null
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-4795880b",
@@ -174,7 +190,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": null
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-2e712615",
@@ -188,7 +206,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": null
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-bba204eb",
@@ -202,7 +222,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": null
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-1252746",
@@ -274,7 +296,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-735494",
@@ -303,7 +327,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-153384",
@@ -348,7 +374,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-52e4d44d",
@@ -362,7 +390,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": null
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-153383",
@@ -421,7 +451,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": null
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-153387",
@@ -451,7 +483,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-d789b6eb",
@@ -465,7 +499,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": null
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-153385",
@@ -593,7 +629,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ترکیبی: اینترنت + مکالمه و پیامک نامحدود (با حد مصرف روزانه و سیاست مصرف منصفانه)"
+      "note": "ترکیبی: اینترنت + مکالمه و پیامک نامحدود (با حد مصرف روزانه و سیاست مصرف منصفانه)",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-735496",
@@ -636,7 +674,9 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی"
+      "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-153382",

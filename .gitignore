@@ -60,3 +60,6 @@ server.log
 # local secrets — never commit (see update/fetch-providers.mjs header)
 # my.mci.txt holds the MCI phone number used by the my.mci.ir portal adapter
 update/my.mci.txt
+# refresh-and-push.mjs is a LOCAL workflow tool (clone -> live refresh ->
+# audit -> push), deliberately not part of the repo — keep your copy in update/
+update/refresh-and-push.mjs
