@@ -16,7 +16,7 @@
   "source": {
     "kind": "api",
     "endpoint": "GET www.aptel.ir/api/ep/query?scope=public",
-    "fetchedAt": "2026-11-14T19:43:43.641Z"
+    "fetchedAt": "2026-11-14T20:52:25.485Z"
   },
   "prices": {
     "unit": "toman",
