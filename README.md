@@ -12,7 +12,7 @@
 
 <p align="center">
   برای باز کردن سایت کافی است روی دکمه‌ی سبز بالا بزنید یا مستقیم وارد این نشانی شوید:<br />
-  <a href="https://m-zoghi.github.io/baste-yab/"><strong>https://m-zoghi.github.io/baste-yab/</strong></a>
+  <a href="https://m-zoghi.github.io/baste-yab/"><strong>https://m-zoghi.github.io/baste-yab</strong></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/M-Zoghi/baste-yab/blob/main/DATA.md">راهنمای داده‌ها (DATA.md)</a>
 </p>
