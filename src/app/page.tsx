@@ -785,7 +785,12 @@ export default function Page() {
             <span className="font-mono text-foreground/85">update/fetch-providers.mjs</span> از سایت
             هر ارائه‌دهنده تازه می‌شود. بسته‌های بدون حجم داده (صوتی) خارج از رتبه‌بندی‌اند. راهنمای
             افزودن ارائه‌دهنده‌های جدید:{" "}
-            <a className="font-bold text-primary hover:underline" href="DATA.md">
+            <a
+              className="font-bold text-primary hover:underline"
+              href="https://github.com/M-Zoghi/baste-yab/blob/main/DATA.md"
+              target="_blank"
+              rel="noreferrer"
+            >
               DATA.md
             </a>
             .

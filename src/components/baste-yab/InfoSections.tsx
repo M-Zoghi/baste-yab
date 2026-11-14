@@ -186,7 +186,9 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
             <span>بروزرسانی آسان همه اپراتورهای داخل ایران (از روی سیستم شخصی در ایران)</span>
           </div>
           <a
-            href="DATA.md"
+            href="https://github.com/M-Zoghi/baste-yab/blob/main/DATA.md"
+            target="_blank"
+            rel="noreferrer"
             className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
           >
             <span>راهنمای کامل + HAR (DATA.md)</span>
@@ -348,7 +350,9 @@ export function AwaitingPanel({
       </div>
 
       <a
-        href="DATA.md"
+        href="https://github.com/M-Zoghi/baste-yab/blob/main/DATA.md"
+        target="_blank"
+        rel="noreferrer"
         className="mt-5 inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
       >
         <span>راهنمای جمع‌آوری داده (DATA.md)</span>
@@ -384,7 +388,9 @@ export function AwaitingStrip({ entries }: { entries: (typeof ENTRIES)[number][]
         ))}
       </div>
       <a
-        href="DATA.md"
+        href="https://github.com/M-Zoghi/baste-yab/blob/main/DATA.md"
+        target="_blank"
+        rel="noreferrer"
         className="ms-auto inline-flex items-center gap-1 font-bold text-primary hover:underline whitespace-nowrap"
       >
         <span>چطور کمک کنیم؟</span>
