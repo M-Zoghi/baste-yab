@@ -13,6 +13,7 @@ import rightelTdlteDoc from "@/data/providers/rightel-tdlte.json";
 export type Category = "home" | "mobile";
 export type Kind = "internet" | "combo" | "roaming";
 export type RestrictionTag = "night" | "morning" | "domestic" | "newUser" | "youth";
+export type UpdateMode = "auto" | "hybrid" | "manual";
 
 export interface Pkg {
   id: string;
@@ -82,6 +83,8 @@ export interface Entry {
   site: string;
   buyUrl?: string;
   status: "live" | "awaiting";
+  updateMode: UpdateMode;
+  updateNote: string;
   awaitingNote?: string;     // what we need to unlock it (shown in UI/DATA.md)
   doc?: ProviderDoc;
   personalized?: Personalized; // surfaced from doc for the UI notice
@@ -102,18 +105,24 @@ export const ENTRIES: Entry[] = [
     key: "tci", nameFa: "مخابرات ایران", nameEn: "TCI", category: "home",
     tech: "ADSL/VDSL/فیبر", regions: ["سراسری"], accent: "#14b8a6",
     site: "https://tci.ir", status: "awaiting",
+    updateMode: "manual",
+    updateNote: "مسدود از خارج ایران — در انتظار اولین فایل HAR/JSON",
     awaitingNote: "از خارج از ایران در دسترس نیست — یک HAR یا JSON از صفحه تعرفه‌ها لازم است",
   },
   {
     key: "asiatech", nameFa: "آسیاتک", nameEn: "Asiatech", category: "home",
     tech: "ADSL/VDSL/فیبر", regions: ["سراسری"], accent: "#f97316",
     site: "https://www.asiatech.ir", status: "awaiting",
+    updateMode: "manual",
+    updateNote: "مسدود از خارج ایران — در انتظار اولین فایل HAR/JSON",
     awaitingNote: "از خارج از ایران در دسترس نیست — HAR/JSON از پنل یا سایت آسیاتک لازم است",
   },
   {
     key: "irancell-tdlte", nameFa: "ایرانسل (ثابت)", nameEn: "Irancell TD-LTE", category: "home",
     tech: "TD-LTE", regions: ["سراسری"], accent: "#eab308",
     site: "https://www.irancell.ir", status: "awaiting",
+    updateMode: "manual",
+    updateNote: "مسدود از خارج ایران — در انتظار اولین فایل HAR/JSON",
     awaitingNote: "از خارج از ایران در دسترس نیست — HAR/JSON از صفحه بسته‌های TD-LTE لازم است",
   },
   {
@@ -121,6 +130,8 @@ export const ENTRIES: Entry[] = [
     tech: "سیم‌کارت دیتا · 4G/5G", regions: ["سراسری"], accent: "#8b5cf6",
     site: "https://www.rightel.ir", buyUrl: "https://package.rightel.ir/packagesList",
     status: "live", doc: DOCS["rightel-tdlte"],
+    updateMode: "manual",
+    updateNote: "بروزرسانی دستی از داخل ایران (هم‌زمان با رایتل همراه)",
   },
   /* ── mobile (همراه) ── */
   {
@@ -128,30 +139,40 @@ export const ENTRIES: Entry[] = [
     tech: "4G/5G", regions: ["سراسری"], accent: "#0095da",
     site: "https://mci.ir", buyUrl: "https://mci.ir/internet-plans",
     status: "live", doc: DOCS.mci,
+    updateMode: "hybrid",
+    updateNote: "فروشگاه کامل (۴۸ بسته): دستی از ایران · صفحه اصلی (۳۰ بسته): خودکار روزانه",
   },
   {
     key: "samantel", nameFa: "سامانتل", nameEn: "Samantel", category: "mobile",
     tech: "اپراتور مجازی · 4G/5G · TD-LTE", regions: ["سراسری"], accent: "#10b981",
     site: "https://samantel.ir", buyUrl: "https://payment.samantel.ir/package",
     status: "live", doc: DOCS.samantel,
+    updateMode: "auto",
+    updateNote: "بروزرسانی خودکار روزانه ساعت ۰۷:۰۰ تهران (GitHub Actions)",
   },
   {
     key: "aptel", nameFa: "آپتل", nameEn: "Aptel", category: "mobile",
     tech: "اپراتور مجازی 4G/5G", regions: ["سراسری"], accent: "#db3328",
     site: "https://www.aptel.ir", buyUrl: "https://www.aptel.ir/packages",
     status: "live", doc: DOCS.aptel, personalized: DOCS.aptel?.personalized,
+    updateMode: "auto",
+    updateNote: "بروزرسانی خودکار روزانه ساعت ۰۷:۰۰ تهران (GitHub Actions)",
   },
   {
     key: "irancell", nameFa: "ایرانسل", nameEn: "Irancell", category: "mobile",
     tech: "4G/5G", regions: ["سراسری"], accent: "#eab308",
     site: "https://www.irancell.ir", buyUrl: "https://irancell.ir/o/1001/mobile-internet-packages",
     status: "live", doc: DOCS.irancell,
+    updateMode: "manual",
+    updateNote: "بروزرسانی دستی از داخل ایران (API از خارج ایران مسدود است)",
   },
   {
     key: "rightel", nameFa: "رایتل", nameEn: "Rightel", category: "mobile",
     tech: "4G/5G", regions: ["سراسری"], accent: "#8b5cf6",
     site: "https://www.rightel.ir", buyUrl: "https://package.rightel.ir/packagesList",
     status: "live", doc: DOCS.rightel,
+    updateMode: "manual",
+    updateNote: "بروزرسانی دستی از داخل ایران (API از خارج ایران مسدود است)",
   },
 ];
 
@@ -310,4 +331,13 @@ export const faDate = (iso: string) => {
   } catch {
     return iso;
   }
+};
+
+export const faRelativeAge = (iso: string): string | null => {
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return null;
+  const days = Math.floor((Date.now() - ts) / 86400000);
+  if (days <= 0) return "امروز";
+  if (days === 1) return "دیروز";
+  return `${faDigits(days)} روز پیش`;
 };

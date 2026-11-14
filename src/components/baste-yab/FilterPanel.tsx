@@ -38,10 +38,10 @@ interface FilterPanelProps {
   onOnlyDiscChange: (val: boolean) => void;
   hideFree: boolean;
   onHideFreeChange: (val: boolean) => void;
-  excludedRestrictions: Set<RestrictionTag>;
+  includedRestrictions: Set<RestrictionTag>;
   restrictionCounts: Record<RestrictionTag, number>;
   onToggleRestriction: (tag: RestrictionTag) => void;
-  onExcludeAllRestrictions: (tags: RestrictionTag[]) => void;
+  onIncludeAllRestrictions: (tags: RestrictionTag[]) => void;
   onClearRestrictions: () => void;
   activeFilters: number;
   onReset: () => void;
@@ -69,10 +69,10 @@ export function FilterPanel({
   onOnlyDiscChange,
   hideFree,
   onHideFreeChange,
-  excludedRestrictions,
+  includedRestrictions,
   restrictionCounts,
   onToggleRestriction,
-  onExcludeAllRestrictions,
+  onIncludeAllRestrictions,
   onClearRestrictions,
   activeFilters,
   onReset,
@@ -81,9 +81,9 @@ export function FilterPanel({
   const availableRestrictions = RESTRICTION_OPTIONS.filter(
     (opt) => (restrictionCounts[opt.key] ?? 0) > 0,
   );
-  const allAvailableExcluded =
+  const allIncluded =
     availableRestrictions.length > 0 &&
-    availableRestrictions.every((opt) => excludedRestrictions.has(opt.key));
+    availableRestrictions.every((opt) => includedRestrictions.has(opt.key));
 
   return (
     <div className="space-y-5">
@@ -218,34 +218,37 @@ export function FilterPanel({
         </p>
       </div>
 
-      {/* Exclusion filters for restricted / special packages */}
+      {/* Inclusion filters for restricted / special packages */}
       {availableRestrictions.length > 0 && (
         <div className="border-t border-border/60 pt-4">
-          <div className="mb-2.5 flex items-center justify-between gap-2">
+          <div className="mb-1 flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-muted-foreground">
-              حذف بسته‌های محدود و خاص
+              نمایش بسته‌های محدود و خاص
             </span>
-            {allAvailableExcluded ? (
+            {allIncluded ? (
               <button
                 type="button"
                 onClick={onClearRestrictions}
                 className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
               >
-                نمایش همه
+                پنهان‌کردن همه
               </button>
             ) : (
               <button
                 type="button"
-                onClick={() => onExcludeAllRestrictions(availableRestrictions.map((o) => o.key))}
+                onClick={() => onIncludeAllRestrictions(availableRestrictions.map((o) => o.key))}
                 className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
               >
-                فقط عادی تمام‌وقت
+                نمایش همه
               </button>
             )}
           </div>
+          <p className="mb-2.5 text-[11px] leading-5 text-muted-foreground">
+            به‌طور پیش‌فرض روشن‌اند؛ برای حذف از فهرست خاموش کنید.
+          </p>
           <div className="space-y-2.5">
             {availableRestrictions.map((opt) => {
-              const checked = excludedRestrictions.has(opt.key);
+              const checked = includedRestrictions.has(opt.key);
               const count = restrictionCounts[opt.key] ?? 0;
               return (
                 <label

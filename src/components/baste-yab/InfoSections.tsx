@@ -1,60 +1,310 @@
 "use client";
 
-import { AlertCircle, ArrowUpLeft, Clock, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import {
+  AlertCircle,
+  ArrowUpLeft,
+  Check,
+  Clock,
+  Copy,
+  ExternalLink,
+  RefreshCw,
+  Terminal,
+} from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ENTRIES, faDigits, fmtToman } from "@/lib/providers";
+import { useToast } from "@/hooks/use-toast";
+import {
+  ENTRIES,
+  faDate,
+  faDigits,
+  faRelativeAge,
+  fmtToman,
+  type UpdateMode,
+} from "@/lib/providers";
 
-export function PersonalizedNotice({ entry }: { entry: (typeof ENTRIES)[number] }) {
-  const p = entry.personalized!;
+const MODE_LABEL: Record<UpdateMode, string> = {
+  auto: "خودکار روزانه",
+  hybrid: "ترکیبی (فروشگاه دستی + صفحه خودکار)",
+  manual: "نیازمند بروزرسانی دستی از ایران",
+};
+
+export function OperatorNoticesSection({
+  entries,
+}: {
+  entries: (typeof ENTRIES)[number][];
+}) {
+  const aptelEntry = entries.find((e) => e.key === "aptel" && e.personalized?.applies);
+  const mciEntry = entries.find((e) => e.key === "mci");
+  const irancellEntry = entries.find((e) => e.key === "irancell");
+
+  if (!aptelEntry && !mciEntry && !irancellEntry) return null;
+
   return (
-    <section className="mt-4">
-      <div className="rounded-xl border border-amber-500/35 bg-amber-500/[0.04] p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-            <h2 className="text-[13px] font-bold text-foreground">
-              {entry.nameFa} — قیمت‌های این فهرست عمومی است (بدون ورود به حساب)
-            </h2>
-          </div>
-          <a
-            href={entry.buyUrl ?? entry.site}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
-          >
-            <span>مشاهده قیمت‌های ویژه با ورود</span>
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
-        </div>
+    <section id="notices" aria-label="نکات و هشدارهای اپراتورها" className="mt-8 space-y-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-sm font-bold text-foreground">نکات مهم اپراتورها</h2>
+        <span className="text-xs text-muted-foreground">
+          شرایط خاص قیمت‌گذاری و محدودیت‌های هر ارائه‌دهنده
+        </span>
+      </div>
 
-        <p className="mt-1.5 text-xs leading-6 text-muted-foreground">{p.note}</p>
-
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 border-t border-amber-500/20 pt-2.5 text-xs">
-          {p.samples.map((s) => (
-            <div key={s.title} className="inline-flex items-center gap-1.5">
-              <span className="font-medium text-foreground">{s.title}:</span>
-              {s.price === 0 ? (
-                <span className="font-bold text-primary">رایگان</span>
-              ) : (
-                <span className="fa-num font-bold text-foreground" dir="ltr">
-                  {fmtToman(s.price)} ت
-                </span>
-              )}
-              {s.discountPct != null && (
-                <span className="fa-num text-[11px] font-bold text-amber-600 dark:text-amber-400">
-                  ({faDigits(s.discountPct)}٪ تخفیف)
-                </span>
-              )}
+      <div className="grid gap-3 md:grid-cols-2">
+        {aptelEntry && (
+          <div className="md:col-span-2 rounded-xl border border-amber-500/35 bg-amber-500/[0.04] p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                <h3 className="text-[13.5px] font-bold text-foreground">
+                  {aptelEntry.nameFa} — قیمت‌های فهرست عمومی است (بدون ورود به حساب)
+                </h3>
+              </div>
+              <a
+                href={aptelEntry.buyUrl ?? aptelEntry.site}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+              >
+                <span>مشاهده قیمت‌های ویژه با ورود</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
             </div>
-          ))}
-        </div>
 
-        {p.source && (
-          <div className="mt-2 text-[10.5px] text-muted-foreground/80">{p.source}</div>
+            <p className="mt-1.5 text-xs leading-6 text-muted-foreground">
+              {aptelEntry.personalized!.note}
+            </p>
+
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 border-t border-amber-500/20 pt-2.5 text-xs">
+              {aptelEntry.personalized!.samples.map((s) => (
+                <div key={s.title} className="inline-flex items-center gap-1.5">
+                  <span className="font-medium text-foreground">{s.title}:</span>
+                  {s.price === 0 ? (
+                    <span className="font-bold text-primary">رایگان</span>
+                  ) : (
+                    <span className="fa-num font-bold text-foreground">
+                      {fmtToman(s.price)} ت
+                    </span>
+                  )}
+                  {s.discountPct != null && (
+                    <span className="fa-num text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                      ({faDigits(s.discountPct)}٪ تخفیف)
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {aptelEntry.personalized!.source && (
+              <div className="mt-2 text-[10.5px] text-muted-foreground/80">
+                {aptelEntry.personalized!.source}
+              </div>
+            )}
+          </div>
+        )}
+
+        {mciEntry && (
+          <div className="rounded-xl border border-border bg-card p-4 text-xs leading-6">
+            <div className="flex items-center gap-2 font-bold text-foreground">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: mciEntry.accent }} />
+              <span>همراه اول — انارستان و فروشگاه رسمی</span>
+            </div>
+            <p className="mt-1.5 text-muted-foreground">
+              بسته‌های سیم‌کارت <strong className="text-foreground">انارستان</strong> فقط برای
+              ترافیک <strong className="text-foreground">اینترنت داخلی</strong> هستند و با برچسب
+              «فقط اینترنت داخلی» مشخص شده‌اند. کاتالوگ کامل (۴۸ بسته) از فروشگاه{" "}
+              <span className="font-mono">shop.mci.ir</span> خوانده می‌شود.
+            </p>
+          </div>
+        )}
+
+        {irancellEntry && (
+          <div className="rounded-xl border border-border bg-card p-4 text-xs leading-6">
+            <div className="flex items-center gap-2 font-bold text-foreground">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: irancellEntry.accent }}
+              />
+              <span>ایرانسل — بسته‌های وب‌سایت و شبانه</span>
+            </div>
+            <p className="mt-1.5 text-muted-foreground">
+              برخی بسته‌ها فقط از وب‌سایت قابل خریدند (در اپلیکیشن ایرانسل نیستند) و طرح‌های
+              «تعرفه آزاد» به‌دلیل نداشتن حجم ثابت از رتبه‌بندی کنار گذاشته شده‌اند.
+            </p>
+          </div>
         )}
       </div>
     </section>
+  );
+}
+
+export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
+  const { toast } = useToast();
+  const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
+
+  const copyCommand = async (id: string, cmd: string) => {
+    try {
+      await navigator.clipboard.writeText(cmd);
+      setCopiedCmd(id);
+      toast({
+        title: "دستور کپی شد",
+        description: cmd,
+      });
+      setTimeout(() => setCopiedCmd((prev) => (prev === id ? null : prev)), 1800);
+    } catch {
+      toast({ title: "کپی انجام نشد", description: cmd });
+    }
+  };
+
+  const iranBatchCmd =
+    'npm run update:iran && git add src/data/providers && git commit -m "data: refresh" && git push';
+
+  return (
+    <div className="space-y-6">
+      {/* Header + Quick manual update bar */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="text-sm font-bold text-foreground">
+            وضعیت بروزرسانی و منابع داده‌ی اپراتورها
+          </h2>
+          <p className="mt-1 text-xs leading-6 text-muted-foreground">
+            <strong className="text-foreground">سامانتل</strong> و{" "}
+            <strong className="text-foreground">آپتل</strong> هر روز ساعت ۰۷:۰۰ به‌وقت تهران
+            به‌طور <strong className="text-primary">خودکار</strong> از GitHub Actions بروزرسانی
+            می‌شوند. <strong className="text-foreground">ایرانسل</strong>،{" "}
+            <strong className="text-foreground">رایتل (همراه و مودم)</strong> و{" "}
+            <strong className="text-foreground">فروشگاه همراه اول</strong> به‌دلیل مسدودبودن از
+            خارج ایران، نیازمند <strong className="text-amber-600 dark:text-amber-400">بروزرسانی دستی از داخل ایران</strong> هستند.
+          </p>
+        </div>
+      </div>
+
+      {/* One-command manual refresh helper */}
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+            <Terminal className="h-4 w-4 text-primary" />
+            <span>بروزرسانی آسان همه اپراتورهای داخل ایران (از روی سیستم شخصی در ایران)</span>
+          </div>
+          <a
+            href="DATA.md"
+            className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+          >
+            <span>راهنمای کامل + HAR (DATA.md)</span>
+            <ArrowUpLeft className="h-3.5 w-3.5" />
+          </a>
+        </div>
+        <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
+          وقتی داخل ایران هستید، این دستور همزمان{" "}
+          <strong className="text-foreground">فروشگاه همراه اول</strong>،{" "}
+          <strong className="text-foreground">ایرانسل</strong> و{" "}
+          <strong className="text-foreground">رایتل (همراه و مودم)</strong> را مستقیم می‌گیرد و
+          به مخزن ارسال می‌کند:
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <code
+            dir="ltr"
+            className="flex-1 min-w-[240px] overflow-x-auto rounded-lg border border-border bg-muted/60 px-3 py-2 font-mono text-xs text-foreground"
+          >
+            {iranBatchCmd}
+          </code>
+          <button
+            type="button"
+            onClick={() => copyCommand("iran-batch", iranBatchCmd)}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3.5 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer whitespace-nowrap shrink-0"
+          >
+            {copiedCmd === "iran-batch" ? (
+              <Check className="h-3.5 w-3.5" />
+            ) : (
+              <Copy className="h-3.5 w-3.5" />
+            )}
+            <span>{copiedCmd === "iran-batch" ? "کپی شد" : "کپی دستور"}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Per-operator status & last update grid */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {ENTRIES.filter((e) => e.status === "live").map((e) => {
+          const fetchedAt = e.doc?.source.fetchedAt ?? "";
+          const age = mounted && fetchedAt ? faRelativeAge(fetchedAt) : null;
+          const cmdKey = e.key === "rightel-tdlte" ? "rightel" : e.key;
+          const singleCmd = `node update/fetch-providers.mjs --only ${cmdKey}`;
+
+          return (
+            <div
+              key={e.key}
+              className="flex min-w-0 flex-col rounded-xl border border-border/80 bg-card p-4 text-xs leading-5"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: e.accent }}
+                  />
+                  <span className="text-[13px] font-bold text-foreground">{e.nameFa}</span>
+                </div>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-bold ${
+                    e.updateMode === "auto"
+                      ? "bg-primary/10 text-primary"
+                      : e.updateMode === "hybrid"
+                        ? "bg-sky-500/12 text-sky-700 dark:text-sky-300"
+                        : "bg-amber-500/12 text-amber-700 dark:text-amber-300"
+                  }`}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  <span>
+                    {e.updateMode === "auto"
+                      ? "خودکار روزانه"
+                      : e.updateMode === "hybrid"
+                        ? "ترکیبی (دستی + خودکار)"
+                        : "دستی از ایران"}
+                  </span>
+                </span>
+              </div>
+
+              <div className="fa-num mt-2 text-foreground/90">
+                آخرین بروزرسانی:{" "}
+                <span className="font-bold">{fetchedAt ? faDate(fetchedAt) : "—"}</span>
+                {age && <span className="ms-1 text-muted-foreground">({age})</span>}
+              </div>
+
+              <div className="fa-num mt-1 text-[11px] text-muted-foreground">
+                {faDigits(e.doc?.packages.length ?? 0)} بسته · {e.tech}
+              </div>
+
+              <p className="mt-1.5 text-[11px] text-muted-foreground">{MODE_LABEL[e.updateMode]}</p>
+
+              <div className="mt-auto pt-3">
+                <div className="flex items-center justify-between gap-2 border-t border-border/50 pt-2.5">
+                  <span
+                    className="truncate font-mono text-[10.5px] text-muted-foreground/80"
+                    dir="ltr"
+                  >
+                    {e.doc?.source.endpoint}
+                  </span>
+                  {e.updateMode !== "auto" && (
+                    <button
+                      type="button"
+                      onClick={() => copyCommand(e.key, singleCmd)}
+                      title={`کپی: ${singleCmd}`}
+                      className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border px-2 py-1 text-[10.5px] font-bold text-foreground hover:bg-secondary cursor-pointer"
+                    >
+                      {copiedCmd === e.key ? (
+                        <Check className="h-3 w-3 text-primary" />
+                      ) : (
+                        <Copy className="h-3 w-3 text-muted-foreground" />
+                      )}
+                      <span>کپی دستور</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -111,7 +361,7 @@ export function AwaitingPanel({
 export function AwaitingStrip({ entries }: { entries: (typeof ENTRIES)[number][] }) {
   return (
     <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-border/80 bg-card/70 px-4 py-3 text-xs text-muted-foreground">
-      <span className="font-bold text-foreground/80">در انتظار داده:</span>
+      <span className="font-bold text-foreground/80">در انتظار داده (دستی از ایران):</span>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {entries.map((e, idx) => (
           <TooltipProvider key={e.key}>

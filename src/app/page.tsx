@@ -59,11 +59,17 @@ import { FilterPanel } from "@/components/baste-yab/FilterPanel";
 import {
   AwaitingPanel,
   AwaitingStrip,
-  PersonalizedNotice,
+  OperatorNoticesSection,
+  ProviderSourcesSection,
 } from "@/components/baste-yab/InfoSections";
 import { PkgCard } from "@/components/baste-yab/PkgCard";
 import { PkgTable } from "@/components/baste-yab/PkgTable";
-import { DEFAULT_KINDS, liveKeysOf, norm } from "@/components/baste-yab/helpers";
+import {
+  ALL_RESTRICTION_TAGS,
+  DEFAULT_KINDS,
+  liveKeysOf,
+  norm,
+} from "@/components/baste-yab/helpers";
 
 type ViewMode = "grid" | "table";
 
@@ -88,8 +94,8 @@ export default function Page() {
   const [minGB, setMinGB] = useState<number>(0);
   const [onlyDisc, setOnlyDisc] = useState(false);
   const [hideFree, setHideFree] = useState(false);
-  const [excludedRestrictions, setExcludedRestrictions] = useState<Set<RestrictionTag>>(
-    () => new Set(),
+  const [includedRestrictions, setIncludedRestrictions] = useState<Set<RestrictionTag>>(
+    () => new Set(ALL_RESTRICTION_TAGS),
   );
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
@@ -176,11 +182,13 @@ export default function Page() {
     if (minGB > 0) list = list.filter((p) => p.gb >= minGB);
     if (onlyDisc) list = list.filter((p) => p.discountPct != null);
     if (hideFree) list = list.filter((p) => p.price > 0);
-    if (excludedRestrictions.size > 0) {
-      list = list.filter((p) => !p.restrictions.some((tag) => excludedRestrictions.has(tag)));
-    }
+    list = list.filter(
+      (p) =>
+        p.restrictions.length === 0 ||
+        p.restrictions.every((tag) => includedRestrictions.has(tag)),
+    );
     return list;
-  }, [inCat, provSel, kinds, query, maxPrice, minGB, onlyDisc, hideFree, excludedRestrictions]);
+  }, [inCat, provSel, kinds, query, maxPrice, minGB, onlyDisc, hideFree, includedRestrictions]);
 
   const rows = useMemo(
     () => rankRows(filtered, { metric, vat, sort }),
@@ -241,7 +249,7 @@ export default function Page() {
     (minGB > 0 ? 1 : 0) +
     (onlyDisc ? 1 : 0) +
     (hideFree ? 1 : 0) +
-    excludedRestrictions.size +
+    ALL_RESTRICTION_TAGS.filter((t) => !includedRestrictions.has(t)).length +
     (provSel.size !== liveEntries.length ? 1 : 0) +
     (sort !== "best" ? 1 : 0) +
     (kinds.size !== DEFAULT_KINDS.length || DEFAULT_KINDS.some((k) => !kinds.has(k)) ? 1 : 0);
@@ -252,7 +260,7 @@ export default function Page() {
     setMinGB(0);
     setOnlyDisc(false);
     setHideFree(false);
-    setExcludedRestrictions(new Set());
+    setIncludedRestrictions(new Set(ALL_RESTRICTION_TAGS));
     setProvSel(new Set(liveEntries.map((e) => e.key)));
     setKinds(new Set(DEFAULT_KINDS));
     setSort("best");
@@ -292,7 +300,7 @@ export default function Page() {
   };
 
   const toggleRestriction = (tag: RestrictionTag) => {
-    setExcludedRestrictions((prev) => {
+    setIncludedRestrictions((prev) => {
       const next = new Set(prev);
       if (next.has(tag)) next.delete(tag);
       else next.add(tag);
@@ -322,11 +330,11 @@ export default function Page() {
     onOnlyDiscChange: setOnlyDisc,
     hideFree,
     onHideFreeChange: setHideFree,
-    excludedRestrictions,
+    includedRestrictions,
     restrictionCounts,
     onToggleRestriction: toggleRestriction,
-    onExcludeAllRestrictions: (tags: RestrictionTag[]) => setExcludedRestrictions(new Set(tags)),
-    onClearRestrictions: () => setExcludedRestrictions(new Set()),
+    onIncludeAllRestrictions: (tags: RestrictionTag[]) => setIncludedRestrictions(new Set(tags)),
+    onClearRestrictions: () => setIncludedRestrictions(new Set()),
     activeFilters,
     onReset: reset,
   };
@@ -389,13 +397,19 @@ export default function Page() {
             </button>
           </nav>
 
-          {/* Zone 3: Sources anchor + Theme toggle */}
+          {/* Zone 3: Notices + Sources anchors + Theme toggle */}
           <div className="flex items-center gap-2 shrink-0">
             <a
-              href="#sources"
-              className="hidden md:inline-flex items-center px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap shrink-0"
+              href="#notices"
+              className="hidden md:inline-flex items-center px-2 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap shrink-0"
             >
-              منابع داده
+              نکات اپراتورها
+            </a>
+            <a
+              href="#sources"
+              className="hidden md:inline-flex items-center px-2 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap shrink-0"
+            >
+              بروزرسانی داده‌ها
             </a>
             <Button
               variant="outline"
@@ -527,7 +541,9 @@ export default function Page() {
               </div>
               <div className="mt-1.5 flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
                 <Database className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">آخرین بروزرسانی: {lastFetch}</span>
+                <a href="#sources" className="truncate hover:text-primary hover:underline">
+                  تازه‌ترین داده: {lastFetch} (جزئیات اپراتورها ↓)
+                </a>
               </div>
             </div>
 
@@ -552,13 +568,6 @@ export default function Page() {
             </div>
           </div>
         </section>
-
-        {/* Personalized pricing notice */}
-        {liveEntries
-          .filter((e) => e.personalized?.applies && provSel.has(e.key))
-          .map((e) => (
-            <PersonalizedNotice key={e.key} entry={e} />
-          ))}
 
         {/* ── Two-Column Workspace: Sticky Sidebar (lg+) + Results ── */}
         <div className="mt-5 grid grid-cols-1 items-start gap-6 lg:grid-cols-[296px_minmax(0,1fr)]">
@@ -754,6 +763,9 @@ export default function Page() {
             )}
           </div>
         </div>
+
+        {/* Dedicated Operator Notices Section (below packages so results start right at the top) */}
+        <OperatorNoticesSection entries={liveEntries.filter((e) => provSel.has(e.key))} />
       </main>
 
       {/* ── Footer ── */}
@@ -762,38 +774,7 @@ export default function Page() {
         className="mt-auto border-t border-border/80 bg-card/50 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
       >
         <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 space-y-6">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-sm font-bold text-foreground">وضعیت منابع داده‌ی زنده</h2>
-            <span className="text-xs text-muted-foreground">
-              بروزرسانی خودکار از وب‌سایت رسمی ارائه‌دهنده‌ها
-            </span>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {ENTRIES.filter((e) => e.status === "live").map((e) => (
-              <div
-                key={e.key}
-                className="min-w-0 rounded-xl border border-border/80 bg-card p-3.5 text-xs leading-5"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: e.accent }} />
-                    <span className="font-bold text-foreground">{e.nameFa}</span>
-                  </div>
-                  <span className="text-[11px] font-medium text-muted-foreground">
-                    {e.doc?.source.kind === "api" ? "API زنده" : "ضمیمه‌ی صفحه"}
-                  </span>
-                </div>
-                <div className="fa-num mt-1.5 text-[11.5px] text-muted-foreground">
-                  {faDigits(e.doc?.packages.length ?? 0)} بسته · {e.tech} ·{" "}
-                  {faDate(e.doc?.source.fetchedAt ?? "")}
-                </div>
-                <div className="mt-1 truncate font-mono text-[10.5px] text-muted-foreground/75" dir="ltr">
-                  {e.doc?.source.endpoint}
-                </div>
-              </div>
-            ))}
-          </div>
+          <ProviderSourcesSection mounted={mounted} />
 
           <Separator />
 

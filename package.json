@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "update:data": "node update/fetch-providers.mjs"
+    "update:data": "node update/fetch-providers.mjs",
+    "update:iran": "node update/fetch-providers.mjs --iran"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.2.5",

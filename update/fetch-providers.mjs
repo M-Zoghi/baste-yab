@@ -76,6 +76,8 @@ const ROOT = path.resolve(fileURLToPath(import.meta.url), '..', '..');
 const DATA_DIR = path.join(ROOT, 'src', 'data', 'providers');
 const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36';
 const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
+const iranOnly = process.argv.includes('--iran');
+const IRAN_ONLY_IDS = new Set(['mci', 'irancell', 'rightel']);
 
 const faDigits = (s) => String(s).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
 const enDigits = (s) => String(s ?? '').replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
@@ -1063,6 +1065,7 @@ await mkdir(DATA_DIR, { recursive: true });
 const results = [];
 for (const [id, fn] of Object.entries(ADAPTERS)) {
   if (only && id !== only) continue;
+  if (iranOnly && !IRAN_ONLY_IDS.has(id)) continue;
   try { await fn(); results.push([id, true, '']); }
   catch (e) { results.push([id, false, String(e && e.message || e)]); console.error(`✗ ${id}: ${e && e.message || e}`); }
 }

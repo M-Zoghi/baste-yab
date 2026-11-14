@@ -27,5 +27,7 @@ export const RESTRICTION_OPTIONS: { key: RestrictionTag; label: string }[] = [
   { key: "youth", label: "ویژه زیر ۲۸ سال" },
 ];
 
+export const ALL_RESTRICTION_TAGS: RestrictionTag[] = RESTRICTION_OPTIONS.map((o) => o.key);
+
 export const liveKeysOf = (c: Category) =>
   ENTRIES.filter((e) => e.category === c && e.status === "live").map((e) => e.key);
