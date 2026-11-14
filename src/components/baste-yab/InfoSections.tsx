@@ -155,8 +155,7 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
     }
   };
 
-  const iranBatchCmd =
-    'npm run update:iran && git add src/data/providers && git commit -m "data: refresh" && git push';
+  const iranBatchCmd = "npm run update:iran";
 
   return (
     <div className="space-y-6">
@@ -183,7 +182,7 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-xs font-bold text-foreground">
             <Terminal className="h-4 w-4 text-primary" />
-            <span>بروزرسانی آسان همه اپراتورهای داخل ایران (از روی سیستم شخصی در ایران)</span>
+            <span>بروزرسانی آسان اپراتورهای داخل ایران (از روی سیستم شخصی در ایران)</span>
           </div>
           <a
             href="https://github.com/M-Zoghi/baste-yab/blob/main/DATA.md"
@@ -195,12 +194,19 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
             <ArrowUpLeft className="h-3.5 w-3.5" />
           </a>
         </div>
-        <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
-          وقتی داخل ایران هستید، این دستور همزمان{" "}
-          <strong className="text-foreground">فروشگاه همراه اول</strong>،{" "}
-          <strong className="text-foreground">ایرانسل</strong> و{" "}
-          <strong className="text-foreground">رایتل (همراه و مودم)</strong> را مستقیم می‌گیرد و
-          به مخزن ارسال می‌کند:
+        <p className="mt-1.5 text-xs leading-6 text-muted-foreground">
+          داخل پوشه‌ی پروژه (پیشنهاد: کلون‌شده با{" "}
+          <code dir="ltr" className="font-mono text-foreground">git clone</code> نه فایل ZIP) این
+          دستور را اجرا کنید تا{" "}
+          <strong className="text-foreground">فروشگاه همراه اول</strong> و{" "}
+          <strong className="text-foreground">ایرانسل</strong> مستقیماً تازه شوند، سپس فایل‌های
+          تغییریافته‌ی <code dir="ltr" className="font-mono text-foreground">src/data/providers/</code>{" "}
+          را push یا در گیت‌هاب آپلود کنید.{" "}
+          <span className="text-muted-foreground/90">
+            (اگر رایتل خطای ۴۰۱ داد، یک HAR از{" "}
+            <span dir="ltr" className="font-mono">package.rightel.ir</span> با گزینه‌ی{" "}
+            <code dir="ltr" className="font-mono">--only rightel --input rightel.har</code> بدهید.)
+          </span>
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <code

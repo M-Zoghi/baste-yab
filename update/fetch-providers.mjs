@@ -839,15 +839,26 @@ function rightelItemsFromInput(raw) {
 }
 
 async function rightelItemsFromApi() {
+  const tokenIdx = process.argv.indexOf('--token');
+  const rawToken =
+    (tokenIdx !== -1 && process.argv[tokenIdx + 1]) || process.env.RIGHTEL_TOKEN || '';
+  const authHeader = rawToken
+    ? { Authorization: rawToken.startsWith('Bearer ') ? rawToken : `Bearer ${rawToken}` }
+    : {};
+
   const res = await fetch(`${RIGHTEL_API}?d=${Date.now()}`, {
     headers: {
       Accept: 'application/json',
-      Origin: RIGHTEL_PAGE,
+      Origin: 'https://package.rightel.ir',
       Referer: `${RIGHTEL_PAGE}/`,
       'User-Agent': UA,
+      ...authHeader,
     },
     signal: AbortSignal.timeout(20000),
   });
+  if (res.status === 401) {
+    throw new Error('HTTP 401 — رایتل اکنون توکن/نشست می‌خواهد؛ از HAR مرورگر با --only rightel --input <file.har> استفاده کنید');
+  }
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
   if (!Array.isArray(json?.data)) throw new Error('unexpected response shape');

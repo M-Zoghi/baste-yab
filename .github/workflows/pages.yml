@@ -20,7 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - uses: actions/configure-pages@v5
 
@@ -30,12 +32,9 @@ jobs:
           # project pages serve from /<repo>/; user root pages (<user>.github.io) need no prefix
           NEXT_PUBLIC_BASE_PATH: ${{ (endsWith(github.repository, '.github.io') && '') || format('/{0}', github.event.repository.name) }}
         run: |
-          bun install --frozen-lockfile
-          bun run lint || true
-          bunx next build
-
-      - name: Copy DATA.md into the export
-        run: cp DATA.md out/DATA.md
+          npm install
+          npm run lint
+          npx next build
 
       - uses: actions/upload-pages-artifact@v3
         with:
