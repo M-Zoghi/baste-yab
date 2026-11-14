@@ -49,6 +49,7 @@ import {
   type Category,
   type Kind,
   type Metric,
+  type RestrictionTag,
   type Row,
   type SortKey,
 } from "@/lib/providers";
@@ -87,6 +88,9 @@ export default function Page() {
   const [minGB, setMinGB] = useState<number>(0);
   const [onlyDisc, setOnlyDisc] = useState(false);
   const [hideFree, setHideFree] = useState(false);
+  const [excludedRestrictions, setExcludedRestrictions] = useState<Set<RestrictionTag>>(
+    () => new Set(),
+  );
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
@@ -143,6 +147,21 @@ export default function Page() {
     return m;
   }, [inCat, provSel]);
 
+  const restrictionCounts = useMemo(() => {
+    const m: Record<RestrictionTag, number> = {
+      night: 0,
+      morning: 0,
+      domestic: 0,
+      newUser: 0,
+      youth: 0,
+    };
+    for (const p of inCat) {
+      if (!provSel.has(p.entryKey) || !kinds.has(p.kind)) continue;
+      for (const r of p.restrictions) m[r] += 1;
+    }
+    return m;
+  }, [inCat, provSel, kinds]);
+
   const filtered = useMemo(() => {
     const q = norm(query);
     let list = inCat.filter((p) => provSel.has(p.entryKey) && kinds.has(p.kind));
@@ -157,8 +176,11 @@ export default function Page() {
     if (minGB > 0) list = list.filter((p) => p.gb >= minGB);
     if (onlyDisc) list = list.filter((p) => p.discountPct != null);
     if (hideFree) list = list.filter((p) => p.price > 0);
+    if (excludedRestrictions.size > 0) {
+      list = list.filter((p) => !p.restrictions.some((tag) => excludedRestrictions.has(tag)));
+    }
     return list;
-  }, [inCat, provSel, kinds, query, maxPrice, minGB, onlyDisc, hideFree]);
+  }, [inCat, provSel, kinds, query, maxPrice, minGB, onlyDisc, hideFree, excludedRestrictions]);
 
   const rows = useMemo(
     () => rankRows(filtered, { metric, vat, sort }),
@@ -219,6 +241,7 @@ export default function Page() {
     (minGB > 0 ? 1 : 0) +
     (onlyDisc ? 1 : 0) +
     (hideFree ? 1 : 0) +
+    excludedRestrictions.size +
     (provSel.size !== liveEntries.length ? 1 : 0) +
     (sort !== "best" ? 1 : 0) +
     (kinds.size !== DEFAULT_KINDS.length || DEFAULT_KINDS.some((k) => !kinds.has(k)) ? 1 : 0);
@@ -229,6 +252,7 @@ export default function Page() {
     setMinGB(0);
     setOnlyDisc(false);
     setHideFree(false);
+    setExcludedRestrictions(new Set());
     setProvSel(new Set(liveEntries.map((e) => e.key)));
     setKinds(new Set(DEFAULT_KINDS));
     setSort("best");
@@ -267,6 +291,15 @@ export default function Page() {
     });
   };
 
+  const toggleRestriction = (tag: RestrictionTag) => {
+    setExcludedRestrictions((prev) => {
+      const next = new Set(prev);
+      if (next.has(tag)) next.delete(tag);
+      else next.add(tag);
+      return next;
+    });
+  };
+
   const filterProps = {
     query,
     onQueryChange: setQuery,
@@ -289,6 +322,11 @@ export default function Page() {
     onOnlyDiscChange: setOnlyDisc,
     hideFree,
     onHideFreeChange: setHideFree,
+    excludedRestrictions,
+    restrictionCounts,
+    onToggleRestriction: toggleRestriction,
+    onExcludeAllRestrictions: (tags: RestrictionTag[]) => setExcludedRestrictions(new Set(tags)),
+    onClearRestrictions: () => setExcludedRestrictions(new Set()),
     activeFilters,
     onReset: reset,
   };
@@ -430,7 +468,7 @@ export default function Page() {
                     {bestPaid.providerName} · {bestPaid.title}
                   </div>
                   <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 text-sm">
-                    <span className="fa-num text-lg font-extrabold text-primary" dir="ltr">
+                    <span className="fa-num text-lg font-extrabold text-primary">
                       {fmtValue(bestPaid.value)}
                     </span>
                     <span className="text-xs text-muted-foreground">{unitShort}</span>
@@ -462,7 +500,7 @@ export default function Page() {
               {marketStats ? (
                 <>
                   <div className="mt-1 flex items-baseline gap-1.5">
-                    <span className="fa-num text-lg font-extrabold text-foreground" dir="ltr">
+                    <span className="fa-num text-lg font-extrabold text-foreground">
                       {fmtValue(marketStats.median)}
                     </span>
                     <span className="text-xs text-muted-foreground">{unitShort} (میانه)</span>
@@ -681,7 +719,7 @@ export default function Page() {
             ) : (
               <>
                 {view === "grid" ? (
-                  <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <AnimatePresence initial={false}>
                       {rows.map((r) => {
                         const uid = `${r.entryKey}:${r.id}`;

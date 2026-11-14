@@ -402,7 +402,7 @@ function mciShopDoc(items, fetchedAt) {
 
     const notes = [];
     if (/صبحانت/.test(name)) notes.push(`صبحانت — ${faDigits(enDigits(addInfo || 'قابل استفاده ۶ صبح تا ۱۲ ظهر').trim())}`);
-    if (anar) notes.push('ویژه سیم‌کارت انارستان');
+    if (anar) notes.push('ویژه سیم‌کارت انارستان · فقط اینترنت داخلی');
     if (isNew) notes.push('فقط مشترکین جدید (ثبت‌نام تا ۳۰ روز گذشته)');
     if (isCombo) {
       for (const part of addInfo.split('|')) {
@@ -430,6 +430,7 @@ function mciShopDoc(items, fetchedAt) {
       id: `mci-${p.id}`,
       title,
       kind: isCombo ? 'combo' : 'internet',
+      ...(anar ? { domesticOnly: true } : {}),
       gb, days, price,
       oldPrice,
       discountPct: p.discountPercentage ?? (oldPrice ? pct(price, oldPrice) : null),

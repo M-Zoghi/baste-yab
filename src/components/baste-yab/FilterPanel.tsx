@@ -7,8 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ENTRIES, faDigits, fmtToman, type Kind } from "@/lib/providers";
-import { KIND_LABEL } from "./helpers";
+import {
+  ENTRIES,
+  faDigits,
+  fmtToman,
+  type Kind,
+  type RestrictionTag,
+} from "@/lib/providers";
+import { KIND_LABEL, RESTRICTION_OPTIONS } from "./helpers";
 
 interface FilterPanelProps {
   query: string;
@@ -32,6 +38,11 @@ interface FilterPanelProps {
   onOnlyDiscChange: (val: boolean) => void;
   hideFree: boolean;
   onHideFreeChange: (val: boolean) => void;
+  excludedRestrictions: Set<RestrictionTag>;
+  restrictionCounts: Record<RestrictionTag, number>;
+  onToggleRestriction: (tag: RestrictionTag) => void;
+  onExcludeAllRestrictions: (tags: RestrictionTag[]) => void;
+  onClearRestrictions: () => void;
   activeFilters: number;
   onReset: () => void;
 }
@@ -58,10 +69,21 @@ export function FilterPanel({
   onOnlyDiscChange,
   hideFree,
   onHideFreeChange,
+  excludedRestrictions,
+  restrictionCounts,
+  onToggleRestriction,
+  onExcludeAllRestrictions,
+  onClearRestrictions,
   activeFilters,
   onReset,
 }: FilterPanelProps) {
   const allProvidersSelected = provSel.size === liveEntries.length;
+  const availableRestrictions = RESTRICTION_OPTIONS.filter(
+    (opt) => (restrictionCounts[opt.key] ?? 0) > 0,
+  );
+  const allAvailableExcluded =
+    availableRestrictions.length > 0 &&
+    availableRestrictions.every((opt) => excludedRestrictions.has(opt.key));
 
   return (
     <div className="space-y-5">
@@ -196,7 +218,58 @@ export function FilterPanel({
         </p>
       </div>
 
-      {/* Sliders — cleanly separated by hairline dividers, zero nested cards */}
+      {/* Exclusion filters for restricted / special packages */}
+      {availableRestrictions.length > 0 && (
+        <div className="border-t border-border/60 pt-4">
+          <div className="mb-2.5 flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-muted-foreground">
+              حذف بسته‌های محدود و خاص
+            </span>
+            {allAvailableExcluded ? (
+              <button
+                type="button"
+                onClick={onClearRestrictions}
+                className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+              >
+                نمایش همه
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onExcludeAllRestrictions(availableRestrictions.map((o) => o.key))}
+                className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+              >
+                فقط عادی تمام‌وقت
+              </button>
+            )}
+          </div>
+          <div className="space-y-2.5">
+            {availableRestrictions.map((opt) => {
+              const checked = excludedRestrictions.has(opt.key);
+              const count = restrictionCounts[opt.key] ?? 0;
+              return (
+                <label
+                  key={opt.key}
+                  className="flex min-h-[32px] cursor-pointer items-center justify-between gap-2 text-[12.5px] font-medium"
+                >
+                  <span className="min-w-0 leading-5 text-foreground/90">
+                    {opt.label}{" "}
+                    <span className="fa-num text-[11px] text-muted-foreground">
+                      ({faDigits(count)})
+                    </span>
+                  </span>
+                  <Switch
+                    checked={checked}
+                    onCheckedChange={() => onToggleRestriction(opt.key)}
+                  />
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Sliders */}
       <div className="space-y-4 border-t border-border/60 pt-4">
         <div>
           <div className="mb-2.5 flex items-baseline justify-between gap-2">
@@ -241,13 +314,13 @@ export function FilterPanel({
         </div>
       </div>
 
-      {/* Boolean Switches */}
+      {/* General Boolean Switches */}
       <div className="space-y-3 border-t border-border/60 pt-4">
-        <label className="flex min-h-[36px] cursor-pointer items-center justify-between gap-3 text-[13px] font-medium">
+        <label className="flex min-h-[34px] cursor-pointer items-center justify-between gap-3 text-[12.5px] font-medium">
           <span>فقط بسته‌های تخفیف‌دار</span>
           <Switch checked={onlyDisc} onCheckedChange={onOnlyDiscChange} />
         </label>
-        <label className="flex min-h-[36px] cursor-pointer items-center justify-between gap-3 text-[13px] font-medium">
+        <label className="flex min-h-[34px] cursor-pointer items-center justify-between gap-3 text-[12.5px] font-medium">
           <span>پنهان‌کردن هدایای رایگان</span>
           <Switch checked={hideFree} onCheckedChange={onHideFreeChange} />
         </label>

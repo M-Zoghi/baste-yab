@@ -78,7 +78,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ترکیبی: ۵ ساعت مکالمه درون شبکه و ثابت · ویژه مشترکین انارستان"
+      "note": "ترکیبی: ۵ ساعت مکالمه درون شبکه و ثابت · ویژه مشترکین انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153386",
@@ -92,7 +93,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-735494",
@@ -120,7 +122,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153381",
@@ -134,7 +137,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153383",
@@ -148,7 +152,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153380",
@@ -162,7 +167,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153388",
@@ -176,7 +182,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153387",
@@ -190,7 +197,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153385",
@@ -204,7 +212,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153379",
@@ -218,7 +227,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-825596",
@@ -344,7 +354,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-1306189",
@@ -470,7 +481,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153376",
@@ -484,7 +496,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-735497",
@@ -596,7 +609,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-153349",
@@ -610,7 +624,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-735516",
@@ -666,7 +681,8 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "ویژه سیم‌کارت انارستان"
+      "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی",
+      "domesticOnly": true
     },
     {
       "id": "mci-735471",

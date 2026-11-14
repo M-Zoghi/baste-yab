@@ -12,11 +12,13 @@ import rightelTdlteDoc from "@/data/providers/rightel-tdlte.json";
 
 export type Category = "home" | "mobile";
 export type Kind = "internet" | "combo" | "roaming";
+export type RestrictionTag = "night" | "morning" | "domestic" | "newUser" | "youth";
 
 export interface Pkg {
   id: string;
   title: string;
   kind?: Kind;              // internet (default) | combo (voice+sms) | roaming
+  domesticOnly?: boolean;   // e.g. MCI Anarestan — domestic Iranian traffic only
   gb: number;
   days: number;
   price: number;            // toman, pre-tax (as printed on the provider card)
@@ -163,6 +165,8 @@ export interface DerivedPkg extends Pkg {
   fetchedAt: string;
   sourceKind: string;
   kind: Kind; // materialized with default
+  domesticOnly: boolean;
+  restrictions: RestrictionTag[];
 }
 
 export interface Row extends DerivedPkg {
@@ -182,9 +186,22 @@ export function allPackages(): DerivedPkg[] {
   for (const e of ENTRIES) {
     if (e.status !== "live" || !e.doc) continue;
     for (const p of e.doc.packages) {
+      const text = `${p.title} ${p.note ?? ""} ${p.group ?? ""}`;
+      const domesticOnly = Boolean(
+        p.domesticOnly || /انارستان|فقط اینترنت داخلی/.test(text),
+      );
+      const restrictions: RestrictionTag[] = [];
+      if (/شبانه|شبانت|۲ تا ۷|2 تا 7/.test(text)) restrictions.push("night");
+      if (/صبحانت|صبحانه|۶ صبح تا ۱۲|۶ تا ۱۲|6 تا 12/.test(text)) restrictions.push("morning");
+      if (domesticOnly) restrictions.push("domestic");
+      if (/مشترکین جدید/.test(text)) restrictions.push("newUser");
+      if (/زیر ۲۸ سال/.test(text)) restrictions.push("youth");
+
       out.push({
         ...p,
         kind: p.kind ?? "internet",
+        domesticOnly,
+        restrictions,
         entryKey: e.key,
         providerName: e.nameFa,
         providerAccent: e.accent,
