@@ -10,7 +10,7 @@
 |---|---|---|---|---|---|
 | سامانتل | همراه (اپراتور مجازی) | ✅ خودکار روزانه | ۳۱ فعال / ۷ حذف‌شده (غیرحجمی) | `POST payment.samantel.ir/api/mediator/samantel/` (`getpackagebyproduct`) | — |
 | آپتل | همراه (اپراتور مجازی) | ✅ خودکار روزانه (عمومی) + 🔶 دستی (پنل «آپتل من») | ۵۵ فعال (۵۱ عمومی + ۴ اختصاصی پنل با برچسب «فروش فقط از پنل آپتل من / my.aptel.ir») / ۰ حذف‌شده + ۱ هدیه‌ی نصب در `personalized` | اصلی: `GET www.aptel.ir/api/ep/query?scope=public` · پنل: `services.negintel.com` (فقط HAR) | بخش پنل: `--input my.aptel.ir.har` |
-| همراه اول | همراه | ✅ جایگزین خودکار + 🔶 دستی (فروشگاه + پنل) | ۶۸ فعال (فروشگاه ۴۸ + پنل ۲۰؛ برچسب «فروش فقط از اپ همراه من / my.mci.ir») | اصلی: `GET shop.mci.ir/api/search/v1/products?category=19` + `GET my.mci.ir/api/unit/v1/customer/units/normal/internet` · جایگزین: `GET mci.ir/internet-plans` (۳۰ بسته) | بروزرسانی با `npm run update:iran` یا HAR تازه از داخل ایران |
+| همراه اول | همراه | ✅ جایگزین خودکار + 🔶 دستی (فروشگاه + پنل) | ۶۸ فعال (فروشگاه ۴۸ + پنل ۲۰؛ برچسب «فروش فقط از اپ همراه من / my.mci.ir») / ۰ حذف‌شده | اصلی: `GET shop.mci.ir/api/search/v1/products?category=19` + `GET my.mci.ir/api/unit/v1/customer/units/normal/internet` · جایگزین: `GET mci.ir/internet-plans` (۳۰ بسته) | بروزرسانی با `npm run update:iran` یا HAR تازه از داخل ایران |
 | ایرانسل | همراه | ✅ خودکار روزانه (وب‌سایت) + 🔶 دستی (اپ) | ۷۰ فعال (وب‌سایت ۳۹ + اپ ۳۱؛ برچسب «فروش فقط از اپ ایرانسل من / my.irancell.ir») / ۶ حذف‌شده (تعرفه آزاد و اشتراک هرگیگ) | اصلی: `GET irancell.ir/e/products/5e16bf95d11fd7209ba56b20` + `GET my.irancell.ir/api/catalog/v2/offers` (اپ) | فقط بخش اپ: `--input my.irancell.ir.har` از داخل ایران |
 | رایتل (همراه) | همراه | 🔶 دستی از داخل ایران | ۳۸ فعال / ۱۵ حذف‌شده | `GET portal-api.rightel.ir/…/web-site/purchasable-package` | بروزرسانی با `npm run update:iran` یا JSON/HAR تازه از داخل ایران |
 | رایتل (مودم) | ثابت (سیم‌کارت دیتا) | 🔶 دستی از داخل ایران | ۱۳ فعال / ۰ حذف‌شده | همان API رسمی رایتل (دسته‌ی «بسته مودم») | هم‌زمان با رایتل همراه ساخته می‌شود |
@@ -21,7 +21,7 @@
 
 ## چرا همه‌ی اپراتورها از GitHub Actions بروزرسانی نمی‌شوند؟
 
-سرورهای GitHub Actions خارج از ایران اجرا می‌شوند و برخی وب‌گاه‌ها و APIهای اپراتورهای ایرانی (شامل **فروشگاه همراه اول `shop.mci.ir`**، **پنل همراه من `my.mci.ir`**، **پنل اپ ایرانسل `my.irancell.ir`**، **رایتل**، **مخابرات** و **آسیاتک**) ترافیک IPهای خارج از کشور را مسدود می‌کنند یا به حساب کاربری نیاز دارند. در مقابل، سرورهای **سامانتل**، **آپتل**، صفحه‌ی عمومی **`mci.ir/internet-plans`** و هر دو کاتالوگ عمومی **ایرانسل** (`irancell.ir/e/products/…` شامل همراه و TD-LTE — تاییدشده ۱۴۰۵/۰۸/۲۵ با اجرای دستی اکشن) از خارج ایران نیز در دسترس هستند و هر روز حدود ساعت ۰۶:۴۷ به‌وقت تهران به‌صورت خودکار تازه می‌شوند.
+سرورهای GitHub Actions خارج از ایران اجرا می‌شوند و برخی وب‌گاه‌ها و APIهای اپراتورهای ایرانی (شامل **فروشگاه همراه اول `shop.mci.ir`**، **پنل همراه من `my.mci.ir`**، **پنل اپ ایرانسل `my.irancell.ir`**، **پنل «آپتل من» `my.aptel.ir`**، **رایتل**، **مخابرات** و **آسیاتک**) ترافیک IPهای خارج از کشور را مسدود می‌کنند یا به حساب کاربری نیاز دارند. در مقابل، سرورهای **سامانتل**، **بخش عمومی آپتل (`www.aptel.ir`)**، صفحه‌ی عمومی **`mci.ir/internet-plans`** و هر دو کاتالوگ عمومی **ایرانسل** (`irancell.ir/e/products/…` شامل همراه و TD-LTE — تاییدشده ۱۴۰۵/۰۸/۲۵ با اجرای دستی اکشن) از خارج ایران نیز در دسترس هستند و هر روز حدود ساعت ۰۶:۴۷ به‌وقت تهران به‌صورت خودکار تازه می‌شوند.
 
 به‌همین دلیل، داده‌ی اپراتورهای مسدود باید از **داخل ایران** گرفته شود.
 
@@ -46,7 +46,7 @@ git add src/data/providers && git commit -m "data: refresh" && git push
 node update/fetch-providers.mjs                                          # همه‌ی آداپتورها
 node update/fetch-providers.mjs --only samantel                          # فقط سامانتل
 node update/fetch-providers.mjs --only aptel                             # فقط آپتل (عمومی زنده)
-node update/fetch-providers.mjs --only aptel --input my.aptel.ir.har      # آپتل + نمونه‌های پنل «آپتل من» از HAR
+node update/fetch-providers.mjs --only aptel --input my.aptel.ir.har      # آپتل: بخش پنل «آپتل من» از HAR (عمومی خودکار تازه می‌شود)
 node update/fetch-providers.mjs --only mci --input shop.har              # همراه اول از فایل HAR یا JSON (فروشگاه یا پنل همراه من)
 node update/fetch-providers.mjs --only irancell --input my.irancell.ir.har  # ایرانسل: بخش اپ از HAR (وب‌سایت خودکار تازه می‌شود)
 node update/fetch-providers.mjs --only rightel --input rightel.har       # رایتل (همراه + مودم) از فایل HAR یا JSON
@@ -111,7 +111,8 @@ node update/fetch-providers.mjs --only rightel --input rightel.har       # را�
 - فیلد `kind` یکی از مقادیر `internet` (پیش‌فرض)، `combo` (ترکیبی) یا `roaming` (رومینگ) است.
 - فیلد اختیاری `domesticOnly: true` برای بسته‌های محدود به اینترنت داخلی (مانند انارستان) استفاده می‌شود.
 - فیلد اختیاری `portalOnly: true` برای بسته‌هایی که **فقط از اپ/پنل اپراتور** فروخته می‌شوند (همراه من، ایرانسل من یا آپتل من) — در رابط کاربری برچسب «فروش فقط از …» می‌گیرند و فیلد `buyUrl` همان بسته به صفحه‌ی خرید پنل اشاره می‌کند.
-- برای اپراتورهایی که قیمت پس از ورود به حساب متفاوت است، بلوک `personalized` به‌شکل زیر تعریف می‌شود:
+- برای اپراتورهای ترکیبی (همراه اول، ایرانسل، آپتل)، شیء اختیاری `source.parts` زمان دریافت هر زیرمنبع (`public`، `web`، `shop`، `portal`) را جداگانه نگه می‌دارد تا رابط کاربری تاریخ هر بخش را دقیق نشان دهد و در صورت گذشت بیش از ۷ روز از منابع دستی/ترکیبی هشدار بدهد.
+- برای اپراتورهایی که قیمت پس از ورود به حساب متفاوت است، بلوک `personalized` (به‌همراه `capturedAt` برای جلوگیری از تغذیه‌ی مجدد HAR قدیمی‌تر) به‌شکل زیر تعریف می‌شود:
 
 <div dir="ltr">
 
@@ -120,6 +121,7 @@ node update/fetch-providers.mjs --only rightel --input rightel.har       # را�
   "applies": true,
   "note": "توضیح کوتاه برای کاربر",
   "source": "منبع و تاریخ ضبط نمونه‌ها",
+  "capturedAt": "2026-11-15T19:23:21.934Z",
   "samples": [
     { "title": "…", "gb": 100, "days": 30, "price": 460000, "oldPrice": 600000, "discountPct": 23 }
   ]
