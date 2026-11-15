@@ -16,17 +16,17 @@
   "source": {
     "kind": "api",
     "endpoint": "ادغام دو منبع: کاتالوگ عمومی irancell.ir/e/products (خودکار) + اپلیکیشن ایرانسل‌من my.irancell.ir (فقط HAR از داخل ایران)",
-    "fetchedAt": "2026-11-15T22:53:10.839Z",
+    "fetchedAt": "2026-11-15T22:57:58.790Z",
     "parts": {
       "web": {
         "kind": "api",
         "endpoint": "GET irancell.ir/e/products/5e16bf95d11fd7209ba56b20 (public catalog JSON)",
-        "fetchedAt": "2026-11-15T22:53:10.839Z"
+        "fetchedAt": "2026-11-15T22:57:58.790Z"
       },
       "portal": {
         "kind": "har",
         "endpoint": "GET my.irancell.ir/api/catalog/v2/offers (normal + promo) — کاتالوگ اپ ایرانسل‌من؛ API نیازمند ورود، بروزرسانی فقط با HAR از داخل ایران",
-        "fetchedAt": "2026-11-15T22:52:33.260Z"
+        "fetchedAt": "2026-11-15T22:57:26.321Z"
       }
     }
   },
@@ -49,7 +49,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "شبانه (۲ تا ۷ صبح)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -66,7 +66,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "شبانه (۲ تا ۷ صبح)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -83,7 +83,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۶۲۶۶۰ تومان)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -128,7 +128,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "شبانه (۲ تا ۷ صبح)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -159,7 +159,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "شبانه (۲ تا ۷ صبح)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -190,7 +190,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "اعتبار مصرف: ۱۸۰ دقیقه از فعال‌سازی",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -221,7 +221,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "صبحانه (۶ صبح تا ۱۲ ظهر)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -238,7 +238,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "شبانه (۲ تا ۷ صبح)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -255,7 +255,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "صبحانه (۶ صبح تا ۱۲ ظهر)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -272,7 +272,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "صبحانه (۶ صبح تا ۱۲ ظهر)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -320,7 +320,24 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ترکیبی: ۲۰۲۶ دقیقه مکالمه درون‌شبکه · قابل استفاده در سرویس‌های ورزشی (آپارات‌اسپرت، آنتن، آی‌اسپورت، ورزش۳، فوتبال۳۶۰)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO4436HGW",
+      "title": "۵ گیگابایت ساعتی",
+      "kind": "internet",
+      "gb": 5,
+      "days": 1,
+      "price": 33500,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۱۸۰ دقیقه از فعال‌سازی",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -337,7 +354,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ترکیبی: ۲۰۲۶ دقیقه مکالمه درون‌شبکه · قابل استفاده در سرویس‌های ورزشی (آپارات‌اسپرت، آنتن، آی‌اسپورت، ورزش۳، فوتبال۳۶۰)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -385,9 +402,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-my-61492",
@@ -402,9 +419,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۷۳۳۴۰ تومان)",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-my-64133",
@@ -419,7 +436,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۶۲۶۶۰ تومان)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -436,7 +453,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -453,9 +470,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-my-62455",
@@ -470,9 +487,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-my-PO4443HGW",
@@ -487,7 +504,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -504,9 +521,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-my-PO5383AKA",
@@ -521,7 +538,24 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۱۹۶۴۰ تومان)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO4416HGW",
+      "title": "۲ گیگابایت ساعتی",
+      "kind": "internet",
+      "gb": 2,
+      "days": 1,
+      "price": 19900,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -538,9 +572,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-my-PO4460HGW",
@@ -555,7 +589,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -572,9 +606,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۴۲۶۱۰ تومان)",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-699f4e461918a5e43e35333b",
@@ -701,7 +735,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -718,7 +752,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۲۸۹۳۰ تومان)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -822,7 +856,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -853,9 +887,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-5e4d2ed3aaad7304ae9fb7c6",
@@ -926,9 +960,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-my-PO2370HBH",
@@ -943,9 +977,26 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO4413HGW",
+      "title": "۱ گیگابایت ساعتی",
+      "kind": "internet",
+      "gb": 1,
+      "days": 1,
+      "price": 13500,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-5e4d434daaad7304ae9fb805",
@@ -988,9 +1039,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-my-PO5933PNC",
@@ -1005,9 +1056,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۳۷۱۸۰ تومان)",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-my-PO5393AKA",
@@ -1022,7 +1073,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -1053,7 +1104,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -1084,7 +1135,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "به‌همراه اشتراک پلتفرم‌های دیجیتال (فرادرس، فیلیمومدرسه، تاملند، لینگانو، طاقچه و…)",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -1118,7 +1169,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -1149,9 +1200,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
-      "buyUrl": "https://my.irancell.ir/dlp?id=proi",
-      "lastSeen": "2026-11-15T10:42:04.721Z"
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-5e4d2a50aaad7323c787710f",
@@ -1239,7 +1290,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -1256,7 +1307,24 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-15T22:52:33.260Z",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO4431HGW",
+      "title": "۵۰۰ مگابایت ساعتی",
+      "kind": "internet",
+      "gb": 0.4883,
+      "days": 1,
+      "price": 11200,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
       "portalOnly": true,
       "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
@@ -1303,6 +1371,23 @@
       "note": null
     },
     {
+      "id": "irancell-my-PO4425HGW",
+      "title": "۳۰۰ مگابایت ساعتی",
+      "kind": "internet",
+      "gb": 0.293,
+      "days": 1,
+      "price": 8600,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
+      "lastSeen": "2026-11-15T22:57:26.321Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
       "id": "irancell-5e4d41b8aaad7304ae9fb7fe",
       "title": "۷۵۰ مگابایت",
       "kind": "internet",
@@ -1343,6 +1428,18 @@
     {
       "title": "تعرفه آزاد ۱۴۰۰ت هرگیگ",
       "reason": "تعرفه پرداخت به‌ازای هر گیگ (پنجره‌ی ساعتی خاص) — حجم ثابت ندارد"
+    },
+    {
+      "title": "اشتراک اینترنت با قیمت۱۴۰۰ت هرگیگ ۳۰روزه ( ۲ تا ۱۱ صبح)",
+      "reason": "اشتراک پرداخت به‌ازای هر گیگ — حجم ثابت ندارد"
+    },
+    {
+      "title": "اشتراک اینترنت با قیمت ۲۸۰۰ت هرگیگ ۳۰روزه ( ۶ تا۱۱ صبح)",
+      "reason": "اشتراک پرداخت به‌ازای هر گیگ — حجم ثابت ندارد"
+    },
+    {
+      "title": "اشتراک اینترنت با قیمت ۸۴۰ت هرگیگ ۳۰روزه (۲ تا ۷ صبح)",
+      "reason": "اشتراک پرداخت به‌ازای هر گیگ — حجم ثابت ندارد"
     },
     {
       "title": "اشتراک اینترنت با قیمت۱۴۰۰ت هرگیگ ۳۰روزه ( ۲ تا ۱۱ صبح)",
