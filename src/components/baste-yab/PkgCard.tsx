@@ -165,32 +165,32 @@ export function PkgCard({
             {r.note}
           </p>
         )}
+        {r.group && (
+          <div className="mt-1.5 truncate text-xs text-muted-foreground">
+            دسته: <span className="font-medium text-foreground/85">{r.group}</span>
+          </div>
+        )}
       </div>
 
-      {/* Readable 2-cell specs bar */}
-      <div className="mt-4 grid grid-cols-2 divide-x divide-x-reverse divide-border/70 rounded-lg border border-border/60 bg-muted/40 py-2.5 text-center">
-        <div className="px-3">
-          <div className="text-[11px] text-muted-foreground">حجم بسته</div>
-          <div className="fa-num mt-0.5 text-sm font-bold text-foreground">
-            {fmtGB(r.gb)}
-          </div>
-        </div>
-        <div className="px-3">
-          <div className="text-[11px] text-muted-foreground">مدت اعتبار</div>
-          <div className="fa-num mt-0.5 text-sm font-bold text-foreground">
-            {r.days ? `${faDigits(r.days)} روز` : "—"}
-          </div>
-        </div>
-      </div>
-      {r.group && (
-        <div className="mt-2 truncate text-xs text-muted-foreground">
-          دسته: <span className="font-medium text-foreground/85">{r.group}</span>
-        </div>
-      )}
-
-      {/* Value & Price section — both prices aligned on the same baseline */}
+      {/* Bottom-aligned specs + Value & Price section so boxes line up across grid rows */}
       <div className="mt-auto pt-4">
-        <div className="border-t border-border/60 pt-3.5">
+        {/* Readable 2-cell specs bar right above the price/unit-value line */}
+        <div className="grid grid-cols-2 divide-x divide-x-reverse divide-border/70 rounded-lg border border-border/60 bg-muted/40 py-2.5 text-center">
+          <div className="px-3">
+            <div className="text-[11px] text-muted-foreground">حجم بسته</div>
+            <div className="fa-num mt-0.5 text-sm font-bold text-foreground">
+              {fmtGB(r.gb)}
+            </div>
+          </div>
+          <div className="px-3">
+            <div className="text-[11px] text-muted-foreground">مدت اعتبار</div>
+            <div className="fa-num mt-0.5 text-sm font-bold text-foreground">
+              {r.days ? `${faDigits(r.days)} روز` : "—"}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3.5 border-t border-border/60 pt-3.5">
           {/* Row 1: Unit value & Total price on the exact same line */}
           <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <div className="flex flex-wrap items-baseline gap-1.5 min-w-0">
