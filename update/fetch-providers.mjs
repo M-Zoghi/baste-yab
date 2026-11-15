@@ -193,7 +193,7 @@ async function fetchSamantel() {
     schema: 2,
     provider: {
       id: 'samantel', nameFa: 'سامانتل', nameEn: 'Samantel', category: 'mobile',
-      tech: 'اپراتور مجازی · 4G/5G · TD-LTE', regions: ['سراسری'], accent: '#10b981', site: 'https://samantel.ir',
+      tech: 'اپراتور مجازی · 4G/5G · TD-LTE', regions: ['سراسری'], accent: '#EA5B0C', site: 'https://samantel.ir',
       buyUrl: 'https://payment.samantel.ir/package',
     },
     source: { kind: 'api', endpoint: 'POST /api/mediator/samantel/ (getpackagebyproduct, productId=1)', fetchedAt: new Date().toISOString() },
@@ -1437,7 +1437,7 @@ function rightelDocs(items, fetchedAt) {
     schema: 2,
     provider: {
       id: 'rightel', nameFa: 'رایتل', nameEn: 'Rightel', category: 'mobile',
-      tech: '4G/5G', regions: ['سراسری'], accent: '#8b5cf6',
+      tech: '4G/5G', regions: ['سراسری'], accent: '#A72B77',
       site: 'https://www.rightel.ir', buyUrl: RIGHTEL_PAGE,
     },
     source: {
@@ -1453,7 +1453,7 @@ function rightelDocs(items, fetchedAt) {
     schema: 2,
     provider: {
       id: 'rightel-tdlte', nameFa: 'رایتل (مودم)', nameEn: 'Rightel Modem', category: 'home',
-      tech: 'سیم‌کارت دیتا · 4G/5G', regions: ['سراسری'], accent: '#8b5cf6',
+      tech: 'سیم‌کارت دیتا · 4G/5G', regions: ['سراسری'], accent: '#A72B77',
       site: 'https://www.rightel.ir', buyUrl: RIGHTEL_PAGE,
     },
     source: {

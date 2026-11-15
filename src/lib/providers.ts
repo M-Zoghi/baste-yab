@@ -131,7 +131,7 @@ export const ENTRIES: Entry[] = [
   },
   {
     key: "rightel-tdlte", nameFa: "رایتل (مودم)", nameEn: "Rightel Modem", category: "home",
-    tech: "سیم‌کارت دیتا · 4G/5G", regions: ["سراسری"], accent: "#7c3aed",
+    tech: "سیم‌کارت دیتا · 4G/5G", regions: ["سراسری"], accent: "#A72B77",
     site: "https://www.rightel.ir", buyUrl: "https://package.rightel.ir/packagesList",
     status: "live", doc: DOCS["rightel-tdlte"],
     updateMode: "manual",
@@ -156,7 +156,7 @@ export const ENTRIES: Entry[] = [
   },
   {
     key: "samantel", nameFa: "سامانتل", nameEn: "Samantel", category: "mobile",
-    tech: "اپراتور مجازی · 4G/5G · TD-LTE", regions: ["سراسری"], accent: "#10b981",
+    tech: "اپراتور مجازی · 4G/5G · TD-LTE", regions: ["سراسری"], accent: "#EA5B0C",
     site: "https://samantel.ir", buyUrl: "https://payment.samantel.ir/package",
     status: "live", doc: DOCS.samantel,
     updateMode: "auto",
@@ -180,7 +180,7 @@ export const ENTRIES: Entry[] = [
   },
   {
     key: "rightel", nameFa: "رایتل", nameEn: "Rightel", category: "mobile",
-    tech: "4G/5G", regions: ["سراسری"], accent: "#7c3aed",
+    tech: "4G/5G", regions: ["سراسری"], accent: "#A72B77",
     site: "https://www.rightel.ir", buyUrl: "https://package.rightel.ir/packagesList",
     status: "live", doc: DOCS.rightel,
     updateMode: "manual",
