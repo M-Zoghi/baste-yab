@@ -6,6 +6,23 @@
  *  • samantel  — public API (verified 2026-11): POST /api/mediator/samantel/
  *    form-encoded `method=getpackagebyproduct&productId=1`; rial priceNoTax,
  *    verified price = priceNoTax × 1.1 (10% VAT added at the gateway).
+ *    Cross-checked 2026-11-15/16 against fresh payment.samantel.ir +
+ *    pwa.samantel.ir HARs: the buy page's anonymous call needs NO number;
+ *    after entering one the page switches to `getpackagelistv2&mobile=…`
+ *    (server-side number check — a bogus number gets errCode=20) and the
+ *    «مای سامانتل» PWA app calls pwa.samantel.ir/api/SamantelApi/
+ *    GetPackageList?phoneNumber=… with NO auth headers on the wire — and
+ *    ALL THREE return the IDENTICAL 38-offer catalog (zero field diffs).
+ *    So the app sells nothing exclusive: no login-gated and no
+ *    number-personalized packs → no samantel-my-* ids, no union ledger; the
+ *    public API alone is the source of truth (a pack gone from it is gone).
+ *    pwa.samantel.ir is geo-blocked outside Iran (connects time out) —
+ *    irrelevant anyway: the payment endpoint live-refreshes daily. productId=2
+ *    also exists (another line type) but only adds Afghanistan VOICE bundles
+ *    (no data → excluded by the gb>0 rule anyway) and lacks the نذر آب packs;
+ *    the buy page itself queries productId=1, so the adapter stays on it. If
+ *    a future app capture ever diverges from the public list, wire it in
+ *    like the other portals (portalUnion).
  *  • aptel     — TWO parts (verified 2026-11-06/15, thanks to HAR captures):
  *    A) PUBLIC — GET https://www.aptel.ir/api/ep/query?scope=public — no
  *       login needed and reachable from outside Iran → auto-refreshes.
@@ -227,23 +244,40 @@ function portalUnion(prevPacks, freshPacks, capturedAt, prevFallbackAt, label) {
 }
 
 /* ─────────── samantel ─────────── */
+const SAMANTEL_STALE_DAYS = 14; // public API unreachable → keep the previous capture up to this age
 async function fetchSamantel() {
   const body = new URLSearchParams({ method: 'getpackagebyproduct', productId: '1' });
-  const res = await fetch('https://payment.samantel.ir/api/mediator/samantel/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'X-Requested-With': 'XMLHttpRequest',
-      Referer: 'https://payment.samantel.ir/package',
-      'User-Agent': UA,
-    },
-    body: body.toString(),
-    signal: AbortSignal.timeout(20000),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  if (json.errCode !== 0 || !Array.isArray(json.result)) {
-    throw new Error(`API errCode=${json.errCode} ${json.errDesc || ''}`);
+  let json;
+  try {
+    const res = await fetch('https://payment.samantel.ir/api/mediator/samantel/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With': 'XMLHttpRequest',
+        Referer: 'https://payment.samantel.ir/package',
+        'User-Agent': UA,
+      },
+      body: body.toString(),
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    json = await res.json();
+    if (json.errCode !== 0 || !Array.isArray(json.result)) {
+      throw new Error(`API errCode=${json.errCode} ${json.errDesc || ''}`);
+    }
+  } catch (e) {
+    /* public API unreachable from here (geo-block creep) → stale-keep, exactly
+       like rightel/aptel: keep a recent capture, fail loudly past the window */
+    try {
+      const prev = JSON.parse(await readFile(path.join(DATA_DIR, 'samantel.json'), 'utf8'));
+      const ageDays = prev.source?.fetchedAt ? (Date.now() - Date.parse(prev.source.fetchedAt)) / 86400000 : Infinity;
+      if (Number.isFinite(ageDays) && ageDays <= SAMANTEL_STALE_DAYS) {
+        console.log(`• samantel: public API unreachable from here (${e.message}) — kept the ${prev.source.fetchedAt.slice(0, 10)} capture (${ageDays.toFixed(1)}d old ≤ ${SAMANTEL_STALE_DAYS}d)`);
+        return;
+      }
+      console.log(`• samantel: capture is ${Number.isFinite(ageDays) ? ageDays.toFixed(1) : '?'}d old — refresh when payment.samantel.ir is reachable again`);
+    } catch { /* no previous file yet */ }
+    throw e;
   }
   const RIAL = 10;
   const packages = [];
