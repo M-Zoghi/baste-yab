@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Download,
   Monitor,
@@ -18,6 +19,15 @@ import { useOnlineStatus, usePWAInstall } from "@/hooks/use-pwa-install";
 export function PWAInstallButton() {
   const { isInstallable, isInstalled, platform, install } = usePWAInstall();
   const [showGuide, setShowGuide] = useState(false);
+
+  useEffect(() => {
+    if (!showGuide) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowGuide(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showGuide]);
 
   if (isInstalled) {
     return null;
@@ -45,19 +55,21 @@ export function PWAInstallButton() {
         <span>نصب اپ</span>
       </Button>
 
-      {showGuide && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="pwa-guide-title"
-          onClick={() => setShowGuide(false)}
-        >
+      {showGuide &&
+        typeof document !== "undefined" &&
+        createPortal(
           <div
-            dir="rtl"
-            className="w-full max-w-md rounded-2xl border border-border bg-card p-5 text-right shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-xs"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pwa-guide-title"
+            onClick={() => setShowGuide(false)}
           >
+            <div
+              dir="rtl"
+              className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-5 text-right shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 id="pwa-guide-title" className="text-base font-extrabold text-foreground">
@@ -162,7 +174,8 @@ export function PWAInstallButton() {
               متوجه شدم
             </Button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

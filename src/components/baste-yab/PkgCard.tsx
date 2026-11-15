@@ -181,23 +181,45 @@ export function PkgCard({
         </div>
       )}
 
-      {/* Value & Price section — natural RTL reading flow */}
+      {/* Value & Price section — both prices aligned on the same baseline */}
       <div className="mt-auto pt-4">
-        <div className="flex items-end justify-between gap-4 border-t border-border/60 pt-3.5">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-baseline gap-1.5">
+        <div className="border-t border-border/60 pt-3.5">
+          {/* Row 1: Unit value & Total price on the exact same line */}
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <div className="flex flex-wrap items-baseline gap-1.5 min-w-0">
               <span
-                className="fa-num text-[22px] font-extrabold tracking-tight"
+                className="fa-num text-[21px] font-extrabold leading-7 tracking-tight"
                 style={{ color: meterColor }}
               >
                 {fmtValue(r.value)}
               </span>
-              <span className="text-xs font-medium text-muted-foreground">
+              <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
                 {metric === "pergb" ? "تومان بر گیگ" : "تومان / گیگ×روز"}
               </span>
             </div>
 
-            <div className="mt-1.5 flex items-center gap-1 text-xs font-medium text-muted-foreground">
+            <div className="flex flex-wrap items-baseline justify-end gap-1.5 shrink-0 text-end">
+              {r.isFree ? (
+                <span className="text-[18px] font-extrabold leading-7 text-primary">رایگان</span>
+              ) : (
+                <>
+                  {old != null && (
+                    <span className="fa-num text-xs text-muted-foreground line-through decoration-1">
+                      {fmtToman(old)}
+                    </span>
+                  )}
+                  <span className="fa-num text-[18px] font-extrabold leading-7 text-foreground whitespace-nowrap">
+                    {fmtToman(price)}{" "}
+                    <span className="text-xs font-medium text-muted-foreground">تومان</span>
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: Relative rank note & Buy CTA */}
+          <div className="mt-2.5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground min-w-0">
               {r.isFree ? (
                 <span className="inline-flex items-center gap-1 font-bold text-primary">
                   <Gift className="h-3.5 w-3.5" />
@@ -219,31 +241,13 @@ export function PkgCard({
                 "—"
               )}
             </div>
-          </div>
-
-          <div className="shrink-0 text-end">
-            {r.isFree ? (
-              <div className="text-lg font-extrabold text-primary">رایگان</div>
-            ) : (
-              <>
-                {old != null && (
-                  <div className="fa-num text-xs text-muted-foreground line-through decoration-1">
-                    {fmtToman(old)}
-                  </div>
-                )}
-                <div className="fa-num text-[18px] font-extrabold leading-7 text-foreground">
-                  {fmtToman(price)}{" "}
-                  <span className="text-xs font-medium text-muted-foreground">تومان</span>
-                </div>
-              </>
-            )}
 
             <a
               href={r.buyUrl}
               target="_blank"
               rel="noreferrer"
               title={r.portalOnly ? "خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست" : undefined}
-              className="mt-2 inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-lg bg-secondary px-4 py-1.5 text-[13px] font-bold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground whitespace-nowrap shrink-0"
+              className="inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg bg-secondary px-4 py-1.5 text-[13px] font-bold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground whitespace-nowrap shrink-0"
             >
               <span>خرید</span>
               <ExternalLink className="h-3.5 w-3.5" />
