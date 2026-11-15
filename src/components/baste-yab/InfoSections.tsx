@@ -172,7 +172,7 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
           </h2>
           <p className="mt-1 text-xs leading-6 text-muted-foreground">
             <strong className="text-foreground">سامانتل</strong> و{" "}
-            <strong className="text-foreground">آپتل</strong> هر روز ساعت ۰۷:۰۰ به‌وقت تهران
+            <strong className="text-foreground">آپتل</strong> هر روز حدود ساعت ۰۶:۴۷ به‌وقت تهران
             به‌طور <strong className="text-primary">خودکار</strong> از GitHub Actions بروزرسانی
             می‌شوند. <strong className="text-foreground">ایرانسل</strong>،{" "}
             <strong className="text-foreground">رایتل (همراه و مودم)</strong> و{" "}

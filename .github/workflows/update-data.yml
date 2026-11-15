@@ -2,11 +2,12 @@ name: Refresh provider data
 
 on:
   schedule:
-    - cron: "30 3 * * *" # daily 03:30 UTC (07:00 Tehran)
+    - cron: "17 3 * * *" # daily ~03:17 UTC (~06:47 Tehran, off-peak minute for GitHub cron)
   workflow_dispatch:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   refresh:
@@ -24,7 +25,9 @@ jobs:
       - name: Run adapters
         run: node update/fetch-providers.mjs
 
-      - name: Commit if changed
+      - name: Commit and deploy Pages if changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "data-bot"
           git config user.email "actions@users.noreply.github.com"
@@ -34,4 +37,6 @@ jobs:
           else
             git commit -m "data: refresh $(date -u +%F)"
             git push
+            # GITHUB_TOKEN pushes do not trigger on:push workflows, so trigger Pages explicitly
+            gh workflow run pages.yml --ref main
           fi

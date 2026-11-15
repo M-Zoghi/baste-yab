@@ -3,6 +3,9 @@ import localFont from "next/font/local";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { OfflineIndicator } from "@/components/baste-yab/PwaInstall";
+
+const bp = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 const estedad = localFont({
   src: [
@@ -32,6 +35,18 @@ export const metadata: Metadata = {
     "مخابرات",
     "آسیاتک",
   ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "بسته‌یاب",
+  },
+  icons: {
+    icon: [
+      { url: `${bp}/icon.svg`, type: "image/svg+xml" },
+      { url: `${bp}/pwa-192x192.png`, sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: `${bp}/apple-touch-icon.png`, sizes: "180x180", type: "image/png" }],
+  },
   openGraph: {
     title: "بسته‌یاب — مقایسه بسته‌های اینترنت",
     description: "ارزش هر بسته به تومان بر گیگ — رتبه‌بندی زنده از سایت رسمی هر ارائه‌دهنده",
@@ -64,6 +79,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <OfflineIndicator />
           <Toaster />
         </ThemeProvider>
       </body>

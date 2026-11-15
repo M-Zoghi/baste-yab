@@ -13,13 +13,15 @@ import {
   RotateCcw,
   Scale,
   SearchX,
-  Signal,
   Smartphone,
   Sun,
   Table2,
   X,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { PWAInstallButton } from "@/components/baste-yab/PwaInstall";
+
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -347,14 +349,19 @@ export default function Page() {
       {/* ── Top Bar: 3-zone single-row contract ── */}
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:h-16 sm:px-6">
-          {/* Zone 1: Brand wordmark */}
+          {/* Zone 1: Brand logo & wordmark */}
           <a
             href="#"
-            className="inline-flex items-center gap-2 whitespace-nowrap shrink-0 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+            className="inline-flex items-center gap-2.5 whitespace-nowrap shrink-0 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
           >
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-              <Signal className="h-4 w-4" />
-            </span>
+            <img
+              src={`${BASE_PATH}/pwa-192x192.png`}
+              alt=""
+              width={32}
+              height={32}
+              referrerPolicy="no-referrer"
+              className="h-8 w-8 rounded-lg shadow-xs"
+            />
             <span className="text-[17px] font-extrabold tracking-tight">بسته‌یاب</span>
           </a>
 
@@ -397,7 +404,7 @@ export default function Page() {
             </button>
           </nav>
 
-          {/* Zone 3: Notices + Sources anchors + Theme toggle */}
+          {/* Zone 3: Notices + Sources anchors + Install App + Theme toggle */}
           <div className="flex items-center gap-2 shrink-0">
             <a
               href="#notices"
@@ -411,6 +418,7 @@ export default function Page() {
             >
               بروزرسانی داده‌ها
             </a>
+            <PWAInstallButton />
             <Button
               variant="outline"
               size="icon"

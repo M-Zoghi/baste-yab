@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="32" y1="24" x2="480" y2="488" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="55%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#065f46" />
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle background -->
+  <rect x="8" y="8" width="496" height="496" rx="108" fill="url(#bg)" />
+
+  <!-- Two clean signal arcs -->
+  <path
+    d="M 168 164 A 118 118 0 0 1 344 164"
+    stroke="#ffffff"
+    stroke-width="24"
+    stroke-linecap="round"
+  />
+  <path
+    d="M 197 196 A 78 78 0 0 1 315 196"
+    stroke="#a7f3d0"
+    stroke-width="22"
+    stroke-linecap="round"
+  />
+
+  <!-- Clean geometric isometric parcel box -->
+  <!-- Top-left & top-right halves separated by tape seam -->
+  <path d="M 256 206 L 340 250 L 298 272 L 214 228 Z" fill="#ffffff" />
+  <path d="M 200 235 L 284 279 L 256 294 L 172 250 Z" fill="#ffffff" />
+  <!-- Left front facet -->
+  <path d="M 168 262 L 248 304 L 248 396 L 168 354 Z" fill="#ffffff" />
+  <!-- Right front facet with clean top seal notch -->
+  <path d="M 264 304 L 290 290 L 290 326 L 306 318 L 306 282 L 344 262 L 344 354 L 264 396 Z" fill="#ffffff" />
+</svg>

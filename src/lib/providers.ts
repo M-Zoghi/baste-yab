@@ -160,7 +160,7 @@ export const ENTRIES: Entry[] = [
     site: "https://samantel.ir", buyUrl: "https://payment.samantel.ir/package",
     status: "live", doc: DOCS.samantel,
     updateMode: "auto",
-    updateNote: "بروزرسانی خودکار روزانه ساعت ۰۷:۰۰ تهران (GitHub Actions)",
+    updateNote: "بروزرسانی خودکار روزانه حدود ۰۶:۴۷ تهران (GitHub Actions)",
   },
   {
     key: "aptel", nameFa: "آپتل", nameEn: "Aptel", category: "mobile",
@@ -168,7 +168,7 @@ export const ENTRIES: Entry[] = [
     site: "https://www.aptel.ir", buyUrl: "https://www.aptel.ir/packages",
     status: "live", doc: DOCS.aptel, personalized: DOCS.aptel?.personalized,
     updateMode: "auto",
-    updateNote: "بروزرسانی خودکار روزانه ساعت ۰۷:۰۰ تهران (GitHub Actions)",
+    updateNote: "بروزرسانی خودکار روزانه حدود ۰۶:۴۷ تهران (GitHub Actions)",
   },
   {
     key: "irancell", nameFa: "ایرانسل", nameEn: "Irancell", category: "mobile",
