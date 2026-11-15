@@ -148,7 +148,7 @@ export function PkgCard({
             {r.portalOnly && (
               <span className="inline-flex items-center gap-1.5 rounded-md bg-sky-500/12 px-2 py-0.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
                 <Smartphone className="h-3.5 w-3.5 shrink-0" />
-                <span>فروش فقط از اپ همراه من / my.mci.ir</span>
+                <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
               </span>
             )}
           </div>
@@ -246,7 +246,7 @@ export function PkgCard({
               href={r.buyUrl}
               target="_blank"
               rel="noreferrer"
-              title={r.portalOnly ? "خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست" : undefined}
+              title={r.portalOnly ? (r.portalHint ?? "خرید از اپلیکیشن اپراتور") : undefined}
               className="inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg bg-secondary px-4 py-1.5 text-[13px] font-bold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground whitespace-nowrap shrink-0"
             >
               <span>خرید</span>

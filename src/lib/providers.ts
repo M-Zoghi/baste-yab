@@ -8,6 +8,7 @@ import aptelDoc from "@/data/providers/aptel.json";
 import mciDoc from "@/data/providers/mci.json";
 import mciModemDoc from "@/data/providers/mci-modem.json";
 import irancellDoc from "@/data/providers/irancell.json";
+import irancellTdlteDoc from "@/data/providers/irancell-tdlte.json";
 import rightelDoc from "@/data/providers/rightel.json";
 import rightelTdlteDoc from "@/data/providers/rightel-tdlte.json";
 
@@ -21,7 +22,7 @@ export interface Pkg {
   title: string;
   kind?: Kind;              // internet (default) | combo (voice+sms) | roaming
   domesticOnly?: boolean;   // e.g. MCI Anarestan — domestic Iranian traffic only
-  portalOnly?: boolean;     // sold ONLY via the operator app/portal (MCI همراه من / my.mci.ir), not the public web shop
+  portalOnly?: boolean;     // sold ONLY via the operator app/portal (MCI همراه من / my.mci.ir, Irancell ایرانسل من / my.irancell.ir), not the public web shop
   gb: number;
   days: number;
   price: number;            // toman, pre-tax (as printed on the provider card)
@@ -30,7 +31,7 @@ export interface Pkg {
   group: string | null;
   regulatoryCode: string | null;
   ussd?: string | null;
-  buyUrl?: string;          // per-package buy link (portal-only packs deep-link to my.mci.ir)
+  buyUrl?: string;          // per-package buy link (portal-only packs deep-link to the operator portal)
   note: string | null;
 }
 
@@ -99,6 +100,7 @@ const DOCS: Record<string, ProviderDoc> = {
   mci: mciDoc as ProviderDoc,
   "mci-modem": mciModemDoc as ProviderDoc,
   irancell: irancellDoc as ProviderDoc,
+  "irancell-tdlte": irancellTdlteDoc as ProviderDoc,
   rightel: rightelDoc as ProviderDoc,
   "rightel-tdlte": rightelTdlteDoc as ProviderDoc,
 };
@@ -124,10 +126,10 @@ export const ENTRIES: Entry[] = [
   {
     key: "irancell-tdlte", nameFa: "ایرانسل (ثابت)", nameEn: "Irancell TD-LTE", category: "home",
     tech: "TD-LTE", regions: ["سراسری"], accent: "#eab308",
-    site: "https://www.irancell.ir", status: "awaiting",
-    updateMode: "manual",
-    updateNote: "مسدود از خارج ایران — در انتظار اولین فایل HAR/JSON",
-    awaitingNote: "از خارج از ایران در دسترس نیست — HAR/JSON از صفحه بسته‌های TD-LTE لازم است",
+    site: "https://www.irancell.ir", buyUrl: "https://irancell.ir/p/305229/td-lte-internet-packages",
+    status: "live", doc: DOCS["irancell-tdlte"],
+    updateMode: "auto",
+    updateNote: "بروزرسانی خودکار روزانه حدود ۰۶:۴۷ تهران (GitHub Actions)",
   },
   {
     key: "rightel-tdlte", nameFa: "رایتل (مودم)", nameEn: "Rightel Modem", category: "home",
@@ -175,8 +177,8 @@ export const ENTRIES: Entry[] = [
     tech: "4G/5G", regions: ["سراسری"], accent: "#eab308",
     site: "https://www.irancell.ir", buyUrl: "https://irancell.ir/o/1001/mobile-internet-packages",
     status: "live", doc: DOCS.irancell,
-    updateMode: "manual",
-    updateNote: "بروزرسانی دستی از داخل ایران (API از خارج ایران مسدود است)",
+    updateMode: "hybrid",
+    updateNote: "ادغام وب‌سایت + اپ ایرانسل‌من (۷۰ بسته): سایت خودکار روزانه · اپ دستی از ایران",
   },
   {
     key: "rightel", nameFa: "رایتل", nameEn: "Rightel", category: "mobile",
@@ -190,11 +192,31 @@ export const ENTRIES: Entry[] = [
 
 export const VAT_RATE = 0.1;
 
+/* Operator app/portal branding for the «فروش فقط از …» badges — each provider
+ * that sells portal-only packs names its own app so the UI text stays exact. */
+export const PORTAL_LABELS: Record<string, { badge: string; hint: string }> = {
+  mci: {
+    badge: "فروش فقط از اپ همراه من / my.mci.ir",
+    hint: "خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست",
+  },
+  "mci-modem": {
+    badge: "فروش فقط از اپ همراه من / my.mci.ir",
+    hint: "خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست",
+  },
+  irancell: {
+    badge: "فروش فقط از اپ ایرانسل من / my.irancell.ir",
+    hint: "خرید از اپلیکیشن ایرانسل من یا my.irancell.ir — در فروشگاه آنلاین irancell.ir نیست",
+  },
+};
+const FALLBACK_PORTAL_LABEL = { badge: "فروش فقط از اپ اپراتور", hint: undefined } as const;
+
 export interface DerivedPkg extends Pkg {
   entryKey: string;
   providerName: string;
   providerAccent: string;
   buyUrl: string;
+  portalLabel: string | null;  // «فروش فقط از …» badge text (portal-only packs)
+  portalHint: string | null;   // buy-button tooltip (portal-only packs)
   fetchedAt: string;
   sourceKind: string;
   kind: Kind; // materialized with default
@@ -231,11 +253,16 @@ export function allPackages(): DerivedPkg[] {
       if (/مشترکین جدید/.test(text)) restrictions.push("newUser");
       if (/زیر ۲۸ سال/.test(text)) restrictions.push("youth");
 
+      const portalOnly = Boolean(p.portalOnly);
+      const portalInfo = portalOnly ? (PORTAL_LABELS[e.key] ?? FALLBACK_PORTAL_LABEL) : null;
+
       out.push({
         ...p,
         kind: p.kind ?? "internet",
         domesticOnly,
-        portalOnly: Boolean(p.portalOnly),
+        portalOnly,
+        portalLabel: portalInfo ? portalInfo.badge : null,
+        portalHint: portalInfo ? portalInfo.hint ?? null : null,
         restrictions,
         entryKey: e.key,
         providerName: e.nameFa,

@@ -15,15 +15,43 @@
   },
   "source": {
     "kind": "api",
-    "endpoint": "GET irancell.ir/e/products/5e16bf95d11fd7209ba56b20 (public catalog JSON)",
-    "fetchedAt": "2026-11-14T21:45:32.168Z"
+    "endpoint": "ادغام دو منبع: کاتالوگ عمومی irancell.ir/e/products (خودکار) + اپلیکیشن ایرانسل‌من my.irancell.ir (فقط HAR از داخل ایران)",
+    "fetchedAt": "2026-11-15T10:42:04.721Z",
+    "parts": {
+      "web": {
+        "kind": "api",
+        "endpoint": "GET irancell.ir/e/products/5e16bf95d11fd7209ba56b20 (public catalog JSON)",
+        "fetchedAt": "2026-11-15T10:41:55.758Z"
+      },
+      "portal": {
+        "kind": "har",
+        "endpoint": "GET my.irancell.ir/api/catalog/v2/offers (normal + promo) — کاتالوگ اپ ایرانسل‌من؛ API نیازمند ورود، بروزرسانی فقط با HAR از داخل ایران",
+        "fetchedAt": "2026-11-15T10:42:04.721Z"
+      }
+    }
   },
   "prices": {
     "unit": "toman",
     "includesTax": false,
-    "apiUnit": "toman"
+    "apiUnit": "toman (web) · rial (portal)"
   },
   "packages": [
+    {
+      "id": "irancell-my-PO6233KUZ",
+      "title": "۸۰ گیگابایت (۲ تا ۷ صبح)",
+      "kind": "internet",
+      "gb": 80,
+      "days": 30,
+      "price": 52530,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "شبانه (۲ تا ۷ صبح)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
     {
       "id": "irancell-6a6f287eaa86fe459055cbbe",
       "title": "۱۵۰ گیگابایت (۲ تا ۷ صبح) و ۳۰۰ دقیقه مکالمه داخل شبکه",
@@ -53,6 +81,22 @@
       "note": "شبانه (۲ تا ۷ صبح) · ترکیبی: ۲۴۰ دقیقه مکالمه داخل شبکه"
     },
     {
+      "id": "irancell-my-PO6231KUZ",
+      "title": "۵ گیگابایت (۲ تا ۷ صبح)",
+      "kind": "internet",
+      "gb": 5,
+      "days": 7,
+      "price": 6640,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "شبانه (۲ تا ۷ صبح)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
       "id": "irancell-6a6f2790aa86fe459055cbba",
       "title": "۲۰ گیگابایت (۲ تا ۷ صبح) و ۱۲۰ دقیقه مکالمه داخل شبکه",
       "kind": "combo",
@@ -65,6 +109,22 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "شبانه (۲ تا ۷ صبح) · ترکیبی: ۱۲۰ دقیقه مکالمه داخل شبکه"
+    },
+    {
+      "id": "irancell-my-PO6230KUZ",
+      "title": "۲ گیگابایت (۲ تا ۷ صبح)",
+      "kind": "internet",
+      "gb": 2,
+      "days": 7,
+      "price": 3980,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "شبانه (۲ تا ۷ صبح)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-6ada9fdde24dbf468d5ef6ee",
@@ -95,6 +155,86 @@
       "note": "شبانه (۲ تا ۷ صبح) · ترکیبی: ۶۰ دقیقه مکالمه داخل شبکه"
     },
     {
+      "id": "irancell-my-PO6236KUZ",
+      "title": "۱۰ گیگابایت (۶ صبح تا ۱۲ ظهر)",
+      "kind": "internet",
+      "gb": 10,
+      "days": 30,
+      "price": 23900,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "صبحانه (۶ صبح تا ۱۲ ظهر)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO6229KUZ",
+      "title": "۵۰۰ مگابایت (۲ تا ۷ صبح)",
+      "kind": "internet",
+      "gb": 0.4883,
+      "days": 1,
+      "price": 1330,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "شبانه (۲ تا ۷ صبح)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO6235KUZ",
+      "title": "۷ گیگابایت (۶ صبح تا ۱۲ ظهر)",
+      "kind": "internet",
+      "gb": 7,
+      "days": 30,
+      "price": 19930,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "صبحانه (۶ صبح تا ۱۲ ظهر)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO6234KUZ",
+      "title": "۴ گیگابایت (۶ صبح تا ۱۲ ظهر)",
+      "kind": "internet",
+      "gb": 4,
+      "days": 7,
+      "price": 11950,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "صبحانه (۶ صبح تا ۱۲ ظهر)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO4434HGW",
+      "title": "۵ گیگابایت ساعتی",
+      "kind": "internet",
+      "gb": 5,
+      "days": 1,
+      "price": 16800,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۱۸۰ دقیقه از فعال‌سازی",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
       "id": "irancell-6a4540c6aa86fe459055cb7e",
       "title": "۴ گیگابایت و ۸ گیگابایت (۲ تا ۷ صبح)",
       "kind": "internet",
@@ -109,6 +249,38 @@
       "note": "شامل ۸ گیگ شبانه (۲ تا ۷ صبح)"
     },
     {
+      "id": "irancell-my-PO6169RSI",
+      "title": "۹۰ گیگابایت فوتبالی پلاس",
+      "kind": "combo",
+      "gb": 90,
+      "days": 60,
+      "price": 546000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ترکیبی: ۲۰۲۶ دقیقه مکالمه درون‌شبکه · قابل استفاده در سرویس‌های ورزشی (آپارات‌اسپرت، آنتن، آی‌اسپورت، ورزش۳، فوتبال۳۶۰)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO6168RSI",
+      "title": "۴۵ گیگابایت فوتبالی پلاس",
+      "kind": "combo",
+      "gb": 45,
+      "days": 60,
+      "price": 315000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ترکیبی: ۲۰۲۶ دقیقه مکالمه درون‌شبکه · قابل استفاده در سرویس‌های ورزشی (آپارات‌اسپرت، آنتن، آی‌اسپورت، ورزش۳، فوتبال۳۶۰)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
       "id": "irancell-6a454066aa86fe459055cb7c",
       "title": "۲ گیگابایت و ۴ گیگابایت (۲ تا ۷ صبح)",
       "kind": "internet",
@@ -121,6 +293,150 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "شامل ۴ گیگ شبانه (۲ تا ۷ صبح)"
+    },
+    {
+      "id": "irancell-my-PO4415HGW",
+      "title": "۲ گیگابایت ساعتی",
+      "kind": "internet",
+      "gb": 2,
+      "days": 1,
+      "price": 16600,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-61484",
+      "title": "۵.۵ گیگابایت",
+      "kind": "internet",
+      "gb": 5.5,
+      "days": 15,
+      "price": 46500,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-61492",
+      "title": "۶ گیگابایت",
+      "kind": "internet",
+      "gb": 6,
+      "days": 30,
+      "price": 51400,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۷۳۳۴۰ تومان)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO3394AZS",
+      "title": "۴۲ گیگابایت",
+      "kind": "internet",
+      "gb": 42,
+      "days": 60,
+      "price": 375000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-62195",
+      "title": "۳ گیگابایت",
+      "kind": "internet",
+      "gb": 3,
+      "days": 7,
+      "price": 28700,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-62455",
+      "title": "۳ گیگابایت",
+      "kind": "internet",
+      "gb": 3,
+      "days": 15,
+      "price": 28700,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO2517TLI",
+      "title": "۴ گیگابایت",
+      "kind": "internet",
+      "gb": 4,
+      "days": 15,
+      "price": 38900,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO5926PNC",
+      "title": "۵ گیگابایت",
+      "kind": "internet",
+      "gb": 5,
+      "days": 7,
+      "price": 50000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO5925PNC",
+      "title": "۴ گیگابایت",
+      "kind": "internet",
+      "gb": 4,
+      "days": 7,
+      "price": 40500,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۴۲۶۱۰ تومان)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-699f4e461918a5e43e35333b",
@@ -235,6 +551,22 @@
       "note": "شامل ۱ گیگ شبانه (۲ تا ۷ صبح)"
     },
     {
+      "id": "irancell-my-PO3424AZS",
+      "title": "۳۰ گیگابایت",
+      "kind": "internet",
+      "gb": 30,
+      "days": 90,
+      "price": 345000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
       "id": "irancell-6adaa42fe24dbf468d5ef6f0",
       "title": "ترکیب برنده ۳۰ گیگ اینترنت + ۲۴ ساعت مکالمه درون شبکه + ۱۵۰۰۰ پیامک ایرانسلی",
       "kind": "combo",
@@ -305,6 +637,38 @@
       "note": null
     },
     {
+      "id": "irancell-my-PO4412HGW",
+      "title": "۱ گیگابایت ساعتی",
+      "kind": "internet",
+      "gb": 1,
+      "days": 1,
+      "price": 11700,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO3455AZS",
+      "title": "۵۰ گیگابایت",
+      "kind": "internet",
+      "gb": 50,
+      "days": 120,
+      "price": 590000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
       "id": "irancell-6ada83f6e24dbf468d5ef6ec",
       "title": "۳۰ گیگابایت",
       "kind": "internet",
@@ -317,6 +681,22 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null
+    },
+    {
+      "id": "irancell-my-PO2220HBH",
+      "title": "۳.۵ گیگابایت",
+      "kind": "internet",
+      "gb": 3.5,
+      "days": 30,
+      "price": 42600,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-5e4d2ed3aaad7304ae9fb7c6",
@@ -375,6 +755,38 @@
       "note": null
     },
     {
+      "id": "irancell-my-PO2529TLI",
+      "title": "۲ گیگابایت",
+      "kind": "internet",
+      "gb": 2,
+      "days": 7,
+      "price": 26200,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO2370HBH",
+      "title": "۲ گیگابایت",
+      "kind": "internet",
+      "gb": 2,
+      "days": 15,
+      "price": 26300,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
       "id": "irancell-5e4d434daaad7304ae9fb805",
       "title": "۲.۵ گیگابایت",
       "kind": "internet",
@@ -401,6 +813,38 @@
       "regulatoryCode": null,
       "ussd": "*555*5*3#",
       "note": null
+    },
+    {
+      "id": "irancell-my-PO2217HBH",
+      "title": "۲.۵ گیگابایت",
+      "kind": "internet",
+      "gb": 2.5,
+      "days": 30,
+      "price": 35600,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO5933PNC",
+      "title": "۲ گیگابایت",
+      "kind": "internet",
+      "gb": 2,
+      "days": 30,
+      "price": 29800,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ۳۷۱۸۰ تومان)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-5e4d392baaad7304ae9fb7e4",
@@ -431,6 +875,38 @@
       "note": null
     },
     {
+      "id": "irancell-my-PO6582IQQ",
+      "title": "بسته جونیور ۱۰۰ گیگابایت",
+      "kind": "internet",
+      "gb": 100,
+      "days": 180,
+      "price": 1600000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "به‌همراه اشتراک پلتفرم‌های دیجیتال (فرادرس، فیلیمومدرسه، تاملند، لینگانو، طاقچه و…)",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
+      "id": "irancell-my-PO4430HGW",
+      "title": "۵۰۰ مگابایت ساعتی",
+      "kind": "internet",
+      "gb": 0.4883,
+      "days": 1,
+      "price": 8000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
+    },
+    {
       "id": "irancell-5e4d2b25aaad7323c7877111",
       "title": "۳ گیگابایت",
       "kind": "internet",
@@ -443,6 +919,22 @@
       "regulatoryCode": null,
       "ussd": "*555*5*3#",
       "note": null
+    },
+    {
+      "id": "irancell-my-PO2214HBH",
+      "title": "۱.۵ گیگابایت",
+      "kind": "internet",
+      "gb": 1.5,
+      "days": 30,
+      "price": 27000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-5e4d2a50aaad7323c787710f",
@@ -499,6 +991,22 @@
       "regulatoryCode": null,
       "ussd": "*555*5*1#",
       "note": null
+    },
+    {
+      "id": "irancell-my-PO4423HGW",
+      "title": "۳۰۰ مگابایت ساعتی",
+      "kind": "internet",
+      "gb": 0.293,
+      "days": 1,
+      "price": 6100,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "اعتبار مصرف: ۶۰ دقیقه از فعال‌سازی",
+      "portalOnly": true,
+      "buyUrl": "https://my.irancell.ir/dlp?id=proi"
     },
     {
       "id": "irancell-658eaf1372785621e3231bcc",
@@ -583,6 +1091,18 @@
     {
       "title": "تعرفه آزاد ۱۴۰۰ت هرگیگ",
       "reason": "تعرفه پرداخت به‌ازای هر گیگ (پنجره‌ی ساعتی خاص) — حجم ثابت ندارد"
+    },
+    {
+      "title": "اشتراک اینترنت با قیمت۱۴۰۰ت هرگیگ ۳۰روزه ( ۲ تا ۱۱ صبح)",
+      "reason": "اشتراک پرداخت به‌ازای هر گیگ — حجم ثابت ندارد"
+    },
+    {
+      "title": "اشتراک اینترنت با قیمت ۲۸۰۰ت هرگیگ ۳۰روزه ( ۶ تا۱۱ صبح)",
+      "reason": "اشتراک پرداخت به‌ازای هر گیگ — حجم ثابت ندارد"
+    },
+    {
+      "title": "اشتراک اینترنت با قیمت ۸۴۰ت هرگیگ ۳۰روزه (۲ تا ۷ صبح)",
+      "reason": "اشتراک پرداخت به‌ازای هر گیگ — حجم ثابت ندارد"
     }
   ]
 }

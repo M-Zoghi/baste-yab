@@ -19,9 +19,11 @@ jobs:
         with:
           node-version: 22
 
-      # Providers reachable from outside Iran (samantel, aptel, mci) refresh here;
-      # geo-blocked ones (irancell/rightel/tci/asiatech) keep their file
-      # until a contributor pushes an update from inside Iran (see DATA.md).
+      # Providers reachable from outside Iran (samantel, aptel, mci fallback,
+      # irancell web + TD-LTE catalogs) refresh here; the login-gated or
+      # geo-blocked ones (my.mci.ir, my.irancell.ir app offers, rightel,
+      # tci/asiatech) keep their file until a contributor pushes an update
+      # from inside Iran (see DATA.md).
       - name: Run adapters
         run: node update/fetch-providers.mjs
 

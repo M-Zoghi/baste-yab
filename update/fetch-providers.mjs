@@ -62,13 +62,24 @@
  *       data-package-code (dead listings keep a disabled button → excluded).
  *       Bootstrap only: fires when no shop capture exists at all (or the shop
  *       capture is >14 days old); portal packs always ride along on top.
- *  • irancell  — PUBLIC catalog JSON (verified 2026-11-06, thanks to a HAR
- *    capture): GET https://irancell.ir/e/products/5e16bf95d11fd7209ba56b20 —
- *    no login. Prices in TOMAN, pre-tax (the page's own modal computes
- *    total = price × 1.1 from vat_percentage=0.1). Spec buy_of_app="no"
- *    marks packs sold on the website only (not in the MyIrancell app) — kept
- *    in the ranking with a note. Geo-blocked outside Iran
- *    → refresh manually: --only irancell --input <saved products.json>
+ *  • irancell  — TWO public catalog JSONs (no login, prices in TOMAN pre-tax;
+ *    the page's own modal computes total = price × 1.1 from vat_percentage=0.1):
+ *      mobile  GET https://irancell.ir/e/products/5e16bf95d11fd7209ba56b20
+ *      TD-LTE  GET https://irancell.ir/e/products/5e16bfacd11fd7209ba56b22
+ *    Both REACHABLE from GitHub Actions (user-verified 2026-11-15) → both
+ *    auto-refresh daily. Spec buy_of_app="no" marks packs sold on the website
+ *    only (not in the MyIrancell app) — kept in the ranking with a note.
+ *    ON TOP of the mobile web catalog, the my.irancell.ir app/portal sells
+ *    EXTRA packs (discounted ۲–۷صبح/۶–۱۲ windows, app-only sizes, hourly,
+ *    فوتبالی پلاس, جونیور). Its catalog API needs a logged-in Bearer token
+ *    (401 otherwise) → portal part refreshes from a HAR captured inside Iran:
+ *      node update/fetch-providers.mjs --only irancell --input my.irancell.ir.har
+ *    and portal-only packs (stamped portalOnly:true + buyUrl → my.irancell.ir)
+ *    ride along on every automatic web refresh. The offers payload is a plain
+ *    package catalog — no personal data is read or written from the HAR.
+ *  • irancell-tdlte — the TD-LTE catalog above → irancell-tdlte.json
+ *    (traffic spec is MB; «N مگابیت اقتصادی» speed plans report
+ *    traffic="unlimited" but the desc HTML carries the true GB cap).
  *  • rightel   — portal API with an anonymous website token (verified from HAR
  *    captures 2026-11-07 AND 2026-11-14; payloads byte-identical — prices
  *    unchanged that week). package.rightel.ir/packagesList is an Angular SPA
@@ -100,8 +111,9 @@
  *    waiting for captures (see DATA.md).
  *
  * Usage: node update/fetch-providers.mjs [--only samantel]
- *        node update/fetch-providers.mjs --only irancell --input products.json
- *          [--fetched-at 2026-11-06T21:05:22Z]   (manual refresh from Iran)
+ *        node update/fetch-providers.mjs --only irancell --input my.irancell.ir.har
+ *          [--fetched-at 2026-11-15T10:41:55Z]  (portal refresh from Iran;
+ *           web part still live-fetches — or stale-keeps — automatically)
  *        node update/fetch-providers.mjs --only mci --input my.mci.ir.har
  *          (portal/shop HAR refresh — works from anywhere; the my.mci.ir
  *           phone number is only needed for LIVE fetches: MCI_PHONE env or
@@ -1045,21 +1057,37 @@ async function fetchMci() {
   }
 }
 
-/* ─────────── irancell — public products JSON (from the 2026-11-06 HAR) ─────────── */
-/* irancell.ir/o/1001/mobile-internet-packages loads its whole catalog from
-   GET /e/products/5e16bf95d11fd7209ba56b20 — a public JSON array, no login.
-   Prices are TOMAN and PRE-TAX: the page's own checkout modal computes
-   `total = price × vat_percentage + price` (vat_percentage = 0.1).
-   Volume quirks (verified across all 42 items of the capture):
-   • spec `traffic` is MB but counts ONLY the anytime part of split packs —
-     «۵۰۰ مگابایت و ۱ گیگابایت(۲ تا ۷ صبح)» has traffic=500; the 1 GB night
-     part is missing. → the Persian title is parsed for the true total.
-   • «ترکیب برنده …» combos have traffic=0; volume only in the title.
-   • «تعرفه آزاد …ت هرگیگ» items are OOB per-GB rate plans (time-windowed,
-     e.g. 2–7 AM) with no fixed volume → excluded.
-   Geo-blocked outside Iran → refresh manually from inside Iran:
-     node update/fetch-providers.mjs --only irancell --input products.json */
+/* ─────────── irancell — web catalog(s) + my.irancell.ir portal (HARs 2026-11-15) ─────────── */
+/* irancell.ir runs TWO public /e/products catalogs (prices TOMAN pre-tax, the
+   page modal adds vat_percentage=0.1 at checkout):
+   • mobile: irancell.ir/o/1001/mobile-internet-packages
+       ← GET /e/products/5e16bf95d11fd7209ba56b20
+   • TD-LTE: irancell.ir/p/305229/td-lte-internet-packages
+       ← GET /e/products/5e16bfacd11fd7209ba56b22
+   Both are reachable from GitHub Actions runners (user-verified 2026-11-15:
+   the manual "Refresh provider data" run fetched Irancell fine) → both docs
+   auto-refresh daily; no Iran capture needed anymore.
+   The subscriber portal my.irancell.ir (اپ ایرانسل من) sells EXTRA packs the
+   web shop doesn't: heavily-discounted ۲–۷صبح / ۶صبح–۱۲ظهر windows, app-only
+   sizes (2–5.5GB short packs, 30–50GB long packs), hourly (۶۰/۱۸۰ دقیقه)
+   packs, فوتبالی پلاس and جونیور combos. Its catalog API
+   (GET my.irancell.ir/api/catalog/v2/offers?type=data&category=normal
+    + /api/catalog/v2/offers/promo) answers 401 without a logged-in
+   Authorization header (Chrome strips that value from HAR exports), so the
+   portal part refreshes ONLY from a HAR captured inside Iran:
+     node update/fetch-providers.mjs --only irancell --input my.irancell.ir.har
+   The offers payload itself is a plain package catalog (no personal data —
+   account/subscription endpoints in the same HAR are never read); prices are
+   RIAL (exactly ×10 the web's toman, verified pack-by-pack on 2026-11-15).
+   Portal-only packs are stamped portalOnly:true + buyUrl → the portal's
+   promotion-internet page (https://my.irancell.ir/dlp?id=proi — the /dlp
+   handler was verified in the SPA bundle) and ride along on top of every
+   automatic web refresh, so a daily Action never wipes the manual capture. */
 const IRANCELL_URL = 'https://irancell.ir/e/products/5e16bf95d11fd7209ba56b20';
+const IRANCELL_TDLTE_URL = 'https://irancell.ir/e/products/5e16bfacd11fd7209ba56b22';
+const IRANCELL_TDLTE_PAGE = 'https://irancell.ir/p/305229/td-lte-internet-packages';
+const MY_IRANCELL_PROMO_PAGE = 'https://my.irancell.ir/dlp?id=proi';
+const IRANCELL_STALE_DAYS = 14; // a web capture up to this age rides along; older = adapter fails (file kept)
 
 function irancellSpec(item, key) {
   const sc = (item.specification_contents || []).find((s) => s.key === key);
@@ -1067,11 +1095,12 @@ function irancellSpec(item, key) {
   return { value: sc.value || '', desc: (sc.desc && (sc.desc.fa || sc.desc.en)) || '' };
 }
 
-/** Sum every «N گیگ/مگ» token in a Persian title → MB (۱ گیگ = ۱۰۲۴ مگ). */
+/** Sum every «N گیگ/مگ» token in a Persian title → MB (۱ گیگ = ۱۰۲۴ مگ).
+ *  «مگابیت» (speed, e.g. ۸ مگابیت اقتصادی) is NOT a volume — excluded. */
 function titleVolumeMB(title) {
   const s = enDigits(title);
   let mb = 0;
-  const re = /(\d+(?:\.\d+)?)\s*(گیگابایت|گیگ|مگابایت|مگ)/g;
+  const re = /(\d+(?:\.\d+)?)\s*(گیگابایت|گیگ|مگابایت|مگ(?!ابیت))/g;
   let m;
   while ((m = re.exec(s)) !== null) {
     const v = parseFloat(m[1]);
@@ -1084,29 +1113,19 @@ function titleVolumeMB(title) {
 const irancellDays = (v) =>
   v === 'daily' ? 1 : parseInt(enDigits(v).replace(/[^\d]/g, ''), 10) || 0;
 
-async function fetchIrancell() {
-  const argv = process.argv;
-  const inputIdx = argv.indexOf('--input');
-  const atIdx = argv.indexOf('--fetched-at');
-  const fetchedAt = atIdx !== -1 && argv[atIdx + 1] ? argv[atIdx + 1] : new Date().toISOString();
-  let items;
-  if (inputIdx !== -1 && argv[inputIdx + 1]) {
-    // manual refresh from inside Iran: save the endpoint's JSON and run with --input
-    items = JSON.parse(await readFile(path.resolve(ROOT, argv[inputIdx + 1]), 'utf-8'));
-  } else {
-    const res = await fetch(IRANCELL_URL, {
-      headers: {
-        Accept: '*/*',
-        Referer: 'https://irancell.ir/o/1001/mobile-internet-packages',
-        'User-Agent': UA,
-      },
-      signal: AbortSignal.timeout(20000),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    items = await res.json();
-  }
+async function irancellProductsFromUrl(url, referer) {
+  const res = await fetch(url, {
+    headers: { Accept: '*/*', Referer: referer, 'User-Agent': UA },
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const items = await res.json();
   if (!Array.isArray(items) || !items.length) throw new Error('unexpected payload');
+  return items;
+}
 
+/* ── A) mobile web catalog → packages (same shape the site has shipped since 2026-11-06) ── */
+function irancellWebPacks(items) {
   const packages = [];
   const excluded = [];
   for (const it of items) {
@@ -1182,7 +1201,260 @@ async function fetchIrancell() {
     });
   }
   if (!packages.length) throw new Error('no packages parsed');
-  packages.sort((a, b) => a.price / a.gb - b.price / b.gb);
+  return { packages, excluded };
+}
+
+/* ── B) my.irancell.ir portal offers (from a HAR only — the API needs a
+      logged-in Bearer token). Accepts the raw HAR object; returns
+      { offers: [...], fetchedAt } with normal + promo data offers merged. ── */
+function irancellPortalFromInput(raw) {
+  if (!raw?.log?.entries) throw new Error('not a HAR');
+  const offers = [];
+  let fetchedAt = null;
+  for (const e of raw.log.entries) {
+    const url = String(e.request?.url || '');
+    if (!url.includes('/api/catalog/v2/offers')) continue;
+    if ((e.response?.status || 0) !== 200) continue;
+    let text = e.response.content?.text || '';
+    if (!text) continue;
+    if (e.response.content.encoding === 'base64') text = Buffer.from(text, 'base64').toString('utf8');
+    let d;
+    try { d = JSON.parse(text); } catch { continue; }
+    if (!Array.isArray(d)) continue;
+    offers.push(...d.filter((o) => o && (o.offer_type === 'data' || o.category === 'promo' || o.category === 'normal')));
+    const ts = Date.parse(e.startedDateTime || '');
+    if (Number.isFinite(ts) && (!fetchedAt || ts > Date.parse(fetchedAt))) fetchedAt = e.startedDateTime;
+  }
+  if (!offers.length) throw new Error('no /api/catalog/v2/offers responses found in HAR');
+  return { offers, fetchedAt };
+}
+
+/** RIAL → TOMAN (portal prices are exactly ×10 the web's toman, verified 2026-11-15). */
+const irancellRialToToman = (r) => Math.round(Number(r || 0) / 10);
+
+/* Portal offer → {packages, excluded}. Prices RIAL → toman; volume from the
+   `volume` field (MB) or the title; days from duration/duration_unit or the
+   title (ساعته packs → 1 day + a minutes note — the schema has no hours). */
+function irancellPortalPacks(offers) {
+  const packages = [];
+  const excluded = [];
+  const seen = new Set();
+  for (const o of offers) {
+    const rawTitle = String(o.title || '').replace(/\s+/g, ' ').trim();
+    const upc = String(o.upc_code || o.offer_id || '').replace(/\s+/g, '');
+    const toman = irancellRialToToman(o.price);
+
+    // per-GB subscription plans («اشتراک اینترنت با قیمت … هرگیگ») — no fixed volume
+    if (/اشتراک\s+اینترنت/.test(rawTitle) || /هرگیگ/.test(rawTitle)) {
+      excluded.push({ title: faDigits(rawTitle), reason: 'اشتراک پرداخت به‌ازای هر گیگ — حجم ثابت ندارد' });
+      continue;
+    }
+    // voice/SMS-only offers are out of scope for a data-package comparison
+    if (o.offer_type === 'voice' || o.offer_type === 'sms' || /مکالمه ایرانسلی(?!.+گیگ)/.test(rawTitle)) {
+      continue;
+    }
+
+    const s = enDigits(rawTitle);
+    let mb = parseFloat(o.volume) || 0;
+    if (!mb) mb = titleVolumeMB(rawTitle);
+
+    // duration: structured field first, then title tokens (Nروز/روزه/ماهه)
+    let days = 0;
+    const dur = parseInt(enDigits(o.duration || ''), 10) || 0;
+    if (o.duration_unit === 'day' && dur > 0) days = dur;
+    if (!days) {
+      const mDay = s.match(/(\d+)\s*روز/);
+      if (mDay) days = parseInt(mDay[1], 10);
+    }
+    if (!days) {
+      const mMon = s.match(/(\d+)\s*ماه/);
+      if (mMon) days = parseInt(mMon[1], 10) * 30;
+    }
+    const hourly = /ساعته/.test(s);
+    const mMin = s.match(/\(?(\d+)\s*دقیقه\)?/);
+    if (hourly) days = 1; // ۶۰/۱۸۰ دقیقه validity — schema has no hours, note carries it
+
+    if (!(mb > 0) || !(days > 0) || !(toman > 0)) {
+      excluded.push({ title: faDigits(rawTitle) || upc || '?', reason: 'حجم، مدت یا قیمت نامشخص' });
+      continue;
+    }
+
+    // windows → note (and keep the restriction regexes in providers.ts working)
+    const notes = [];
+    let windowLabel = null;
+    if (/2\s*تا\s*7\s*صبح/.test(s)) windowLabel = '۲ تا ۷ صبح';
+    else if (/6\s*صبح\s*-?\s*12\s*ظهر|6\s*تا\s*11\s*صبح/.test(s)) windowLabel = '۶ صبح تا ۱۲ ظهر';
+    if (windowLabel === '۲ تا ۷ صبح') notes.push('شبانه (۲ تا ۷ صبح)');
+    if (windowLabel === '۶ صبح تا ۱۲ ظهر') notes.push('صبحانه (۶ صبح تا ۱۲ ظهر)');
+    if (hourly && mMin) notes.push(`اعتبار مصرف: ${faDigits(mMin[1])} دقیقه از فعال‌سازی`);
+
+    // pretty title: «N گیگ/مگ اینترنت …» → «N گیگابایت (پنجره) [ساعتی]»
+    const vol = mb >= 1024 && Math.abs(mb / 1024 - Math.round(mb / 1024)) < 0.01
+      ? `${faDigits(String(Math.round(mb / 1024)))} گیگابایت`
+      : mb >= 1024
+        ? `${faDigits(String(Math.round((mb / 1024) * 10) / 10))} گیگابایت`
+        : `${faDigits(String(Math.round(mb)))} مگابایت`;
+    let title = vol;
+    if (windowLabel) title += ` (${windowLabel})`;
+    if (hourly) title += ' ساعتی';
+    let kind = 'internet';
+
+    // combo extras kept from the raw title
+    if (/فوتبالی/.test(rawTitle)) {
+      kind = 'combo';
+      title = `${vol} فوتبالی پلاس`;
+      notes.push('ترکیبی: ۲۰۲۶ دقیقه مکالمه درون‌شبکه · قابل استفاده در سرویس‌های ورزشی (آپارات‌اسپرت، آنتن، آی‌اسپورت، ورزش۳، فوتبال۳۶۰)');
+    }
+    if (/جونیور/.test(rawTitle)) {
+      title = `بسته جونیور ${vol}`;
+      notes.push('به‌همراه اشتراک پلتفرم‌های دیجیتال (فرادرس، فیلیمومدرسه، تاملند، لینگانو، طاقچه و…)');
+    }
+
+    const key = `${Math.round(mb)}|${days}|${toman}`;
+    if (seen.has(key)) continue; // the promo list repeats a few offers verbatim
+    seen.add(key);
+
+    packages.push({
+      id: `irancell-my-${upc || packages.length}`,
+      title,
+      kind,
+      gb: Math.round((mb / 1024) * 10000) / 10000,
+      days, price: toman,
+      oldPrice: null, discountPct: null,
+      group: null,
+      regulatoryCode: o.cra_info?.code ? String(o.cra_info.code) : null,
+      ussd: null,
+      note: notes.join(' · ') || null,
+    });
+  }
+  return { packages, excluded };
+}
+
+/* ── C) mobile orchestrator: web (input→live→stale-keep) + portal (input→ride-along) ── */
+async function fetchIrancell() {
+  const argv = process.argv;
+  const inputIdx = argv.indexOf('--input');
+  const atIdx = argv.indexOf('--fetched-at');
+  const fetchedAt = atIdx !== -1 && argv[atIdx + 1] ? argv[atIdx + 1] : new Date().toISOString();
+  const inputPath = inputIdx !== -1 && argv[inputIdx + 1] ? argv[inputIdx + 1] : null;
+  let inputRaw = null;
+  if (inputPath) inputRaw = JSON.parse(await readFile(path.resolve(ROOT, inputPath), 'utf-8'));
+
+  /* previous capture — portal packs ride along on every auto web refresh */
+  let prev = null;
+  try { prev = JSON.parse(await readFile(path.join(DATA_DIR, 'irancell.json'), 'utf-8')); } catch { /* none */ }
+  const prevPortalPacks = (prev?.packages || []).filter((p) => /^irancell-my-/.test(p.id));
+  const prevWebMeta = prev?.source?.parts?.web ?? (prev && prev.source?.kind ? prev.source : null);
+  const prevPortalAt = prev?.source?.parts?.portal?.fetchedAt ?? null;
+
+  /* input triage: HAR → portal offers (+ mobile products if captured too);
+     bare array → mobile products JSON (legacy manual flow) */
+  let webFromInput = null;
+  let portalFromInput = null;
+  if (inputRaw) {
+    if (Array.isArray(inputRaw) && inputRaw[0]?.specification_contents) {
+      webFromInput = inputRaw;
+    } else if (inputRaw?.log?.entries) {
+      const errs = [];
+      try {
+        for (const e of inputRaw.log.entries) {
+          const url = String(e.request?.url || '');
+          if (!url.includes('/e/products/5e16bf95d11fd7209ba56b20')) continue;
+          if ((e.response?.status || 0) !== 200) continue;
+          let text = e.response.content?.text || '';
+          if (!text) continue;
+          if (e.response.content.encoding === 'base64') text = Buffer.from(text, 'base64').toString('utf8');
+          const d = JSON.parse(text);
+          if (Array.isArray(d) && d.length) { webFromInput = d; break; }
+        }
+        if (!webFromInput) throw new Error('no mobile /e/products response');
+      } catch (e) { errs.push(`web: ${e.message}`); }
+      try { portalFromInput = irancellPortalFromInput(inputRaw); } catch (e) { errs.push(`portal: ${e.message}`); }
+      if (!webFromInput && !portalFromInput) {
+        // an explicit --input must not silently degrade to another source
+        throw new Error(`--input matched no Irancell source (${errs.join(' · ')})`);
+      }
+    } else {
+      throw new Error('unrecognized irancell --input (expected HAR or products array)');
+    }
+  }
+
+  /* web part: input → live → stale-keep (≤14d) */
+  let web = null; // { kind, fetchedAt, packages, excluded, stale? }
+  if (webFromInput) {
+    web = { kind: 'api', fetchedAt, ...irancellWebPacks(webFromInput) };
+  } else {
+    try {
+      web = { kind: 'api', fetchedAt, ...irancellWebPacks(await irancellProductsFromUrl(IRANCELL_URL, 'https://irancell.ir/o/1001/mobile-internet-packages')) };
+    } catch (e) {
+      const ageDays = prevWebMeta?.fetchedAt ? (Date.now() - Date.parse(prevWebMeta.fetchedAt)) / 86400000 : Infinity;
+      if ((prev?.packages || []).some((p) => !/^irancell-my-/.test(p.id)) && ageDays <= IRANCELL_STALE_DAYS) {
+        console.log(`• irancell: web catalog unreachable from here (${e.message}) — kept the ${prevWebMeta.fetchedAt.slice(0, 10)} web capture (${ageDays.toFixed(1)}d old ≤ ${IRANCELL_STALE_DAYS}d)`);
+        web = {
+          kind: prevWebMeta.kind || 'api',
+          fetchedAt: prevWebMeta.fetchedAt,
+          packages: (prev?.packages || []).filter((p) => !/^irancell-my-/.test(p.id)),
+          excluded: prev?.excluded || [],
+          stale: true,
+        };
+      } else {
+        throw new Error(`web catalog unreachable (${e.message}) and no fresh capture to keep`);
+      }
+    }
+  }
+
+  /* portal part: input → keep previous (live needs a logged-in Bearer token) */
+  let portal = null; // { fetchedAt, packages, excluded }
+  if (portalFromInput) {
+    portal = { fetchedAt: portalFromInput.fetchedAt || fetchedAt, ...irancellPortalPacks(portalFromInput.offers) };
+    if (!portal.packages.length) throw new Error('portal HAR parsed but yielded no data packages');
+  } else if (prevPortalPacks.length) {
+    console.log(`• irancell: kept my.irancell.ir portal capture${prevPortalAt ? ` from ${prevPortalAt.slice(0, 10)}` : ''} (portal API needs login — refresh with --input <my.irancell.ir.har> from inside Iran)`);
+  }
+
+  /* merge: web first, then portal packs the web doesn't already sell
+     (same size+duration+price ⇒ same pack; the portal prices overlap in RIAL
+     but convert to the identical toman figure — verified 2026-11-15). */
+  const seen = new Set();
+  const key = (p) => `${p.gb}|${p.days}|${p.price}`;
+  const merged = [];
+  for (const p of web.packages) {
+    const k = key(p);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    merged.push(p);
+  }
+  let portalOnlyCount = 0;
+  let discountedTwins = 0;
+  const portalPacks = portal ? portal.packages : prevPortalPacks;
+  const webKey = (p) => `${p.gb}|${p.days}`;
+  for (const p of portalPacks) {
+    const k = key(p);
+    if (seen.has(k)) continue; // the web sells it at the same price — web card wins
+    seen.add(k);
+    /* portal-only: same size but cheaper than the web card ⇒ app-exclusive
+       price; stamp for the UI badge + per-package buy deep link. The
+       «قیمت ویژه» note only pairs PLAIN packs with their web twin — windowed
+       (۲–۷صبح/۶–۱۲) / ساعتی / combo packs are different products, their own
+       note already explains the price. */
+    const plain = !/۲ تا ۷ صبح|۶ صبح تا ۱۲ ظهر|ساعتی|فوتبالی|جونیور/.test(p.title);
+    const twin = plain ? web.packages.find((w) => webKey(w) === webKey(p) && w.price > p.price) : undefined;
+    // strip a previously-stamped twin prefix so ride-along re-stamping stays idempotent
+    const baseNote = (p.note || '').replace(/^قیمت ویژه اپلیکیشن ایرانسل من \(وب‌سایت: [^)]* تومان\)(?: · )?/, '');
+    const note = twin
+      ? `قیمت ویژه اپلیکیشن ایرانسل من (وب‌سایت: ${faDigits(String(twin.price))} تومان)${baseNote ? ` · ${baseNote}` : ''}`
+      : (baseNote || null);
+    merged.push({ ...p, note, portalOnly: true, buyUrl: MY_IRANCELL_PROMO_PAGE });
+    if (twin) discountedTwins += 1;
+    portalOnlyCount += 1;
+  }
+  merged.sort((a, b) => a.price / a.gb - b.price / b.gb);
+  if (portalOnlyCount) {
+    console.log(`• irancell: ${portalOnlyCount} portal-only pack(s)${discountedTwins ? ` (${discountedTwins} app-exclusive price)` : ''} → «فروش فقط از اپ ایرانسل من / my.irancell.ir» (buyUrl → ${MY_IRANCELL_PROMO_PAGE})`);
+  }
+  const excluded = [...web.excluded, ...(portal ? portal.excluded : (prev?.excluded || []).filter((x) => /اشتراک/.test(x.reason)))];
+  const portalAt = portal ? portal.fetchedAt : prevPortalAt;
+  const fetchedAtAll = [web.fetchedAt, portalAt].filter(Boolean).sort().pop();
 
   await writeProvider('irancell', {
     schema: 2,
@@ -1192,8 +1464,151 @@ async function fetchIrancell() {
       site: 'https://www.irancell.ir', buyUrl: 'https://irancell.ir/o/1001/mobile-internet-packages',
     },
     source: {
+      kind: web.kind,
+      endpoint: 'ادغام دو منبع: کاتالوگ عمومی irancell.ir/e/products (خودکار) + اپلیکیشن ایرانسل‌من my.irancell.ir (فقط HAR از داخل ایران)',
+      fetchedAt: fetchedAtAll,
+      parts: {
+        web: {
+          kind: web.kind,
+          endpoint: 'GET irancell.ir/e/products/5e16bf95d11fd7209ba56b20 (public catalog JSON)',
+          fetchedAt: web.fetchedAt,
+        },
+        ...(portalPacks.length
+          ? {
+            portal: {
+              kind: 'har',
+              endpoint: 'GET my.irancell.ir/api/catalog/v2/offers (normal + promo) — کاتالوگ اپ ایرانسل‌من؛ API نیازمند ورود، بروزرسانی فقط با HAR از داخل ایران',
+              fetchedAt: portalAt,
+            },
+          }
+          : {}),
+      },
+    },
+    prices: { unit: 'toman', includesTax: false, apiUnit: 'toman (web) · rial (portal)' },
+    packages: merged,
+    excluded,
+  });
+}
+
+/* ── D) TD-LTE catalog → irancell-tdlte.json (public, auto-refreshes) ── */
+/* Same /e/products shape as the mobile catalog. Volume from the traffic spec
+   (MB); the three «N مگابیت اقتصادی» speed plans report traffic="unlimited"
+   but their desc HTML carries the true cap («… ۳۰ روزه ۶۰ گیگابایت») —
+   parsed from there, with the speed ceiling kept in the note. */
+async function fetchIrancellTdlte() {
+  const argv = process.argv;
+  const inputIdx = argv.indexOf('--input');
+  const atIdx = argv.indexOf('--fetched-at');
+  const fetchedAt = atIdx !== -1 && argv[atIdx + 1] ? argv[atIdx + 1] : new Date().toISOString();
+  const inputPath = inputIdx !== -1 && argv[inputIdx + 1] ? argv[inputIdx + 1] : null;
+  let inputRaw = null;
+  if (inputPath) inputRaw = JSON.parse(await readFile(path.resolve(ROOT, inputPath), 'utf-8'));
+
+  let items = null;
+  if (inputRaw) {
+    if (Array.isArray(inputRaw) && inputRaw[0]?.specification_contents) {
+      items = inputRaw;
+    } else if (inputRaw?.log?.entries) {
+      for (const e of inputRaw.log.entries) {
+        const url = String(e.request?.url || '');
+        if (!url.includes('/e/products/5e16bfacd11fd7209ba56b22')) continue;
+        if ((e.response?.status || 0) !== 200) continue;
+        let text = e.response.content?.text || '';
+        if (!text) continue;
+        if (e.response.content.encoding === 'base64') text = Buffer.from(text, 'base64').toString('utf8');
+        const d = JSON.parse(text);
+        if (Array.isArray(d) && d.length) { items = d; break; }
+      }
+      if (!items) throw new Error('no TD-LTE /e/products response in HAR');
+    } else {
+      throw new Error('unrecognized irancell-tdlte --input (expected HAR or products array)');
+    }
+  }
+
+  /* previous capture — stale-keep (≤14d) when the live fetch fails */
+  let prev = null;
+  try { prev = JSON.parse(await readFile(path.join(DATA_DIR, 'irancell-tdlte.json'), 'utf-8')); } catch { /* none */ }
+
+  if (!items) {
+    try {
+      items = await irancellProductsFromUrl(IRANCELL_TDLTE_URL, IRANCELL_TDLTE_PAGE);
+    } catch (e) {
+      const prevAt = prev?.source?.fetchedAt;
+      const ageDays = prevAt ? (Date.now() - Date.parse(prevAt)) / 86400000 : Infinity;
+      if (prev?.packages?.length && ageDays <= IRANCELL_STALE_DAYS) {
+        console.log(`• irancell-tdlte: catalog unreachable from here (${e.message}) — kept the ${prevAt.slice(0, 10)} capture (${ageDays.toFixed(1)}d old)`);
+        await writeProvider('irancell-tdlte', prev);
+        return;
+      }
+      throw new Error(`TD-LTE catalog unreachable (${e.message}) and no fresh capture to keep`);
+    }
+  }
+
+  const packages = [];
+  const excluded = [];
+  for (const it of items) {
+    const faRaw = String(it.name?.fa || '').replace(/\s+/g, ' ').trim();
+    const price = Math.round(Number(it.price) || 0); // toman, pre-tax
+    const days = irancellDays(irancellSpec(it, 'package_type').value);
+    const trafficDesc = irancellSpec(it, 'traffic').desc;
+    const isSpeedPlan = /مگابیت\s*اقتصادی/.test(faRaw);
+
+    let mb = 0;
+    if (/unlimited/i.test(trafficDesc)) {
+      // speed plan: the desc HTML carries the true cap («تا ۲ مگابیت بر ثانیه ۳۰ روزه ۶۰ گیگابایت»)
+      mb = titleVolumeMB(String(it.desc?.fa || ''));
+    } else {
+      mb = parseFloat(enDigits(trafficDesc)) || 0;
+      if (!mb) mb = titleVolumeMB(faRaw);
+    }
+
+    if (!(mb > 0) || !(days > 0) || !(price > 0)) {
+      excluded.push({ title: faDigits(faRaw) || it.id || '?', reason: 'حجم، مدت یا قیمت نامشخص' });
+      continue;
+    }
+    const gb = Math.round((mb / 1024) * 10000) / 10000;
+
+    const notes = ['ویژه سیم‌کارت TD-LTE ایرانسل (مودم / اینترنت ثابت)'];
+    if (isSpeedPlan) {
+      const m = faRaw.match(/(\d+)\s*مگابیت/);
+      if (m) notes.unshift(`سقف سرعت ${faDigits(m[1])} مگابیت بر ثانیه`);
+    }
+    if (irancellSpec(it, 'buy_of_app').value === 'no') {
+      notes.push('فقط از وب‌سایت قابل خرید است — در اپلیکیشن ایرانسل عرضه نمی‌شود');
+    }
+
+    const title = faDigits(
+      enDigits(faRaw)
+        .replace(/(\d)\s*(گیگابایت|مگابایت|گیگ|مگ|مگابیت)/g, '$1 $2')
+        .replace(/([^ (])\(/g, '$1 ('),
+    );
+
+    packages.push({
+      id: `irancell-tdlte-${it.id}`,
+      title,
+      kind: 'internet',
+      gb, days, price,
+      oldPrice: null, discountPct: null,
+      group: null,
+      regulatoryCode: null,
+      ussd: irancellSpec(it, 'ussd').desc || irancellSpec(it, 'ussd').value
+        || irancellSpec(it, 'dial_number').desc || irancellSpec(it, 'dial_number').value || null,
+      note: notes.join(' · '),
+    });
+  }
+  if (!packages.length) throw new Error('no packages parsed');
+  packages.sort((a, b) => a.price / a.gb - b.price / b.gb);
+
+  await writeProvider('irancell-tdlte', {
+    schema: 2,
+    provider: {
+      id: 'irancell-tdlte', nameFa: 'ایرانسل (ثابت)', nameEn: 'Irancell TD-LTE', category: 'home',
+      tech: 'TD-LTE', regions: ['سراسری'], accent: '#eab308',
+      site: 'https://www.irancell.ir', buyUrl: IRANCELL_TDLTE_PAGE,
+    },
+    source: {
       kind: 'api',
-      endpoint: 'GET irancell.ir/e/products/5e16bf95d11fd7209ba56b20 (public catalog JSON)',
+      endpoint: 'GET irancell.ir/e/products/5e16bfacd11fd7209ba56b22 (public TD-LTE catalog JSON)',
       fetchedAt,
     },
     prices: { unit: 'toman', includesTax: false, apiUnit: 'toman' },
@@ -1510,6 +1925,7 @@ const ADAPTERS = {
   mci: fetchMci,
   'mci-modem': fetchMci,
   irancell: fetchIrancell,
+  'irancell-tdlte': fetchIrancellTdlte,
   rightel: fetchRightel,
   'rightel-tdlte': fetchRightel,
   tci: () => waitingStep('tci', 'geo-blocked outside Iran'),

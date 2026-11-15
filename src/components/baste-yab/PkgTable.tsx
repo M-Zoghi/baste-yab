@@ -131,7 +131,7 @@ export function PkgTable({
                           <span aria-hidden="true" className="text-border">·</span>
                           <span className="inline-flex items-center gap-1 font-semibold text-sky-700 dark:text-sky-300">
                             <Smartphone className="h-3 w-3 shrink-0" />
-                            فروش فقط از اپ همراه من / my.mci.ir
+                            {r.portalLabel ?? "فروش فقط از اپ اپراتور"}
                           </span>
                         </>
                       )}
