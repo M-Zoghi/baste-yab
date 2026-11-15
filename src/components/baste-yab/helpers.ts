@@ -23,6 +23,60 @@ export const valueBadgeStyle = (t: number, dark: boolean) => {
   };
 };
 
+const hexToHsl = (hex: string): [number, number, number] => {
+  const clean = hex.replace("#", "").trim();
+  const full = clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean;
+  const num = Number.parseInt(full, 16);
+  if (Number.isNaN(num)) return [199, 85, 45];
+  const r = ((num >> 16) & 255) / 255;
+  const g = ((num >> 8) & 255) / 255;
+  const b = (num & 255) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  let h = 0;
+  let s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      default:
+        h = (r - g) / d + 4;
+        break;
+    }
+    h /= 6;
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+};
+
+export const accentTextColor = (hex: string, dark: boolean) => {
+  const [h, s, l] = hexToHsl(hex);
+  if (dark) {
+    const sat = Math.min(92, Math.max(s, 70));
+    const light = Math.max(l, 68);
+    return `hsl(${h}, ${sat}%, ${light}%)`;
+  }
+  // Yellow/lime hues (e.g. Irancell #eab308) need a deeper gold lightness on light cards to keep contrast crisp
+  const maxLight = h >= 35 && h <= 85 ? 29 : 36;
+  const light = Math.min(l, maxLight);
+  return `hsl(${h}, ${s}%, ${light}%)`;
+};
+
+export const accentBadgeStyle = (hex: string, dark: boolean) => {
+  const [h, s] = hexToHsl(hex);
+  return {
+    backgroundColor: `hsla(${h}, ${s}%, ${dark ? 54 : 48}%, ${dark ? 0.16 : 0.14})`,
+    borderColor: `hsla(${h}, ${s}%, ${dark ? 58 : 42}%, ${dark ? 0.36 : 0.32})`,
+    color: accentTextColor(hex, dark),
+  };
+};
+
 /* roaming is hidden by default — its tariffs are not comparable with domestic packs */
 export const DEFAULT_KINDS: Kind[] = ["internet", "combo"];
 

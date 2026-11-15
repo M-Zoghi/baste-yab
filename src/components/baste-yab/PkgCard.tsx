@@ -14,7 +14,7 @@ import {
   type Row,
 } from "@/lib/providers";
 import { useToast } from "@/hooks/use-toast";
-import { KIND_LABEL, valueBadgeStyle, valueColor } from "./helpers";
+import { KIND_LABEL, accentBadgeStyle, valueBadgeStyle, valueColor } from "./helpers";
 
 interface PkgCardProps {
   r: Row & { t?: number };
@@ -146,7 +146,10 @@ export function PkgCard({
               </span>
             )}
             {r.portalOnly && (
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-sky-500/12 px-2 py-0.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
+              <span
+                className="inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold"
+                style={accentBadgeStyle(r.providerAccent, dark)}
+              >
                 <Smartphone className="h-3.5 w-3.5 shrink-0" />
                 <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
               </span>

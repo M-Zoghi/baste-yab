@@ -13,7 +13,7 @@ import {
   type Row,
 } from "@/lib/providers";
 import { useToast } from "@/hooks/use-toast";
-import { KIND_LABEL, valueBadgeStyle, valueColor } from "./helpers";
+import { KIND_LABEL, accentTextColor, valueBadgeStyle, valueColor } from "./helpers";
 
 interface PkgTableProps {
   rows: (Row & { t?: number })[];
@@ -129,7 +129,10 @@ export function PkgTable({
                       {r.portalOnly && (
                         <>
                           <span aria-hidden="true" className="text-border">·</span>
-                          <span className="inline-flex items-center gap-1 font-semibold text-sky-700 dark:text-sky-300">
+                          <span
+                            className="inline-flex items-center gap-1 font-semibold"
+                            style={{ color: accentTextColor(r.providerAccent, dark) }}
+                          >
                             <Smartphone className="h-3 w-3 shrink-0" />
                             {r.portalLabel ?? "فروش فقط از اپ اپراتور"}
                           </span>
