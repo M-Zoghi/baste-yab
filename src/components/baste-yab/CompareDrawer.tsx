@@ -1,6 +1,7 @@
 "use client";
 
-import { ExternalLink, Phone, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import { Check, Copy, ExternalLink, Phone, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,7 @@ import {
   DrawerDescription,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { useToast } from "@/hooks/use-toast";
 import {
   PORTAL_AVAILABILITY_NOTE,
   VAT_RATE,
@@ -37,16 +39,42 @@ export function CompareDrawer({
   onRemove,
   onClear,
 }: CompareDrawerProps) {
+  const { toast } = useToast();
+  const [copiedSummary, setCopiedSummary] = useState(false);
+
   const f = vat ? 1 + VAT_RATE : 1;
   const paidPerGB = items.filter((i) => !i.isFree).map((i) => i.perGB * f);
   const bestPerGB = paidPerGB.length ? Math.min(...paidPerGB) : null;
   const maxGB = items.length ? Math.max(...items.map((i) => i.gb)) : 0;
   const maxDays = items.length ? Math.max(...items.map((i) => i.days)) : 0;
 
+  const handleCopySummary = async () => {
+    if (!items.length) return;
+    const header = `مقایسه ${faDigits(items.length)} بسته اینترنت (${vat ? "با احتساب ۱۰٪ مالیات" : "بدون مالیات"}):`;
+    const lines = items.map((item, idx) => {
+      const priceStr = item.isFree ? "رایگان" : `${fmtToman(item.price * f)} تومان`;
+      const perGbStr = `${fmtValue(item.perGB * f)} ت/گیگ`;
+      const ussdStr = item.ussd ? ` | کد: ${item.ussd}` : "";
+      const portalStr = item.portalOnly
+        ? ` | ${item.portalLabel ?? "فروش فقط از اپ اپراتور"}`
+        : "";
+      return `${faDigits(idx + 1)}) ${item.providerName} — ${item.title}\n   حجم: ${fmtGB(item.gb)} | مدت: ${item.days ? `${faDigits(item.days)} روز` : "—"} | قیمت: ${priceStr} (${perGbStr})${ussdStr}${portalStr}`;
+    });
+    const text = `${header}\n\n${lines.join("\n\n")}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedSummary(true);
+      toast({ title: "خلاصه مقایسه کپی شد" });
+      setTimeout(() => setCopiedSummary(false), 1800);
+    } catch {
+      toast({ title: "کپی انجام نشد" });
+    }
+  };
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="mx-auto max-h-[88dvh] max-w-4xl" dir="rtl">
-        <div className="flex items-center justify-between border-b border-border/70 px-5 py-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 px-5 py-3.5">
           <div>
             <DrawerTitle className="text-start text-base font-bold">
               مقایسه کنار هم ({faDigits(items.length)} بسته)
@@ -59,10 +87,25 @@ export function CompareDrawer({
           </div>
           <div className="flex items-center gap-2">
             {items.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={onClear} className="gap-1.5 text-xs text-muted-foreground">
-                <Trash2 className="h-3.5 w-3.5" />
-                پاک‌کردن همه
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopySummary}
+                  className="gap-1.5 text-xs font-bold cursor-pointer"
+                >
+                  {copiedSummary ? (
+                    <Check className="h-3.5 w-3.5 text-primary" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                  <span>{copiedSummary ? "کپی شد" : "کپی خلاصه مقایسه"}</span>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={onClear} className="gap-1.5 text-xs text-muted-foreground cursor-pointer">
+                  <Trash2 className="h-3.5 w-3.5" />
+                  پاک‌کردن همه
+                </Button>
+              </>
             )}
             <Button
               variant="outline"

@@ -121,6 +121,7 @@ export const durationBucketOf = (days: number): DurationKey | null => {
 export const RESTRICTION_OPTIONS: { key: RestrictionTag; label: string }[] = [
   { key: "night", label: "شبانه / شبانت (۲ تا ۷ صبح)" },
   { key: "morning", label: "صبحانت / صبح (۶ تا ۱۲)" },
+  { key: "hourly", label: "ساعتی (اعتبار چندساعته)" },
   { key: "domestic", label: "انارستان (فقط اینترنت داخلی)" },
   { key: "newUser", label: "ویژه مشترکین جدید" },
   { key: "youth", label: "ویژه زیر ۲۸ سال" },

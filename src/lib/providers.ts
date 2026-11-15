@@ -15,7 +15,7 @@ import rightelTdlteDoc from "@/data/providers/rightel-tdlte.json";
 export type Category = "home" | "mobile";
 export type HomeTech = "modem" | "fixed";
 export type Kind = "internet" | "combo" | "roaming";
-export type RestrictionTag = "night" | "morning" | "domestic" | "newUser" | "youth";
+export type RestrictionTag = "night" | "morning" | "hourly" | "domestic" | "newUser" | "youth";
 export type UpdateMode = "auto" | "hybrid" | "manual";
 
 export interface Pkg {
@@ -177,7 +177,7 @@ export const ENTRIES: Entry[] = [
     tech: "اپراتور مجازی 4G/5G", regions: ["سراسری"], accent: "#db3328",
     site: "https://www.aptel.ir", buyUrl: "https://www.aptel.ir/packages",
     status: "live", doc: DOCS.aptel, personalized: DOCS.aptel?.personalized,
-    updateMode: "auto",
+    updateMode: "hybrid",
     updateNote: "ادغام فروشگاه عمومی + پنل «آپتل من» (۵۵ بسته): عمومی خودکار روزانه · پنل دستی با HAR",
   },
   {
@@ -270,6 +270,7 @@ export function allPackages(): DerivedPkg[] {
       const restrictions: RestrictionTag[] = [];
       if (/شبانه|شبانت|بامداد|۲ تا ۷|2 تا 7/.test(text)) restrictions.push("night");
       if (/صبحانت|صبحانه|۶ صبح تا ۱۲|۶ تا ۱۲|6 تا 12/.test(text)) restrictions.push("morning");
+      if (/ساعتی|ساعته/.test(text)) restrictions.push("hourly");
       if (domesticOnly) restrictions.push("domestic");
       if (/مشترکین جدید/.test(text)) restrictions.push("newUser");
       if (/زیر ۲۸ سال/.test(text)) restrictions.push("youth");
@@ -397,10 +398,17 @@ export const faDate = (iso: string) => {
   }
 };
 
-export const faRelativeAge = (iso: string): string | null => {
+export const STALE_WARN_DAYS = 7;
+
+export const faAgeDays = (iso: string): number | null => {
   const ts = Date.parse(iso);
   if (!Number.isFinite(ts)) return null;
-  const days = Math.floor((Date.now() - ts) / 86400000);
+  return Math.max(0, Math.floor((Date.now() - ts) / 86400000));
+};
+
+export const faRelativeAge = (iso: string): string | null => {
+  const days = faAgeDays(iso);
+  if (days == null) return null;
   if (days <= 0) return "امروز";
   if (days === 1) return "دیروز";
   return `${faDigits(days)} روز پیش`;

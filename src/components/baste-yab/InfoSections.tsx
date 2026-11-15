@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   AlertCircle,
+  AlertTriangle,
   ArrowUpLeft,
   Check,
   Clock,
@@ -17,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ENTRIES,
   APTEL_PORTAL_PAGE,
+  STALE_WARN_DAYS,
+  faAgeDays,
   faDate,
   faDigits,
   faRelativeAge,
@@ -191,13 +194,14 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
             وضعیت بروزرسانی و منابع داده‌ی اپراتورها
           </h2>
           <p className="mt-1 text-xs leading-6 text-muted-foreground">
-            <strong className="text-foreground">سامانتل</strong> و{" "}
+            <strong className="text-foreground">سامانتل</strong> و بخش عمومی{" "}
             <strong className="text-foreground">آپتل</strong> هر روز حدود ساعت ۰۶:۴۷ به‌وقت تهران
             به‌طور <strong className="text-primary">خودکار</strong> از GitHub Actions بروزرسانی
             می‌شوند. <strong className="text-foreground">ایرانسل</strong>،{" "}
-            <strong className="text-foreground">رایتل (همراه و مودم)</strong> و{" "}
-            <strong className="text-foreground">فروشگاه همراه اول</strong> به‌دلیل مسدودبودن از
-            خارج ایران، نیازمند <strong className="text-amber-600 dark:text-amber-400">بروزرسانی دستی از داخل ایران</strong> هستند.
+            <strong className="text-foreground">رایتل (همراه و مودم)</strong>،{" "}
+            <strong className="text-foreground">همراه اول</strong> و بخش پنل{" "}
+            <strong className="text-foreground">آپتل من</strong> نیازمند{" "}
+            <strong className="text-amber-600 dark:text-amber-400">بروزرسانی دستی از داخل ایران</strong> هستند.
           </p>
         </div>
       </div>
@@ -257,14 +261,33 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
         {ENTRIES.filter((e) => e.status === "live").map((e) => {
           const fetchedAt = e.doc?.source.fetchedAt ?? "";
           const age = mounted && fetchedAt ? faRelativeAge(fetchedAt) : null;
+          const ageDays = mounted && fetchedAt ? faAgeDays(fetchedAt) : null;
           const partsEntries = Object.entries(e.doc?.source.parts ?? {});
+          const stalePartDays = mounted
+            ? partsEntries
+                .map(([, part]) => faAgeDays(part.fetchedAt))
+                .filter((d): d is number => d != null && d > STALE_WARN_DAYS)
+            : [];
+          const maxStaleDays = Math.max(
+            ageDays != null && ageDays > STALE_WARN_DAYS ? ageDays : 0,
+            ...stalePartDays,
+          );
+          const isStale = mounted && maxStaleDays > STALE_WARN_DAYS;
+
           const cmdKey = e.key === "rightel-tdlte" ? "rightel" : e.key;
-          const singleCmd = `node update/fetch-providers.mjs --only ${cmdKey}`;
+          const singleCmd =
+            e.key === "aptel"
+              ? "node update/fetch-providers.mjs --only aptel --input my.aptel.ir.har"
+              : `node update/fetch-providers.mjs --only ${cmdKey}`;
 
           return (
             <div
               key={e.key}
-              className="flex min-w-0 flex-col rounded-xl border border-border/80 bg-card p-4 text-xs leading-5"
+              className={`flex min-w-0 flex-col rounded-xl border p-4 text-xs leading-5 ${
+                isStale
+                  ? "border-amber-500/45 bg-amber-500/[0.03]"
+                  : "border-border/80 bg-card"
+              }`}
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -300,22 +323,33 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
                 {age && <span className="ms-1 text-muted-foreground">({age})</span>}
               </div>
 
+              {isStale && (
+                <div className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-amber-500/35 bg-amber-500/12 px-2 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  <span className="fa-num">
+                    نیاز به بروزرسانی ({faDigits(maxStaleDays)} روز از آخرین برداشت گذشته)
+                  </span>
+                </div>
+              )}
+
               {partsEntries.length > 0 && (
                 <div className="mt-2 space-y-1 rounded-lg border border-border/60 bg-muted/35 px-2.5 py-2 text-[11px]">
                   {partsEntries.map(([partKey, part]) => {
                     const partAge = mounted && part.fetchedAt ? faRelativeAge(part.fetchedAt) : null;
+                    const partAgeDays = mounted && part.fetchedAt ? faAgeDays(part.fetchedAt) : null;
+                    const partStale = partAgeDays != null && partAgeDays > STALE_WARN_DAYS;
                     return (
                       <div key={partKey} className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-                        <span className="text-muted-foreground">
+                        <span className={partStale ? "font-semibold text-amber-700 dark:text-amber-300" : "text-muted-foreground"}>
                           {PART_LABEL[partKey] ?? partKey}
                           <span className="ms-1 opacity-75">
                             ({part.kind === "har" ? "دستی HAR" : "API"})
                           </span>
                         </span>
-                        <span className="fa-num font-semibold text-foreground">
+                        <span className={`fa-num font-semibold ${partStale ? "text-amber-700 dark:text-amber-300" : "text-foreground"}`}>
                           {faDate(part.fetchedAt)}
                           {partAge && (
-                            <span className="ms-1 font-normal text-muted-foreground">
+                            <span className="ms-1 font-normal opacity-80">
                               ({partAge})
                             </span>
                           )}

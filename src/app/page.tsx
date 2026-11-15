@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import {
+  ArrowUp,
   Calculator,
   Database,
   Filter,
@@ -57,6 +58,7 @@ import {
   type SortKey,
 } from "@/lib/providers";
 
+import { ActiveFilterChips } from "@/components/baste-yab/ActiveFilterChips";
 import { CompareDrawer } from "@/components/baste-yab/CompareDrawer";
 import { FilterPanel } from "@/components/baste-yab/FilterPanel";
 import {
@@ -66,6 +68,7 @@ import {
   ProviderSourcesSection,
 } from "@/components/baste-yab/InfoSections";
 import { NeedCalculator } from "@/components/baste-yab/NeedCalculator";
+import { OperatorBestRow } from "@/components/baste-yab/OperatorBestRow";
 import { PkgCard } from "@/components/baste-yab/PkgCard";
 import { PkgTable } from "@/components/baste-yab/PkgTable";
 import {
@@ -80,12 +83,24 @@ import { useBasteYabState, type HomeTechFilter } from "@/hooks/use-baste-yab-sta
 
 const PAGE_STEP = 36;
 
+const subscribeScroll = (cb: () => void) => {
+  window.addEventListener("scroll", cb, { passive: true });
+  return () => window.removeEventListener("scroll", cb);
+};
+const getScrollSnapshot = () => window.scrollY > 480;
+const getScrollServerSnapshot = () => false;
+
 export default function Page() {
   const { resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
     () => false,
+  );
+  const showScrollTop = useSyncExternalStore(
+    subscribeScroll,
+    getScrollSnapshot,
+    getScrollServerSnapshot,
   );
   const dark = mounted ? resolvedTheme !== "light" : true;
 
@@ -205,6 +220,7 @@ export default function Page() {
     const m: Record<RestrictionTag, number> = {
       night: 0,
       morning: 0,
+      hourly: 0,
       domestic: 0,
       newUser: 0,
       youth: 0,
@@ -879,6 +895,43 @@ export default function Page() {
               </div>
             </div>
 
+            {/* Active Filter Chips Strip */}
+            <ActiveFilterChips
+              query={query}
+              onClearQuery={() => updateState((prev) => ({ ...prev, query: "" }))}
+              cat={cat}
+              homeTech={homeTech}
+              onClearHomeTech={() => updateState((prev) => ({ ...prev, homeTech: "all" }))}
+              liveEntries={liveEntries}
+              provSel={provSel}
+              onToggleProvider={toggleProvider}
+              onSelectAllProviders={() =>
+                updateState((prev) => ({ ...prev, provSel: new Set(liveKeysOf(prev.cat)) }))
+              }
+              kinds={kinds}
+              onToggleKind={toggleKind}
+              durations={durations}
+              onToggleDuration={toggleDuration}
+              maxPrice={effectiveMaxPrice}
+              vat={vat}
+              onClearMaxPrice={() => updateState((prev) => ({ ...prev, maxPrice: null }))}
+              minGB={minGB}
+              onClearMinGB={() => updateState((prev) => ({ ...prev, minGB: 0 }))}
+              onlyDisc={onlyDisc}
+              onClearOnlyDisc={() => updateState((prev) => ({ ...prev, onlyDisc: false }))}
+              hideFree={hideFree}
+              onClearHideFree={() => updateState((prev) => ({ ...prev, hideFree: false }))}
+              hidePortalOnly={hidePortalOnly}
+              onClearHidePortalOnly={() =>
+                updateState((prev) => ({ ...prev, hidePortalOnly: false }))
+              }
+              includedRestrictions={includedRestrictions}
+              onToggleRestriction={toggleRestriction}
+              sort={sort}
+              onResetSort={() => updateState((prev) => ({ ...prev, sort: "best" }))}
+              onResetAll={reset}
+            />
+
             {/* Interactive Need / Multi-pack Calculator */}
             {calcOpen && liveEntries.length > 0 && (
               <NeedCalculator
@@ -915,6 +968,17 @@ export default function Page() {
               </div>
             ) : (
               <>
+                <OperatorBestRow
+                  rows={rows}
+                  metric={metric}
+                  vat={vat}
+                  dark={dark}
+                  onFocusProvider={(key) => {
+                    setVisibleLimit(PAGE_STEP);
+                    updateState((prev) => ({ ...prev, provSel: new Set([key]) }));
+                  }}
+                />
+
                 {view === "grid" ? (
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {visibleRows.map((r) => {
@@ -1077,6 +1141,19 @@ export default function Page() {
           </Drawer>
         </div>
       </div>
+
+      {/* ── Floating Back-to-Top Button ── */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          aria-label="بازگشت به بالا"
+          className="fixed bottom-[4.5rem] end-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-border bg-card/95 px-3 py-2 text-xs font-bold text-foreground shadow-lg backdrop-blur-md transition-colors hover:bg-secondary cursor-pointer lg:bottom-5"
+        >
+          <ArrowUp className="h-3.5 w-3.5 text-primary" />
+          <span className="hidden sm:inline">بازگشت به بالا</span>
+        </button>
+      )}
     </div>
   );
 }
