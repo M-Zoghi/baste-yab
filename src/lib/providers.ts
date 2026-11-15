@@ -209,11 +209,11 @@ export const APTEL_PORTAL_PAGE = "https://my.aptel.ir/packages"; // «آپتل �
 
 export const PORTAL_LABELS: Record<string, { badge: string; hint: string; note?: string }> = {
   aptel: {
-    badge: "فروش فقط از پنل «آپتل من» / my.aptel.ir",
-    hint: "خرید و قیمت ارزان فقط با ورود به حساب در پنل «آپتل من» (my.aptel.ir) — در فروشگاه عمومی www.aptel.ir نیست",
+    badge: "فروش فقط از اپ آپتل من / my.aptel.ir",
+    hint: "خرید و قیمت ارزان فقط با ورود به حساب در اپ آپتل من (my.aptel.ir) — در فروشگاه عمومی www.aptel.ir نیست",
     // replaces the generic availability note under the badge: the price
     // exists only for logged-in subscribers — cheaper if they log in
-    note: "با ورود به «آپتل من» ارزان‌تر است — بدون ورود، فروشگاه عمومی این بسته را ندارد",
+    note: "با ورود به اپ آپتل من ارزان‌تر است — بدون ورود، فروشگاه عمومی این بسته را ندارد",
   },
   mci: {
     badge: "فروش فقط از اپ همراه من / my.mci.ir",

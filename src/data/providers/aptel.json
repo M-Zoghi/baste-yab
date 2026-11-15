@@ -64,7 +64,7 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "قیمت ویژه پنل «آپتل من» با ورود به حساب (فروشگاه عمومی همین حجم: ۱۷۰۰۰۰ تومان)",
+      "note": "قیمت ویژه اپ آپتل من با ورود به حساب (فروشگاه عمومی همین حجم: ۱۷۰۰۰۰ تومان)",
       "portalOnly": true,
       "buyUrl": "https://my.aptel.ir/packages"
     },
@@ -80,7 +80,7 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "فروش و این قیمت فقط با ورود به حساب در پنل «آپتل من» — در فروشگاه عمومی نیست",
+      "note": "فروش و این قیمت فقط با ورود به حساب در اپ آپتل من — در فروشگاه عمومی نیست",
       "portalOnly": true,
       "buyUrl": "https://my.aptel.ir/packages"
     },
@@ -96,7 +96,7 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "فروش و این قیمت فقط با ورود به حساب در پنل «آپتل من» — در فروشگاه عمومی نیست",
+      "note": "فروش و این قیمت فقط با ورود به حساب در اپ آپتل من — در فروشگاه عمومی نیست",
       "portalOnly": true,
       "buyUrl": "https://my.aptel.ir/packages"
     },
@@ -112,7 +112,7 @@
       "group": null,
       "regulatoryCode": null,
       "ussd": null,
-      "note": "فروش و این قیمت فقط با ورود به حساب در پنل «آپتل من» — در فروشگاه عمومی نیست",
+      "note": "فروش و این قیمت فقط با ورود به حساب در اپ آپتل من — در فروشگاه عمومی نیست",
       "portalOnly": true,
       "buyUrl": "https://my.aptel.ir/packages"
     },

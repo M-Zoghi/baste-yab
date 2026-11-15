@@ -323,7 +323,7 @@ async function fetchSamantel() {
 const APTEL_URL = 'https://www.aptel.ir/api/ep/query?scope=public';
 const APTEL_STALE_DAYS = 14; // public API unreachable → keep the previous capture up to this age
 const APTEL_PORTAL_PAGE = 'https://my.aptel.ir/packages'; // «آپتل من» buy page — portal-only packs deep-link here
-const APTEL_PORTAL_NOTE_NO_TWIN = 'فروش و این قیمت فقط با ورود به حساب در پنل «آپتل من» — در فروشگاه عمومی نیست';
+const APTEL_PORTAL_NOTE_NO_TWIN = 'فروش و این قیمت فقط با ورود به حساب در اپ آپتل من — در فروشگاه عمومی نیست';
 const APTEL_PORTAL_NOTE_TEXT = 'فهرست اصلی، قیمت‌های عمومی فروشگاه است (بدون ورود)؛ اما بسته‌های اختصاصی پنل «آپتل من» حالا خودشان با برچسب «فروش فقط از پنل» در همان فهرست آمده‌اند. قیمت آن‌ها قیمتِ پنلِ مشترکین (با ورود به حساب) است و بدون ورود در فروشگاه عمومی وجود ندارند — مثلاً همان ۲۰ گیگ ۳۰ روزه در پنل ۸۰٬۰۰۰ تومان است ولی در فروشگاه عمومی ۱۷۰٬۰۰۰ تومان. هدیه‌ی نصب «آپتل من» (۵ گیگ ۷ روزه) هم رایگان است.';
 
 /** "20 گیگابایت" / "500 مگابایت" (fa or en digits) → GB; null if unparseable. */
@@ -719,7 +719,7 @@ async function fetchAptel() {
       (w) => w.kind === p.kind && w.gb === p.gb && w.days === p.days && w.price > p.price,
     );
     const note = twin
-      ? `قیمت ویژه پنل «آپتل من» با ورود به حساب (فروشگاه عمومی همین حجم: ${faDigits(String(twin.price))} تومان)`
+      ? `قیمت ویژه اپ آپتل من با ورود به حساب (فروشگاه عمومی همین حجم: ${faDigits(String(twin.price))} تومان)`
       : APTEL_PORTAL_NOTE_NO_TWIN;
     merged.push({ ...p, note, portalOnly: true, buyUrl: APTEL_PORTAL_PAGE });
     if (twin) cheaperWithLogin += 1;
@@ -727,7 +727,7 @@ async function fetchAptel() {
   }
   merged.sort((a, b) => a.price / a.gb - b.price / b.gb);
   if (portalOnlyCount) {
-    console.log(`• aptel: ${portalOnlyCount} «آپتل من»-exclusive pack(s) in the ranking${cheaperWithLogin ? ` (${cheaperWithLogin} cheaper with login)` : ''} → «فروش فقط از پنل آپتل من / my.aptel.ir» (buyUrl → ${APTEL_PORTAL_PAGE})`);
+    console.log(`• aptel: ${portalOnlyCount} «آپتل من»-exclusive pack(s) in the ranking${cheaperWithLogin ? ` (${cheaperWithLogin} cheaper with login)` : ''} → «فروش فقط از اپ آپتل من / my.aptel.ir» (buyUrl → ${APTEL_PORTAL_PAGE})`);
   }
 
   const portalAt = portalFromInput ? portalFromInput.fetchedAt : (prevPortalMeta?.fetchedAt || personalized.capturedAt || null);
