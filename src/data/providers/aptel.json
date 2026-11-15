@@ -16,12 +16,12 @@
   "source": {
     "kind": "api",
     "endpoint": "GET www.aptel.ir/api/ep/query?scope=public",
-    "fetchedAt": "2026-11-15T19:53:35.229Z",
+    "fetchedAt": "2026-11-15T20:17:32.043Z",
     "parts": {
       "public": {
         "kind": "api",
         "endpoint": "GET www.aptel.ir/api/ep/query?scope=public (کاتالوگ عمومی، بدون ورود)",
-        "fetchedAt": "2026-11-15T19:53:35.229Z"
+        "fetchedAt": "2026-11-15T20:17:32.043Z"
       },
       "portal": {
         "kind": "har",
@@ -37,42 +37,10 @@
   },
   "personalized": {
     "applies": true,
-    "note": "قیمت‌های فهرست بالا عمومی است (بدون ورود). با ورود به «آپتل من»، بسته‌های ویژه‌ی ۳۰ روزه با تخفیف، هدیه‌ی نصب و حتی نسخه‌های ارزان‌تر بعضی بسته‌های معمولی (مثل ۲۰ گیگ ۸۰٬۰۰۰ به‌جای ۱۷۰٬۰۰۰) نمایش داده می‌شود.",
+    "note": "فهرست اصلی، قیمت‌های عمومی فروشگاه است (بدون ورود)؛ اما بسته‌های اختصاصی پنل «آپتل من» حالا خودشان با برچسب «فروش فقط از پنل» در همان فهرست آمده‌اند. قیمت آن‌ها قیمتِ پنلِ مشترکین (با ورود به حساب) است و بدون ورود در فروشگاه عمومی وجود ندارند — مثلاً همان ۲۰ گیگ ۳۰ روزه در پنل ۸۰٬۰۰۰ تومان است ولی در فروشگاه عمومی ۱۷۰٬۰۰۰ تومان. هدیه‌ی نصب «آپتل من» (۵ گیگ ۷ روزه) هم رایگان است.",
     "source": "ضمیمه‌ی پنل مشترکین my.aptel.ir — برداشت ۱۴۰۵/۰۸/۲۴ (2026-11-15)",
     "capturedAt": "2026-11-15T19:23:21.934Z",
     "samples": [
-      {
-        "title": "ویژه آپتل من (۱۰۰ گیگ ۳۰ روزه)",
-        "gb": 100,
-        "days": 30,
-        "price": 600000,
-        "oldPrice": 850000,
-        "discountPct": 29
-      },
-      {
-        "title": "ویژه آپتل من (۵۰ گیگ ۳۰ روزه)",
-        "gb": 50,
-        "days": 30,
-        "price": 325000,
-        "oldPrice": 450000,
-        "discountPct": 28
-      },
-      {
-        "title": "ویژه آپتل من (۳۰ گیگ ۳۰ روزه)",
-        "gb": 30,
-        "days": 30,
-        "price": 210000,
-        "oldPrice": 270000,
-        "discountPct": 22
-      },
-      {
-        "title": "۱۰ گیگ ۳۰ روزه (۲۰ گیگ واقعی) · فقط پنل مشترکین",
-        "gb": 20,
-        "days": 30,
-        "price": 80000,
-        "oldPrice": null,
-        "discountPct": null
-      },
       {
         "title": "هدیه نصب آپتل من (۵گیگ ۷ روزه)",
         "gb": 5,
@@ -84,6 +52,70 @@
     ]
   },
   "packages": [
+    {
+      "id": "aptel-my-21054",
+      "title": "۱۰ گیگ ۳۰ روزه (۲۰ گیگ واقعی)",
+      "kind": "internet",
+      "gb": 20,
+      "days": 30,
+      "price": 80000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "قیمت ویژه پنل «آپتل من» با ورود به حساب (فروشگاه عمومی همین حجم: ۱۷۰۰۰۰ تومان)",
+      "portalOnly": true,
+      "buyUrl": "https://my.aptel.ir/packages"
+    },
+    {
+      "id": "aptel-my-21050",
+      "title": "ویژه آپتل من (۱۰۰ گیگ ۳۰ روزه)",
+      "kind": "internet",
+      "gb": 100,
+      "days": 30,
+      "price": 600000,
+      "oldPrice": 850000,
+      "discountPct": 29,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "فروش و این قیمت فقط با ورود به حساب در پنل «آپتل من» — در فروشگاه عمومی نیست",
+      "portalOnly": true,
+      "buyUrl": "https://my.aptel.ir/packages"
+    },
+    {
+      "id": "aptel-my-21051",
+      "title": "ویژه آپتل من (۵۰ گیگ ۳۰ روزه)",
+      "kind": "internet",
+      "gb": 50,
+      "days": 30,
+      "price": 325000,
+      "oldPrice": 450000,
+      "discountPct": 28,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "فروش و این قیمت فقط با ورود به حساب در پنل «آپتل من» — در فروشگاه عمومی نیست",
+      "portalOnly": true,
+      "buyUrl": "https://my.aptel.ir/packages"
+    },
+    {
+      "id": "aptel-my-21052",
+      "title": "ویژه آپتل من (۳۰ گیگ ۳۰ روزه)",
+      "kind": "internet",
+      "gb": 30,
+      "days": 30,
+      "price": 210000,
+      "oldPrice": 270000,
+      "discountPct": 22,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "فروش و این قیمت فقط با ورود به حساب در پنل «آپتل من» — در فروشگاه عمومی نیست",
+      "portalOnly": true,
+      "buyUrl": "https://my.aptel.ir/packages"
+    },
     {
       "id": "aptel-20789",
       "title": "۲۰ گیگ ۳۰ روزه",
