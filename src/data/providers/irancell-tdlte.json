@@ -16,7 +16,7 @@
   "source": {
     "kind": "api",
     "endpoint": "GET irancell.ir/e/products/5e16bfacd11fd7209ba56b22 (public TD-LTE catalog JSON)",
-    "fetchedAt": "2026-11-15T10:36:27Z"
+    "fetchedAt": "2026-11-15T22:53:07.726Z"
   },
   "prices": {
     "unit": "toman",
