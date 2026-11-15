@@ -16,6 +16,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useToast } from "@/hooks/use-toast";
 import {
   ENTRIES,
+  APTEL_PORTAL_PAGE,
   faDate,
   faDigits,
   faRelativeAge,
@@ -56,16 +57,16 @@ export function OperatorNoticesSection({
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
                 <h3 className="text-[13.5px] font-bold text-foreground">
-                  {aptelEntry.nameFa} — قیمت‌های فهرست عمومی است (بدون ورود به حساب)
+                  {aptelEntry.nameFa} — بسته‌های اختصاصی «آپتل من» در فهرست است (ارزان‌تر با ورود به حساب)
                 </h3>
               </div>
               <a
-                href={aptelEntry.buyUrl ?? aptelEntry.site}
+                href={APTEL_PORTAL_PAGE}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
               >
-                <span>مشاهده قیمت‌های ویژه با ورود</span>
+                <span>مشاهده قیمت‌ها با ورود به پنل</span>
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </div>

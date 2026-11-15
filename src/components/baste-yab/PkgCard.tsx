@@ -160,7 +160,7 @@ export function PkgCard({
                   style={{ borderColor: accentDividerColor(r.providerAccent, dark) }}
                 >
                   <Info className="h-3 w-3 shrink-0" />
-                  <span>{PORTAL_AVAILABILITY_NOTE}</span>
+                  <span>{r.portalNote ?? PORTAL_AVAILABILITY_NOTE}</span>
                 </div>
               </div>
             )}

@@ -170,7 +170,7 @@ export function PkgTable({
                           <span aria-hidden="true" className="opacity-35">|</span>
                           <span className="inline-flex items-center gap-1 opacity-90">
                             <Info className="h-3 w-3 shrink-0" />
-                            <span>{PORTAL_AVAILABILITY_NOTE}</span>
+                            <span>{r.portalNote ?? PORTAL_AVAILABILITY_NOTE}</span>
                           </span>
                         </span>
                       </div>

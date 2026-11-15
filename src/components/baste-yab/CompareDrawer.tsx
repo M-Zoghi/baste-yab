@@ -193,7 +193,7 @@ export function CompareDrawer({
                         {KIND_LABEL[item.kind]}
                         {item.domesticOnly ? " · فقط اینترنت داخلی" : ""}
                         {item.portalOnly
-                          ? ` · ${item.portalLabel ?? "فروش فقط از اپ اپراتور"} (${PORTAL_AVAILABILITY_NOTE})`
+                          ? ` · ${item.portalLabel ?? "فروش فقط از اپ اپراتور"} (${item.portalNote ?? PORTAL_AVAILABILITY_NOTE})`
                           : ""}
                         {item.discountPct != null ? ` · ${faDigits(item.discountPct)}٪ تخفیف` : ""}
                       </td>

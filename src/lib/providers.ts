@@ -171,7 +171,7 @@ export const ENTRIES: Entry[] = [
     site: "https://www.aptel.ir", buyUrl: "https://www.aptel.ir/packages",
     status: "live", doc: DOCS.aptel, personalized: DOCS.aptel?.personalized,
     updateMode: "auto",
-    updateNote: "بروزرسانی خودکار روزانه حدود ۰۶:۴۷ تهران (GitHub Actions)",
+    updateNote: "ادغام فروشگاه عمومی + پنل «آپتل من» (۵۵ بسته): عمومی خودکار روزانه · پنل دستی با HAR",
   },
   {
     key: "irancell", nameFa: "ایرانسل", nameEn: "Irancell", category: "mobile",
@@ -197,7 +197,16 @@ export const VAT_RATE = 0.1;
  * that sells portal-only packs names its own app so the UI text stays exact. */
 export const PORTAL_AVAILABILITY_NOTE = "ممکن است برای همه مشترکان در دسترس نباشد";
 
-export const PORTAL_LABELS: Record<string, { badge: string; hint: string }> = {
+export const APTEL_PORTAL_PAGE = "https://my.aptel.ir/packages"; // «آپتل من» buy page — portal-only packs deep-link here
+
+export const PORTAL_LABELS: Record<string, { badge: string; hint: string; note?: string }> = {
+  aptel: {
+    badge: "فروش فقط از پنل «آپتل من» / my.aptel.ir",
+    hint: "خرید و قیمت ارزان فقط با ورود به حساب در پنل «آپتل من» (my.aptel.ir) — در فروشگاه عمومی www.aptel.ir نیست",
+    // replaces the generic availability note under the badge: the price
+    // exists only for logged-in subscribers — cheaper if they log in
+    note: "با ورود به «آپتل من» ارزان‌تر است — بدون ورود، فروشگاه عمومی این بسته را ندارد",
+  },
   mci: {
     badge: "فروش فقط از اپ همراه من / my.mci.ir",
     hint: `خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست (${PORTAL_AVAILABILITY_NOTE})`,
@@ -220,6 +229,7 @@ export interface DerivedPkg extends Pkg {
   buyUrl: string;
   portalLabel: string | null;  // «فروش فقط از …» badge text (portal-only packs)
   portalHint: string | null;   // buy-button tooltip (portal-only packs)
+  portalNote: string | null;   // badge-box note line (falls back to the generic availability note)
   fetchedAt: string;
   sourceKind: string;
   kind: Kind; // materialized with default
@@ -266,6 +276,7 @@ export function allPackages(): DerivedPkg[] {
         portalOnly,
         portalLabel: portalInfo ? portalInfo.badge : null,
         portalHint: portalInfo ? portalInfo.hint ?? null : null,
+        portalNote: portalInfo ? portalInfo.note ?? null : null,
         restrictions,
         entryKey: e.key,
         providerName: e.nameFa,

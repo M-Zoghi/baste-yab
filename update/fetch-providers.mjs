@@ -20,8 +20,10 @@
  *       (QueryPackagesVGroupInfoByPlanId + QueryPromotionProducts are read;
  *       billing/inbox/telemetry in the same file are never touched):
  *         node update/fetch-providers.mjs --only aptel --input my.aptel.ir.har
- *       They live in `personalized.samples` (informational, shown next to the
- *       ranking — public prices are NOT personalized), and a www.aptel.ir HAR
+ *       Priced exclusives (no public twin) join `packages` as portalOnly
+ *       packs (id aptel-my-*, buyUrl → my.aptel.ir/packages) and ride along
+ *       on every daily public refresh, exactly like irancell-my-*; only the
+ *       free install gift stays in `personalized.samples`. A www.aptel.ir HAR
  *       also feeds part A manually when the API is unreachable.
  *  • mci       — THREE sources, merged (shop + portal verified 2026-11-06/14
  *    from HAR captures; overlapping packs priced IDENTICALLY on both):
@@ -119,8 +121,8 @@
  *
  * Usage: node update/fetch-providers.mjs [--only samantel]
  *        node update/fetch-providers.mjs --only aptel --input my.aptel.ir.har
- *          («آپتل من» portal samples from the HAR; the public catalog
- *           still live-fetches — a www.aptel.ir HAR feeds it too)
+ *          («آپتل من» portal: exclusives → packages, gift → samples; the
+ *           public catalog still live-fetches — a www.aptel.ir HAR feeds it too)
  *        node update/fetch-providers.mjs --only irancell --input my.irancell.ir.har
  *          [--fetched-at 2026-11-15T10:41:55Z]  (portal refresh from Iran;
  *           web part still live-fetches — or stale-keeps — automatically)
@@ -227,6 +229,9 @@ async function fetchSamantel() {
 /* ─────────── aptel — public packages API (live/HAR) + «آپتل من» portal (HAR) ─────────── */
 const APTEL_URL = 'https://www.aptel.ir/api/ep/query?scope=public';
 const APTEL_STALE_DAYS = 14; // public API unreachable → keep the previous capture up to this age
+const APTEL_PORTAL_PAGE = 'https://my.aptel.ir/packages'; // «آپتل من» buy page — portal-only packs deep-link here
+const APTEL_PORTAL_NOTE_NO_TWIN = 'فروش و این قیمت فقط با ورود به حساب در پنل «آپتل من» — در فروشگاه عمومی نیست';
+const APTEL_PORTAL_NOTE_TEXT = 'فهرست اصلی، قیمت‌های عمومی فروشگاه است (بدون ورود)؛ اما بسته‌های اختصاصی پنل «آپتل من» حالا خودشان با برچسب «فروش فقط از پنل» در همان فهرست آمده‌اند. قیمت آن‌ها قیمتِ پنلِ مشترکین (با ورود به حساب) است و بدون ورود در فروشگاه عمومی وجود ندارند — مثلاً همان ۲۰ گیگ ۳۰ روزه در پنل ۸۰٬۰۰۰ تومان است ولی در فروشگاه عمومی ۱۷۰٬۰۰۰ تومان. هدیه‌ی نصب «آپتل من» (۵ گیگ ۷ روزه) هم رایگان است.';
 
 /** "20 گیگابایت" / "500 مگابایت" (fa or en digits) → GB; null if unparseable. */
 function aptelDescGB(desc) {
@@ -398,23 +403,25 @@ function aptelPortalFromHar(raw) {
   return { catalog: [...catalog.values()], promos: [...promos.values()], fetchedAt: capturedAt ? new Date(capturedAt).toISOString() : null };
 }
 
-/** portal catalog + promotions → the informational `personalized` samples.
-    Logged-in-only deals are NOT in the public API. Two kinds, exactly like
-    the hand-curated 2026-11-06 list, but now derived from the capture:
-    • «ویژه آپتل من» promo packs (strike-through original price + discount badge)
-    • plain-looking packs that are simply cheaper than the public catalog
-      (e.g. the AptelPrime «۱۰ گیگ ۳۰ روزه» that actually grants 20 GB at
-      80,000 — the public 20GB/30d costs 170,000)
-    Plus the free install gift (price 0). Packs the public list already sells
-    at the same kind/gb/days/price are the same product renumbered and are NOT
-    repeated (the portal re-numbers every packageId). The UI shows the samples
-    next to the public ranking instead of mixing them into it — public prices
-    are NOT personalized. */
+/** portal catalog + promotions → TWO outputs, derived from the capture:
+    • portalPacks — the PRICED exclusives (no public twin) as plain package
+      records (id aptel-my-<packageId>). They join the ranking as portalOnly
+      packs and ride along on every daily public refresh until a fresh HAR
+      replaces them — exactly like irancell-my-*. Two kinds:
+        – «ویژه آپتل من» promo packs (strike-through original price + discount badge)
+        – plain-looking packs that are simply cheaper than the public catalog
+          (e.g. the AptelPrime «۱۰ گیگ ۳۰ روزه» that actually grants 20 GB at
+          80,000 — the public 20GB/30d costs 170,000)
+    • personalized.samples — ONLY the free install gifts (price 0, with a
+      data volume — the 60-minute voice gift carries no volume and stays out).
+    The public-twin filter is spec-based (kind/gb/days/price): the portal
+    re-numbers every packageId, so ids never match. */
 function aptelPersonalizedFromPortal(portal, publicPackages) {
   const publicSpecs = new Set(publicPackages.map((p) => `${p.kind}|${p.gb}|${p.days}|${p.price}`));
+  const portalPacks = [];
   const samples = [];
-  const seen = new Set();
-  const push = (s) => { if (!seen.has(s.title)) { seen.add(s.title); samples.push(s); } };
+  const seenPack = new Set();
+  const seenSample = new Set();
   const noPublicTwin = (p) => !publicSpecs.has(`${p.kind}|${p.gb}|${p.days}|${p.price}`);
   const titleGb = (t) => { const m = enDigits(t).match(/(\d+(?:\.\d+)?)\s*گیگ/); return m ? parseFloat(m[1]) : null; };
 
@@ -423,11 +430,19 @@ function aptelPersonalizedFromPortal(portal, publicPackages) {
   for (const it of portal.catalog) {
     const p = aptelMapItem(it);
     if (!p || p.isGift || p.price <= 0 || !noPublicTwin(p)) continue;
-    special.push(p);
+    special.push({ it, p });
   }
-  special.sort((a, b) => b.gb - a.gb);
-  for (const p of special) {
-    push({ title: p.title, gb: p.gb, days: p.days, price: p.price, oldPrice: p.oldPrice, discountPct: p.discountPct });
+  special.sort((a, b) => b.p.gb - a.p.gb);
+  for (const { it, p } of special) {
+    const id = `aptel-my-${it.packageId}`;
+    if (seenPack.has(id)) continue;
+    seenPack.add(id);
+    portalPacks.push({
+      id, title: p.title, kind: p.kind,
+      gb: p.gb, days: p.days, price: p.price,
+      oldPrice: p.oldPrice, discountPct: p.discountPct,
+      group: null, regulatoryCode: null, ussd: null, note: null,
+    });
   }
 
   /* 2) buyable portal-only promotions — keep the portal's wording, append the
@@ -435,44 +450,56 @@ function aptelPersonalizedFromPortal(portal, publicPackages) {
   for (const it of portal.promos) {
     const p = aptelMapItem(it);
     if (!p || p.isGift || p.price <= 0 || !noPublicTwin(p)) continue;
+    const id = `aptel-my-${it.packageId}`;
+    if (seenPack.has(id)) continue;
+    seenPack.add(id);
     const tg = titleGb(p.rawTitle);
     const title = tg != null && Math.abs(tg - p.gb) / Math.max(tg, p.gb) > 0.05
       ? `${p.title} (${faDigits(String(p.gb))} گیگ واقعی)`
       : p.title;
-    push({ title: `${title} · فقط پنل مشترکین`, gb: p.gb, days: p.days, price: p.price, oldPrice: p.oldPrice, discountPct: p.discountPct });
+    portalPacks.push({
+      id, title, kind: p.kind,
+      gb: p.gb, days: p.days, price: p.price,
+      oldPrice: p.oldPrice, discountPct: p.discountPct,
+      group: null, regulatoryCode: null, ussd: null, note: null,
+    });
   }
 
   /* 3) free install gifts (price 0, with a data volume — the 60-minute voice
-        gift carries no volume and stays out) */
+        gift carries no volume and stays out) → informational samples only */
   for (const it of [...portal.catalog, ...portal.promos]) {
     const p = aptelMapItem(it);
     if (!p || !p.isGift || p.gb <= 0) continue;
-    push({ title: p.title, gb: p.gb, days: p.days, price: 0, oldPrice: null, discountPct: null });
+    if (seenSample.has(p.title)) continue;
+    seenSample.add(p.title);
+    samples.push({ title: p.title, gb: p.gb, days: p.days, price: 0, oldPrice: null, discountPct: null });
   }
 
   const capturedAt = portal.fetchedAt || new Date().toISOString();
   return {
-    applies: true,
-    note: 'قیمت‌های فهرست بالا عمومی است (بدون ورود). با ورود به «آپتل من»، بسته‌های ویژه‌ی ۳۰ روزه با تخفیف، هدیه‌ی نصب و حتی نسخه‌های ارزان‌تر بعضی بسته‌های معمولی (مثل ۲۰ گیگ ۸۰٬۰۰۰ به‌جای ۱۷۰٬۰۰۰) نمایش داده می‌شود.',
-    source: `ضمیمه‌ی پنل مشترکین my.aptel.ir — برداشت ${faDigits(aptelJalali(capturedAt))} (${capturedAt.slice(0, 10)})`,
-    capturedAt,
-    samples,
+    personalized: {
+      applies: true,
+      note: APTEL_PORTAL_NOTE_TEXT,
+      source: `ضمیمه‌ی پنل مشترکین my.aptel.ir — برداشت ${faDigits(aptelJalali(capturedAt))} (${capturedAt.slice(0, 10)})`,
+      capturedAt,
+      samples,
+    },
+    portalPacks,
   };
 }
 
-/* built-in fallback — used only before the first my.aptel.ir HAR lands;
-   values hand-checked against the 2026-11-15 portal capture */
+/* built-in fallback — used only before the first my.aptel.ir HAR lands
+   (a checkout with no aptel.json at all); values hand-checked against the
+   2026-11-15 portal capture. The PRICED exclusives are deliberately NOT
+   hardcoded here: they enter the ranking only from a real capture (or ride
+   along from the committed aptel.json) — no hand-typed pack ever ranks. */
 const APTEL_FALLBACK_PERSONALIZED = {
   applies: true,
-  note: 'قیمت‌های فهرست بالا عمومی است (بدون ورود). با ورود به «آپتل من»، بسته‌های ویژه‌ی ۳۰ روزه با تخفیف، هدیه‌ی نصب و حتی نسخه‌های ارزان‌تر بعضی بسته‌های معمولی (مثل ۲۰ گیگ ۸۰٬۰۰۰ به‌جای ۱۷۰٬۰۰۰) نمایش داده می‌شود.',
+  note: APTEL_PORTAL_NOTE_TEXT,
   source: 'ضمیمه‌ی پنل مشترکین my.aptel.ir — برداشت ۱۴۰۵/۰۸/۲۴ (2026-11-15)',
   capturedAt: '2026-11-15T19:23:21.934Z',
   samples: [
-    { title: 'ویژه آپتل من (۱۰۰ گیگ ۳۰ روزه)', gb: 100, days: 30, price: 600000, oldPrice: 850000, discountPct: 29 },
-    { title: 'ویژه آپتل من (۵۰ گیگ ۳۰ روزه)', gb: 50, days: 30, price: 325000, oldPrice: 450000, discountPct: 28 },
-    { title: 'ویژه آپتل من (۳۰ گیگ ۳۰ روزه)', gb: 30, days: 30, price: 210000, oldPrice: 270000, discountPct: 22 },
-    { title: '۱۰ گیگ ۳۰ روزه (۲۰ گیگ واقعی) · فقط پنل مشترکین', gb: 20, days: 30, price: 80000, oldPrice: null, discountPct: null },
-    { title: 'هدیه نصب آپتل من (۵ گیگ ۷ روزه)', gb: 5, days: 7, price: 0, oldPrice: null, discountPct: null },
+    { title: 'هدیه نصب آپتل من (۵گیگ ۷ روزه)', gb: 5, days: 7, price: 0, oldPrice: null, discountPct: null },
   ],
 };
 
@@ -546,18 +573,64 @@ async function fetchAptel() {
     }
   }
 
-  /* portal part: input → keep previous samples (the API needs a logged-in token) */
+  /* portal part: input → keep previous (the API needs a logged-in token).
+     Priced exclusives live in packages (aptel-my-*), the gift stays a sample. */
+  const prevPortalPacks = (prev?.packages || []).filter((p) => /^aptel-my-/.test(p.id));
   let personalized = null;
+  let portalPacks = [];
   if (portalFromInput) {
-    personalized = aptelPersonalizedFromPortal(portalFromInput, publicPart.packages);
-    if (!personalized.samples.length) throw new Error('portal HAR parsed but yielded no «آپتل من» samples');
-    console.log(`• aptel: «آپتل من» samples from the HAR capture (${personalized.capturedAt.slice(0, 10)}) — ${personalized.samples.length} packs`);
-  } else if (prev?.personalized?.samples?.length) {
-    personalized = prev.personalized;
-    const at = prevPortalMeta?.fetchedAt || prev.personalized.capturedAt || null;
-    console.log(`• aptel: kept «آپتل من» portal capture${at ? ` from ${at.slice(0, 10)}` : ''} (portal API needs login — refresh with --input <my.aptel.ir.har>)`);
+    ({ personalized, portalPacks } = aptelPersonalizedFromPortal(portalFromInput, publicPart.packages));
+    if (!portalPacks.length && !personalized.samples.length) {
+      throw new Error('portal HAR parsed but yielded no «آپتل من» exclusives');
+    }
+    console.log(`• aptel: «آپتل من» portal from the HAR capture (${personalized.capturedAt.slice(0, 10)}) — ${portalPacks.length} exclusive pack(s) + ${personalized.samples.length} gift sample(s)`);
   } else {
-    personalized = APTEL_FALLBACK_PERSONALIZED;
+    portalPacks = prevPortalPacks;
+    if (prev?.personalized?.samples?.length) {
+      personalized = prev.personalized;
+      const at = prevPortalMeta?.fetchedAt || prev.personalized.capturedAt || null;
+      console.log(`• aptel: kept «آپتل من» portal capture${at ? ` from ${at.slice(0, 10)}` : ''} — ${portalPacks.length} pack(s) ride along (portal API needs login — refresh with --input <my.aptel.ir.har>)`);
+    } else {
+      personalized = APTEL_FALLBACK_PERSONALIZED;
+    }
+  }
+
+  /* merge: public first, then the «آپتل من» exclusives the public catalog
+     doesn't already sell (same kind/gb/days/price ⇒ the same pack — the
+     portal re-numbers ids). Every exclusive carries the login note: when the
+     public shop sells the SAME volume dearer, a cheaper-with-login twin note
+     (re-derived from the fresh public list on every run, so ride-alongs stay
+     current); otherwise the plain only-with-login note. Mirrors the
+     irancell-my-* merge. */
+  const seen = new Set();
+  const mergeKey = (p) => `${p.kind}|${p.gb}|${p.days}|${p.price}`;
+  const merged = [];
+  for (const p of publicPart.packages) {
+    // register the key, but keep every pack — the public list is already
+    // deduped (rawTitle-aware: «۲ گیگ ۱۵روزه» vs «۲ گیگ ۱۵ روزه» channel
+    // twins both stay); this loop must not re-collapse them.
+    seen.add(mergeKey(p));
+    merged.push(p);
+  }
+  let portalOnlyCount = 0;
+  let cheaperWithLogin = 0;
+  for (const p of portalPacks) {
+    const k = mergeKey(p);
+    if (seen.has(k)) continue; // the public shop sells it at the same price — the public card wins
+    seen.add(k);
+    const twin = publicPart.packages.find(
+      (w) => w.kind === p.kind && w.gb === p.gb && w.days === p.days && w.price > p.price,
+    );
+    const note = twin
+      ? `قیمت ویژه پنل «آپتل من» با ورود به حساب (فروشگاه عمومی همین حجم: ${faDigits(String(twin.price))} تومان)`
+      : APTEL_PORTAL_NOTE_NO_TWIN;
+    merged.push({ ...p, note, portalOnly: true, buyUrl: APTEL_PORTAL_PAGE });
+    if (twin) cheaperWithLogin += 1;
+    portalOnlyCount += 1;
+  }
+  merged.sort((a, b) => a.price / a.gb - b.price / b.gb);
+  if (portalOnlyCount) {
+    console.log(`• aptel: ${portalOnlyCount} «آپتل من»-exclusive pack(s) in the ranking${cheaperWithLogin ? ` (${cheaperWithLogin} cheaper with login)` : ''} → «فروش فقط از پنل آپتل من / my.aptel.ir» (buyUrl → ${APTEL_PORTAL_PAGE})`);
   }
 
   const portalAt = portalFromInput ? portalFromInput.fetchedAt : (prevPortalMeta?.fetchedAt || personalized.capturedAt || null);
@@ -591,7 +664,7 @@ async function fetchAptel() {
     },
     prices: { unit: 'toman', includesTax: false, apiUnit: 'rial' },
     personalized,
-    packages: publicPart.packages,
+    packages: merged,
     excluded: publicPart.excluded,
   });
 }
