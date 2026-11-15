@@ -48,6 +48,7 @@ export interface Personalized {
   applies: boolean;         // prices in this doc are PUBLIC (logged-out); logged-in prices may differ
   note: string;
   source?: string;
+  capturedAt?: string;      // ISO capture time of the portal HAR (freshness gate for re-feeds)
   samples: PersonalizedSample[];
 }
 

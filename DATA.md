@@ -9,7 +9,7 @@
 | اپراتور | دسته | وضعیت بروزرسانی | تعداد بسته (فعال / حذف‌شده) | منبع فعلی | نیاز به اقدام |
 |---|---|---|---|---|---|
 | سامانتل | همراه (اپراتور مجازی) | ✅ خودکار روزانه | ۳۱ فعال / ۷ حذف‌شده (غیرحجمی) | `POST payment.samantel.ir/api/mediator/samantel/` (`getpackagebyproduct`) | — |
-| آپتل | همراه (اپراتور مجازی) | ✅ خودکار روزانه | ۵۱ فعال / ۰ حذف‌شده | `GET www.aptel.ir/api/ep/query?scope=public` | — |
+| آپتل | همراه (اپراتور مجازی) | ✅ خودکار روزانه (عمومی) + 🔶 دستی (پنل «آپتل من») | ۵۱ فعال / ۰ حذف‌شده + ۵ نمونه‌ی پنل در `personalized` | اصلی: `GET www.aptel.ir/api/ep/query?scope=public` · پنل: `services.negintel.com` (فقط HAR) | نمونه‌های پنل: `--input my.aptel.ir.har` |
 | همراه اول | همراه | ✅ جایگزین خودکار + 🔶 دستی (فروشگاه + پنل) | ۶۸ فعال (فروشگاه ۴۸ + پنل ۲۰؛ برچسب «فروش فقط از اپ همراه من / my.mci.ir») | اصلی: `GET shop.mci.ir/api/search/v1/products?category=19` + `GET my.mci.ir/api/unit/v1/customer/units/normal/internet` · جایگزین: `GET mci.ir/internet-plans` (۳۰ بسته) | بروزرسانی با `npm run update:iran` یا HAR تازه از داخل ایران |
 | ایرانسل | همراه | ✅ خودکار روزانه (وب‌سایت) + 🔶 دستی (اپ) | ۷۰ فعال (وب‌سایت ۳۹ + اپ ۳۱؛ برچسب «فروش فقط از اپ ایرانسل من / my.irancell.ir») / ۶ حذف‌شده (تعرفه آزاد و اشتراک هرگیگ) | اصلی: `GET irancell.ir/e/products/5e16bf95d11fd7209ba56b20` + `GET my.irancell.ir/api/catalog/v2/offers` (اپ) | فقط بخش اپ: `--input my.irancell.ir.har` از داخل ایران |
 | رایتل (همراه) | همراه | 🔶 دستی از داخل ایران | ۳۸ فعال / ۱۵ حذف‌شده | `GET portal-api.rightel.ir/…/web-site/purchasable-package` | بروزرسانی با `npm run update:iran` یا JSON/HAR تازه از داخل ایران |
@@ -45,7 +45,8 @@ git add src/data/providers && git commit -m "data: refresh" && git push
 ```bash
 node update/fetch-providers.mjs                                          # همه‌ی آداپتورها
 node update/fetch-providers.mjs --only samantel                          # فقط سامانتل
-node update/fetch-providers.mjs --only aptel                             # فقط آپتل
+node update/fetch-providers.mjs --only aptel                             # فقط آپتل (عمومی زنده)
+node update/fetch-providers.mjs --only aptel --input my.aptel.ir.har      # آپتل + نمونه‌های پنل «آپتل من» از HAR
 node update/fetch-providers.mjs --only mci --input shop.har              # همراه اول از فایل HAR یا JSON (فروشگاه یا پنل همراه من)
 node update/fetch-providers.mjs --only irancell --input my.irancell.ir.har  # ایرانسل: بخش اپ از HAR (وب‌سایت خودکار تازه می‌شود)
 node update/fetch-providers.mjs --only rightel --input rightel.har       # رایتل (همراه + مودم) از فایل HAR یا JSON
@@ -73,7 +74,8 @@ node update/fetch-providers.mjs --only rightel --input rightel.har       # را�
 ### آپتل
 - آدرس `GET www.aptel.ir/api/ep/query?scope=public` بدون نیاز به ورود در دسترس است. قیمت‌ها به **ریال** است (تقسیم بر ۱۰ برای تبدیل به تومان، بدون مالیات).
 - فیلد `internetDescription` مرجع دقیق حجم بسته است و موارد تکراری بین کانال‌های `Azartel_*` و `AptelPrime_*` با هم ادغام می‌شوند.
-- اگر با شماره وارد «آپتل من» شوید، بسته‌های تخفیف‌دار اختصاصی نمایش داده می‌شود که در API عمومی نیستند؛ این نمونه‌ها در کلید `personalized` نگهداری می‌شوند و در بخش **نکات مهم اپراتورها** نمایش داده می‌شوند.
+- اگر با شماره وارد «آپتل من» شوید، بسته‌های تخفیف‌دار اختصاصی نمایش داده می‌شود که در API عمومی نیستند؛ این نمونه‌ها در کلید `personalized` نگهداری می‌شوند و در بخش **نکات مهم اپراتورها** نمایش داده می‌شوند. پنل «آپتل من» (my.aptel.ir) به پلتفرم Negintel (services.negintel.com) وصل می‌شود و توکن ورود می‌خواهد؛ بنابراین این بخش فقط با فایل HAR تازه تازه می‌شود: `node update/fetch-providers.mjs --only aptel --input my.aptel.ir.har` (فقط دو اندپوینت کاتالوگ `QueryPackagesVGroupInfoByPlanId` و `QueryPromotionProducts` خوانده می‌شوند؛ بقیه‌ی درخواست‌های HAR نادیده گرفته می‌شوند). تاریخ برداشت پنل در `personalized.capturedAt` و `source.parts.portal.fetchedAt` ثبت می‌شود تا HAR قدیمی‌تر از آن دوباره تغذیه نشود.
+- بسته‌های پنل با کاتالوگ عمومی بر اساس مشخصات (نوع/حجم/مدت/قیمت) مقایسه می‌شوند — پنل برای همه‌ی بسته‌ها `packageId` جدیدی می‌دهد، پس مقایسه با id اشتباه است. فقط بسته‌های بدون همتای عمومی به‌عنوان نمونه نمایش داده می‌شوند (سه بسته‌ی «ویژه آپتل من»، بسته‌ی ارزان‌تر «۱۰ گیگ ۳۰ روزه» که در واقع ۲۰ گیگ می‌دهد، و هدیه‌ی نصب رایگان).
 
 ### همراه اول (فروشگاه رسمی + پنل همراه من + جایگزین خودکار)
 1. **فروشگاه رسمی (`shop.mci.ir`)**: فایل HAR صفحه‌ی `shop.mci.ir/products/19/internet-package` نشان داد کل کاتالوگ از `GET /api/search/v1/products?category=19&page=N&size=16` خوانده می‌شود (**۴۸ بسته** شامل انارستان، صبحانت و ترکیبی‌ها). قیمت‌ها به ریال و بدون مالیات است (`discountPrice ?? price`). تنها بسته‌هایی که `productStatus === "ACTIVE"` دارند قابل خرید محسوب می‌شوند. بسته‌های **انارستان** دارای برچسب `فقط اینترنت داخلی` هستند.
