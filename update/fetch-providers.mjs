@@ -69,6 +69,11 @@
  *       stamped portalOnly:true + buyUrl → the همراه من packages page, so the
  *       site can label them «فروش فقط از اپ همراه من / my.mci.ir» — the web
  *       shop cannot sell them. Modem packs are portal-only by definition.
+ *       Like the other portals this catalog is PER-CUSTOMER (it
+ *       personalizes via ?phoneNumber=), so captures UNION across
+ *       customers: packs carry lastSeen, earlier captures' packs survive
+ *       until unseen for 30 days (presumed delisted → pruned) — see
+ *       portalUnion().
  *    C) FALLBACK — mci.ir/internet-plans marketing page (reachable outside
  *       Iran, auto-refreshes daily): server-side .package-list-item cards,
  *       prices in TOMAN pre-tax, purchasability = خرید آنلاین button carries a
@@ -1266,6 +1271,9 @@ async function fetchMci() {
   let prevModem = null;
   try { prev = JSON.parse(await readFile(path.join(DATA_DIR, 'mci.json'), 'utf8')); } catch { /* none */ }
   try { prevModem = JSON.parse(await readFile(path.join(DATA_DIR, 'mci-modem.json'), 'utf8')); } catch { /* none */ }
+  /* previous modem doc — union ledger base (the portal is per-customer) */
+  const prevModemPacks = prevModem?.packages || [];
+  const prevModemAt = prevModem?.source?.fetchedAt ?? null;
   const prevShopPacks = (prev?.packages || []).filter((p) => !/^mci-(my|modem)-/.test(p.id));
   const prevPortalPacks = (prev?.packages || []).filter((p) => /^mci-my-/.test(p.id));
   const prevShopMeta = prev?.source?.parts?.shop ?? (prev && prev.source?.kind ? prev.source : null);
@@ -1350,8 +1358,12 @@ async function fetchMci() {
     return;
   }
 
-  // portal packs ride along even when the portal itself could not refresh
-  const portalPacks = portal ? portal.mobile.packages : prevPortalPacks;
+  // portal packs ride along even when the portal itself could not refresh;
+  // a fresh view UNIONS with earlier captures (the catalog personalizes via
+  // ?phoneNumber= — different numbers see different offers), fresh wins per id
+  const portalPacks = portal
+    ? portalUnion(prevPortalPacks, portal.mobile.packages, portal.fetchedAt, prevPortalAt, 'mci')
+    : prevPortalPacks;
   const portalExcluded = portal ? portal.mobile.excluded : [];
   const portalAt = portal ? portal.fetchedAt : prevPortalAt;
 
@@ -1427,6 +1439,8 @@ async function fetchMci() {
   /* modem/data-SIM doc — written only from a fresh portal capture; otherwise
    * the shipped mci-modem.json keeps riding along untouched. */
   if (portal && portal.modem.packages.length) {
+    /* same per-customer portal: UNION with earlier captures — fresh wins per id */
+    const modemPacks = portalUnion(prevModemPacks, portal.modem.packages, portal.fetchedAt, prevModemAt, 'mci-modem');
     await writeProvider('mci-modem', {
       schema: 2,
       provider: {
@@ -1440,7 +1454,7 @@ async function fetchMci() {
         fetchedAt: portal.fetchedAt,
       },
       prices: { unit: 'toman', includesTax: false, apiUnit: 'rial' },
-      packages: portal.modem.packages.map((p) => ({ ...p, portalOnly: true, buyUrl: MY_MCI_MODEM_PAGE })),
+      packages: modemPacks.map((p) => ({ ...p, portalOnly: true, buyUrl: MY_MCI_MODEM_PAGE })),
       excluded: portal.modem.excluded,
     });
   }
