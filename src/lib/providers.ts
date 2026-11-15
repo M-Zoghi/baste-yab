@@ -194,21 +194,23 @@ export const VAT_RATE = 0.1;
 
 /* Operator app/portal branding for the «فروش فقط از …» badges — each provider
  * that sells portal-only packs names its own app so the UI text stays exact. */
+export const PORTAL_AVAILABILITY_NOTE = "ممکن است برای همه مشترکان در دسترس نباشد";
+
 export const PORTAL_LABELS: Record<string, { badge: string; hint: string }> = {
   mci: {
     badge: "فروش فقط از اپ همراه من / my.mci.ir",
-    hint: "خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست",
+    hint: `خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست (${PORTAL_AVAILABILITY_NOTE})`,
   },
   "mci-modem": {
     badge: "فروش فقط از اپ همراه من / my.mci.ir",
-    hint: "خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست",
+    hint: `خرید از اپلیکیشن همراه من یا my.mci.ir — در فروشگاه آنلاین shop.mci.ir نیست (${PORTAL_AVAILABILITY_NOTE})`,
   },
   irancell: {
     badge: "فروش فقط از اپ ایرانسل من / my.irancell.ir",
-    hint: "خرید از اپلیکیشن ایرانسل من یا my.irancell.ir — در فروشگاه آنلاین irancell.ir نیست",
+    hint: `خرید از اپلیکیشن ایرانسل من یا my.irancell.ir — در فروشگاه آنلاین irancell.ir نیست (${PORTAL_AVAILABILITY_NOTE})`,
   },
 };
-const FALLBACK_PORTAL_LABEL = { badge: "فروش فقط از اپ اپراتور", hint: undefined } as const;
+const FALLBACK_PORTAL_LABEL = { badge: "فروش فقط از اپ اپراتور", hint: PORTAL_AVAILABILITY_NOTE } as const;
 
 export interface DerivedPkg extends Pkg {
   entryKey: string;

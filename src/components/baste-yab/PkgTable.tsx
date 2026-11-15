@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Award, Check, Copy, ExternalLink, Gift, Scale, ShieldAlert, Smartphone } from "lucide-react";
+import { Award, Check, Copy, ExternalLink, Gift, Info, Scale, ShieldAlert, Smartphone } from "lucide-react";
 
 import {
+  PORTAL_AVAILABILITY_NOTE,
   VAT_RATE,
   faDigits,
   fmtGB,
@@ -13,7 +14,7 @@ import {
   type Row,
 } from "@/lib/providers";
 import { useToast } from "@/hooks/use-toast";
-import { KIND_LABEL, accentTextColor, valueBadgeStyle, valueColor } from "./helpers";
+import { KIND_LABEL, accentBadgeStyle, valueBadgeStyle, valueColor } from "./helpers";
 
 interface PkgTableProps {
   rows: (Row & { t?: number })[];
@@ -126,19 +127,6 @@ export function PkgTable({
                         </>
                       )}
 
-                      {r.portalOnly && (
-                        <>
-                          <span aria-hidden="true" className="text-border">·</span>
-                          <span
-                            className="inline-flex items-center gap-1 font-semibold"
-                            style={{ color: accentTextColor(r.providerAccent, dark) }}
-                          >
-                            <Smartphone className="h-3 w-3 shrink-0" />
-                            {r.portalLabel ?? "فروش فقط از اپ اپراتور"}
-                          </span>
-                        </>
-                      )}
-
                       {r.discountPct != null && (
                         <>
                           <span aria-hidden="true" className="text-border">·</span>
@@ -168,6 +156,25 @@ export function PkgTable({
                         </>
                       )}
                     </div>
+
+                    {r.portalOnly && (
+                      <div className="mt-1.5">
+                        <span
+                          className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 rounded-md border px-2 py-0.5 text-[11.5px]"
+                          style={accentBadgeStyle(r.providerAccent, dark)}
+                        >
+                          <span className="inline-flex items-center gap-1 font-semibold">
+                            <Smartphone className="h-3 w-3 shrink-0" />
+                            <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
+                          </span>
+                          <span aria-hidden="true" className="opacity-35">|</span>
+                          <span className="inline-flex items-center gap-1 opacity-90">
+                            <Info className="h-3 w-3 shrink-0" />
+                            <span>{PORTAL_AVAILABILITY_NOTE}</span>
+                          </span>
+                        </span>
+                      </div>
+                    )}
 
                     {r.note && (
                       <div className="mt-1 text-[11.5px] leading-5 text-muted-foreground">

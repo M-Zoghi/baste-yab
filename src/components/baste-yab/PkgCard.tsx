@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Award, Check, Copy, ExternalLink, Gift, Scale, ShieldAlert, Smartphone } from "lucide-react";
+import { Award, Check, Copy, ExternalLink, Gift, Info, Scale, ShieldAlert, Smartphone } from "lucide-react";
 
 import {
+  PORTAL_AVAILABILITY_NOTE,
   VAT_RATE,
   faDigits,
   fmtGB,
@@ -14,7 +15,7 @@ import {
   type Row,
 } from "@/lib/providers";
 import { useToast } from "@/hooks/use-toast";
-import { KIND_LABEL, accentBadgeStyle, valueBadgeStyle, valueColor } from "./helpers";
+import { KIND_LABEL, accentBadgeStyle, accentDividerColor, valueBadgeStyle, valueColor } from "./helpers";
 
 interface PkgCardProps {
   r: Row & { t?: number };
@@ -138,21 +139,30 @@ export function PkgCard({
       <div className="mt-3">
         <h3 className="text-[15.5px] font-bold leading-7 text-foreground">{r.title}</h3>
         {(r.domesticOnly || r.portalOnly) && (
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <div className="mt-2 flex flex-col items-start gap-2">
             {r.domesticOnly && (
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/12 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
                 <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
                 <span>فقط اینترنت داخلی</span>
               </span>
             )}
             {r.portalOnly && (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold"
+              <div
+                className="w-full rounded-lg border px-2.5 py-1.5 text-xs"
                 style={accentBadgeStyle(r.providerAccent, dark)}
               >
-                <Smartphone className="h-3.5 w-3.5 shrink-0" />
-                <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
-              </span>
+                <div className="flex items-center gap-1.5 font-semibold leading-5">
+                  <Smartphone className="h-3.5 w-3.5 shrink-0" />
+                  <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
+                </div>
+                <div
+                  className="mt-1 flex items-center gap-1.5 border-t pt-1 text-[11px] font-medium leading-4 opacity-90"
+                  style={{ borderColor: accentDividerColor(r.providerAccent, dark) }}
+                >
+                  <Info className="h-3 w-3 shrink-0" />
+                  <span>{PORTAL_AVAILABILITY_NOTE}</span>
+                </div>
+              </div>
             )}
           </div>
         )}

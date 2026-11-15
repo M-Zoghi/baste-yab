@@ -10,6 +10,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import {
+  PORTAL_AVAILABILITY_NOTE,
   VAT_RATE,
   faDigits,
   fmtGB,
@@ -191,7 +192,9 @@ export function CompareDrawer({
                       <td key={`${item.entryKey}:${item.id}`} className="py-3 px-3 text-muted-foreground">
                         {KIND_LABEL[item.kind]}
                         {item.domesticOnly ? " · فقط اینترنت داخلی" : ""}
-                        {item.portalOnly ? ` · ${item.portalLabel ?? "فروش فقط از اپ اپراتور"}` : ""}
+                        {item.portalOnly
+                          ? ` · ${item.portalLabel ?? "فروش فقط از اپ اپراتور"} (${PORTAL_AVAILABILITY_NOTE})`
+                          : ""}
                         {item.discountPct != null ? ` · ${faDigits(item.discountPct)}٪ تخفیف` : ""}
                       </td>
                     ))}

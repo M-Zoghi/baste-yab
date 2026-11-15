@@ -68,11 +68,16 @@ export const accentTextColor = (hex: string, dark: boolean) => {
   return `hsl(${h}, ${s}%, ${light}%)`;
 };
 
+export const accentDividerColor = (hex: string, dark: boolean) => {
+  const [h, s] = hexToHsl(hex);
+  return `hsla(${h}, ${s}%, ${dark ? 62 : 40}%, ${dark ? 0.22 : 0.18})`;
+};
+
 export const accentBadgeStyle = (hex: string, dark: boolean) => {
   const [h, s] = hexToHsl(hex);
   return {
-    backgroundColor: `hsla(${h}, ${s}%, ${dark ? 54 : 48}%, ${dark ? 0.16 : 0.14})`,
-    borderColor: `hsla(${h}, ${s}%, ${dark ? 58 : 42}%, ${dark ? 0.36 : 0.32})`,
+    backgroundColor: `hsla(${h}, ${s}%, ${dark ? 54 : 48}%, ${dark ? 0.14 : 0.10})`,
+    borderColor: `hsla(${h}, ${s}%, ${dark ? 58 : 42}%, ${dark ? 0.30 : 0.26})`,
     color: accentTextColor(hex, dark),
   };
 };
