@@ -16,7 +16,19 @@
   "source": {
     "kind": "api",
     "endpoint": "GET www.aptel.ir/api/ep/query?scope=public",
-    "fetchedAt": "2026-11-14T21:44:50.440Z"
+    "fetchedAt": "2026-11-15T19:53:35.229Z",
+    "parts": {
+      "public": {
+        "kind": "api",
+        "endpoint": "GET www.aptel.ir/api/ep/query?scope=public (کاتالوگ عمومی، بدون ورود)",
+        "fetchedAt": "2026-11-15T19:53:35.229Z"
+      },
+      "portal": {
+        "kind": "har",
+        "endpoint": "پنل مشترکین «آپتل من» my.aptel.ir (services.negintel.com): QueryPackagesVGroupInfoByPlanId + QueryPromotionProducts — بسته‌های اختصاصی مشترکین؛ API نیازمند ورود، بروزرسانی فقط با HAR",
+        "fetchedAt": "2026-11-15T19:23:21.934Z"
+      }
+    }
   },
   "prices": {
     "unit": "toman",
@@ -25,43 +37,44 @@
   },
   "personalized": {
     "applies": true,
-    "note": "قیمت‌های فهرست بالا عمومی است (بدون ورود). با ورود به «آپتل من»، بسته‌های ویژه‌ی ۳۰ روزه با تخفیف، هدیه‌ی نصب و حتی نسخه‌های ارزان‌تر بعضی بسته‌های معمولی (مثل ۱۰ گیگ ۵۰٬۰۰۰ به‌جای ۶۵٬۰۰۰) نمایش داده می‌شود.",
-    "source": "ضمیمه‌ی پنل مشترکین my.aptel.ir — برداشت ۱۴۰۵/۰۸/۱۵ (2026-11-06)",
+    "note": "قیمت‌های فهرست بالا عمومی است (بدون ورود). با ورود به «آپتل من»، بسته‌های ویژه‌ی ۳۰ روزه با تخفیف، هدیه‌ی نصب و حتی نسخه‌های ارزان‌تر بعضی بسته‌های معمولی (مثل ۲۰ گیگ ۸۰٬۰۰۰ به‌جای ۱۷۰٬۰۰۰) نمایش داده می‌شود.",
+    "source": "ضمیمه‌ی پنل مشترکین my.aptel.ir — برداشت ۱۴۰۵/۰۸/۲۴ (2026-11-15)",
+    "capturedAt": "2026-11-15T19:23:21.934Z",
     "samples": [
       {
         "title": "ویژه آپتل من (۱۰۰ گیگ ۳۰ روزه)",
         "gb": 100,
         "days": 30,
-        "price": 460000,
-        "oldPrice": 600000,
-        "discountPct": 23
+        "price": 600000,
+        "oldPrice": 850000,
+        "discountPct": 29
       },
       {
         "title": "ویژه آپتل من (۵۰ گیگ ۳۰ روزه)",
         "gb": 50,
         "days": 30,
-        "price": 260000,
-        "oldPrice": 300000,
-        "discountPct": 13
+        "price": 325000,
+        "oldPrice": 450000,
+        "discountPct": 28
       },
       {
         "title": "ویژه آپتل من (۳۰ گیگ ۳۰ روزه)",
         "gb": 30,
         "days": 30,
-        "price": 160000,
-        "oldPrice": 180000,
-        "discountPct": 11
+        "price": 210000,
+        "oldPrice": 270000,
+        "discountPct": 22
       },
       {
-        "title": "۱۰ گیگ ۳۰ روزه · فقط پنل مشترکین",
-        "gb": 10,
+        "title": "۱۰ گیگ ۳۰ روزه (۲۰ گیگ واقعی) · فقط پنل مشترکین",
+        "gb": 20,
         "days": 30,
-        "price": 50000,
-        "oldPrice": 65000,
-        "discountPct": 23
+        "price": 80000,
+        "oldPrice": null,
+        "discountPct": null
       },
       {
-        "title": "هدیه نصب آپتل من (۵ گیگ ۷ روزه)",
+        "title": "هدیه نصب آپتل من (۵گیگ ۷ روزه)",
         "gb": 5,
         "days": 7,
         "price": 0,
