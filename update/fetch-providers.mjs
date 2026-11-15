@@ -23,8 +23,12 @@
  *       Priced exclusives (no public twin) join `packages` as portalOnly
  *       packs (id aptel-my-*, buyUrl → my.aptel.ir/packages) and ride along
  *       on every daily public refresh, exactly like irancell-my-*; only the
- *       free install gift stays in `personalized.samples`. A www.aptel.ir HAR
- *       also feeds part A manually when the API is unreachable.
+ *       free install gift stays in `personalized.samples`. The portal is
+ *       PER-CUSTOMER (offers differ by number), so captures UNION across
+ *       customers: every pack carries lastSeen, earlier captures' packs
+ *       survive until unseen for 30 days (presumed delisted → pruned) —
+ *       see portalUnion(). A www.aptel.ir HAR also feeds part A manually
+ *       when the API is unreachable.
  *  • mci       — THREE sources, merged (shop + portal verified 2026-11-06/14
  *    from HAR captures; overlapping packs priced IDENTICALLY on both):
  *    A) SHOP — official MCI shop REST API:
@@ -84,8 +88,12 @@
  *    (401 otherwise) → portal part refreshes from a HAR captured inside Iran:
  *      node update/fetch-providers.mjs --only irancell --input my.irancell.ir.har
  *    and portal-only packs (stamped portalOnly:true + buyUrl → my.irancell.ir)
- *    ride along on every automatic web refresh. The offers payload is a plain
- *    package catalog — no personal data is read or written from the HAR.
+ *    ride along on every automatic web refresh. The app catalog is
+ *    PER-CUSTOMER (offers differ by number), so captures UNION across
+ *    customers: every pack carries lastSeen, earlier captures' packs survive
+ *    until unseen for 30 days (presumed delisted → pruned) — see portalUnion().
+ *    The offers payload is a plain package catalog — no personal data is
+ *    read or written from the HAR.
  *  • irancell-tdlte — the TD-LTE catalog above → irancell-tdlte.json
  *    (traffic spec is MB; «N مگابیت اقتصادی» speed plans report
  *    traffic="unlimited" but the desc HTML carries the true GB cap).
@@ -165,6 +173,52 @@ async function keepExisting(id, reason) {
   } catch {
     console.log(`• ${id}: no data yet (${reason})`);
   }
+}
+
+/* ─────────── portal union merge (my.* per-customer catalogs) ───────────
+   The login-gated portals (my.irancell.ir, my.aptel.ir) personalize the
+   offer list per subscriber, so one HAR is ONE customer's view. Captures
+   taken with different numbers must therefore UNION what any customer
+   can buy, not replace it: packs present in the fresh capture win and
+   refresh their lastSeen stamp; packs only earlier captures saw ride
+   along until they have been unseen for PORTAL_UNION_DAYS straight
+   (presumed delisted → pruned, with a log line). Merge key is the pack
+   id — the portals' own offer codes (irancell UPC, aptel packageId),
+   stable across customers; the downstream seen-by-content merge collapses
+   any renumbered twins. prevFallbackAt stamps legacy packs (written
+   before lastSeen existed) with their capture's time so they age from
+   when they were actually seen, not from now. */
+const PORTAL_UNION_DAYS = 30; // unseen this long → presumed delisted, pruned
+function portalUnion(prevPacks, freshPacks, capturedAt, prevFallbackAt, label) {
+  const prev = prevPacks || [];
+  const fresh = freshPacks || [];
+  const prevById = new Map(prev.map((p) => [p.id, p]));
+  const freshIds = new Set();
+  const packs = [];
+  let added = 0;
+  let refreshed = 0;
+  const keptIds = [];
+  const prunedIds = [];
+  for (const p of fresh) {
+    freshIds.add(p.id);
+    packs.push({ ...p, lastSeen: capturedAt });
+    if (prevById.has(p.id)) refreshed += 1; else added += 1;
+  }
+  for (const p of prev) {
+    if (freshIds.has(p.id)) continue;
+    const lastSeen = p.lastSeen || prevFallbackAt || capturedAt;
+    const ageDays = (Date.now() - Date.parse(lastSeen)) / 86400000;
+    if (Number.isFinite(ageDays) && ageDays > PORTAL_UNION_DAYS) {
+      prunedIds.push(p.id);
+      continue;
+    }
+    packs.push({ ...p, lastSeen });
+    keptIds.push(p.id);
+  }
+  if (prev.length || added) {
+    console.log(`• ${label}: portal union — ${fresh.length} in this capture (${refreshed} refreshed${added ? `, ${added} new` : ''})${keptIds.length ? `, ${keptIds.length} kept from earlier captures [${keptIds.join(' ')}]` : ''}${prunedIds.length ? `, ${prunedIds.length} pruned as unseen > ${PORTAL_UNION_DAYS}d [${prunedIds.join(' ')}]` : ''}`);
+  }
+  return packs;
 }
 
 /* ─────────── samantel ─────────── */
@@ -579,11 +633,15 @@ async function fetchAptel() {
   let personalized = null;
   let portalPacks = [];
   if (portalFromInput) {
-    ({ personalized, portalPacks } = aptelPersonalizedFromPortal(portalFromInput, publicPart.packages));
-    if (!portalPacks.length && !personalized.samples.length) {
+    const freshPortal = aptelPersonalizedFromPortal(portalFromInput, publicPart.packages);
+    if (!freshPortal.portalPacks.length && !freshPortal.personalized.samples.length) {
       throw new Error('portal HAR parsed but yielded no «آپتل من» exclusives');
     }
-    console.log(`• aptel: «آپتل من» portal from the HAR capture (${personalized.capturedAt.slice(0, 10)}) — ${portalPacks.length} exclusive pack(s) + ${personalized.samples.length} gift sample(s)`);
+    personalized = freshPortal.personalized;
+    /* per-customer portal: UNION with earlier captures (different numbers
+       see different offers); the fresh view wins per pack id */
+    portalPacks = portalUnion(prevPortalPacks, freshPortal.portalPacks, portalFromInput.fetchedAt, prevPortalMeta?.fetchedAt || null, 'aptel');
+    console.log(`• aptel: «آپتل من» portal from the HAR capture (${personalized.capturedAt.slice(0, 10)}) — ${freshPortal.portalPacks.length} exclusive pack(s) + ${personalized.samples.length} gift sample(s)`);
   } else {
     portalPacks = prevPortalPacks;
     if (prev?.personalized?.samples?.length) {
@@ -1757,7 +1815,11 @@ async function fetchIrancell() {
   }
   let portalOnlyCount = 0;
   let discountedTwins = 0;
-  const portalPacks = portal ? portal.packages : prevPortalPacks;
+  /* per-customer portal: UNION with earlier captures (different numbers
+     see different offers); the fresh view wins per pack id */
+  const portalPacks = portal
+    ? portalUnion(prevPortalPacks, portal.packages, portal.fetchedAt, prevPortalAt, 'irancell')
+    : prevPortalPacks;
   const webKey = (p) => `${p.gb}|${p.days}`;
   for (const p of portalPacks) {
     const k = key(p);

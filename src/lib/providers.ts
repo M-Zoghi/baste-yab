@@ -24,6 +24,7 @@ export interface Pkg {
   kind?: Kind;              // internet (default) | combo (voice+sms) | roaming
   domesticOnly?: boolean;   // e.g. MCI Anarestan — domestic Iranian traffic only
   portalOnly?: boolean;     // sold ONLY via the operator app/portal (MCI همراه من / my.mci.ir, Irancell ایرانسل من / my.irancell.ir), not the public web shop
+  lastSeen?: string;         // portal packs (irancell-my-* / aptel-my-*): ISO date of the last capture that saw this pack — union ledger across per-customer portal captures; not rendered
   gb: number;
   days: number;
   price: number;            // toman, pre-tax (as printed on the provider card)
