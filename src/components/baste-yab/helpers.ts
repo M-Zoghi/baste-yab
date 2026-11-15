@@ -1,9 +1,11 @@
-import { ENTRIES, type Category, type Kind, type RestrictionTag } from "@/lib/providers";
+import { ENTRIES, type Category, type HomeTech, type Kind, type RestrictionTag } from "@/lib/providers";
 
 export const norm = (s: string) =>
   String(s)
     .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
     .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))
+    .replace(/ي/g, "ی")
+    .replace(/ك/g, "ک")
     .replace(/[\u200c,\s٬]/g, "")
     .toLowerCase();
 
@@ -91,6 +93,31 @@ export const KIND_LABEL: Record<Kind, string> = {
   roaming: "رومینگ",
 };
 
+export const HOME_TECH_OPTIONS: { key: HomeTech; label: string; shortLabel: string }[] = [
+  { key: "modem", label: "مودم سیم‌کارتی (TD-LTE / 5G)", shortLabel: "مودم TD-LTE / 5G" },
+  { key: "fixed", label: "خط ثابت (ADSL / VDSL / فیبر)", shortLabel: "ADSL / فیبر" },
+];
+
+export type DurationKey = "short" | "weekly" | "monthly" | "long";
+
+export const DURATION_OPTIONS: {
+  key: DurationKey;
+  label: string;
+  match: (days: number) => boolean;
+}[] = [
+  { key: "short", label: "۱ تا ۳ روز", match: (d) => d > 0 && d <= 3 },
+  { key: "weekly", label: "۷ تا ۱۵ روز", match: (d) => d >= 4 && d <= 15 },
+  { key: "monthly", label: "۳۰ روزه", match: (d) => d >= 16 && d <= 31 },
+  { key: "long", label: "بلندمدت (+۲ ماه)", match: (d) => d > 31 },
+];
+
+export const durationBucketOf = (days: number): DurationKey | null => {
+  for (const opt of DURATION_OPTIONS) {
+    if (opt.match(days)) return opt.key;
+  }
+  return null;
+};
+
 export const RESTRICTION_OPTIONS: { key: RestrictionTag; label: string }[] = [
   { key: "night", label: "شبانه / شبانت (۲ تا ۷ صبح)" },
   { key: "morning", label: "صبحانت / صبح (۶ تا ۱۲)" },
@@ -103,3 +130,11 @@ export const ALL_RESTRICTION_TAGS: RestrictionTag[] = RESTRICTION_OPTIONS.map((o
 
 export const liveKeysOf = (c: Category) =>
   ENTRIES.filter((e) => e.category === c && e.status === "live").map((e) => e.key);
+
+export const ussdTelHref = (ussd: string): string | null => {
+  const clean = ussd.replace(/\s+/g, "").trim();
+  if (!clean) return null;
+  const normalized = clean.startsWith("*") ? clean : `*${clean}`;
+  if (!/^[*#\d]+$/.test(normalized)) return null;
+  return `tel:${normalized.replace(/#/g, "%23")}`;
+};

@@ -13,6 +13,7 @@ import rightelDoc from "@/data/providers/rightel.json";
 import rightelTdlteDoc from "@/data/providers/rightel-tdlte.json";
 
 export type Category = "home" | "mobile";
+export type HomeTech = "modem" | "fixed";
 export type Kind = "internet" | "combo" | "roaming";
 export type RestrictionTag = "night" | "morning" | "domestic" | "newUser" | "youth";
 export type UpdateMode = "auto" | "hybrid" | "manual";
@@ -70,7 +71,12 @@ export interface ProviderDoc {
     site: string;
     buyUrl: string;
   };
-  source: { kind: string; endpoint: string; fetchedAt: string };
+  source: {
+    kind: string;
+    endpoint: string;
+    fetchedAt: string;
+    parts?: Record<string, { kind: string; endpoint: string; fetchedAt: string }>;
+  };
   prices: { unit: string; includesTax: boolean; apiUnit?: string };
   personalized?: Personalized;
   packages: Pkg[];
@@ -82,6 +88,7 @@ export interface Entry {
   nameFa: string;
   nameEn: string;
   category: Category;
+  homeTech?: HomeTech;      // for category === "home": wireless modem (TD-LTE/5G) vs wired (ADSL/fiber)
   tech: string;
   regions: string[];
   accent: string;
@@ -109,7 +116,7 @@ const DOCS: Record<string, ProviderDoc> = {
 export const ENTRIES: Entry[] = [
   /* ── home (ثابت) ── */
   {
-    key: "tci", nameFa: "مخابرات ایران", nameEn: "TCI", category: "home",
+    key: "tci", nameFa: "مخابرات ایران", nameEn: "TCI", category: "home", homeTech: "fixed",
     tech: "ADSL/VDSL/فیبر", regions: ["سراسری"], accent: "#14b8a6",
     site: "https://tci.ir", status: "awaiting",
     updateMode: "manual",
@@ -117,7 +124,7 @@ export const ENTRIES: Entry[] = [
     awaitingNote: "از خارج از ایران در دسترس نیست — یک HAR یا JSON از صفحه تعرفه‌ها لازم است",
   },
   {
-    key: "asiatech", nameFa: "آسیاتک", nameEn: "Asiatech", category: "home",
+    key: "asiatech", nameFa: "آسیاتک", nameEn: "Asiatech", category: "home", homeTech: "fixed",
     tech: "ADSL/VDSL/فیبر", regions: ["سراسری"], accent: "#f97316",
     site: "https://www.asiatech.ir", status: "awaiting",
     updateMode: "manual",
@@ -125,7 +132,7 @@ export const ENTRIES: Entry[] = [
     awaitingNote: "از خارج از ایران در دسترس نیست — HAR/JSON از پنل یا سایت آسیاتک لازم است",
   },
   {
-    key: "irancell-tdlte", nameFa: "ایرانسل (ثابت)", nameEn: "Irancell TD-LTE", category: "home",
+    key: "irancell-tdlte", nameFa: "ایرانسل (ثابت)", nameEn: "Irancell TD-LTE", category: "home", homeTech: "modem",
     tech: "TD-LTE", regions: ["سراسری"], accent: "#eab308",
     site: "https://www.irancell.ir", buyUrl: "https://irancell.ir/p/305229/td-lte-internet-packages",
     status: "live", doc: DOCS["irancell-tdlte"],
@@ -133,7 +140,7 @@ export const ENTRIES: Entry[] = [
     updateNote: "بروزرسانی خودکار روزانه حدود ۰۶:۴۷ تهران (GitHub Actions)",
   },
   {
-    key: "rightel-tdlte", nameFa: "رایتل (مودم)", nameEn: "Rightel Modem", category: "home",
+    key: "rightel-tdlte", nameFa: "رایتل (مودم)", nameEn: "Rightel Modem", category: "home", homeTech: "modem",
     tech: "سیم‌کارت دیتا · 4G/5G", regions: ["سراسری"], accent: "#A72B77",
     site: "https://www.rightel.ir", buyUrl: "https://package.rightel.ir/packagesList",
     status: "live", doc: DOCS["rightel-tdlte"],
@@ -141,7 +148,7 @@ export const ENTRIES: Entry[] = [
     updateNote: "بروزرسانی دستی از داخل ایران (هم‌زمان با رایتل همراه)",
   },
   {
-    key: "mci-modem", nameFa: "همراه اول (مودم)", nameEn: "MCI Modem", category: "home",
+    key: "mci-modem", nameFa: "همراه اول (مودم)", nameEn: "MCI Modem", category: "home", homeTech: "modem",
     tech: "سیم‌کارت دیتا · 4G/5G", regions: ["سراسری"], accent: "#0095da",
     site: "https://mci.ir", buyUrl: "https://my.mci.ir/panel/packages/list/modem_bundle",
     status: "live", doc: DOCS["mci-modem"],
@@ -226,6 +233,7 @@ export interface DerivedPkg extends Pkg {
   entryKey: string;
   providerName: string;
   providerAccent: string;
+  homeTech: HomeTech | null;
   buyUrl: string;
   portalLabel: string | null;  // «فروش فقط از …» badge text (portal-only packs)
   portalHint: string | null;   // buy-button tooltip (portal-only packs)
@@ -281,6 +289,7 @@ export function allPackages(): DerivedPkg[] {
         entryKey: e.key,
         providerName: e.nameFa,
         providerAccent: e.accent,
+        homeTech: e.homeTech ?? null,
         buyUrl: p.buyUrl ?? e.buyUrl ?? e.site,
         fetchedAt: e.doc.source.fetchedAt,
         sourceKind: e.doc.source.kind,

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Award, Check, Copy, ExternalLink, Gift, Info, Scale, ShieldAlert, Smartphone } from "lucide-react";
+import { Award, Check, Copy, ExternalLink, Gift, Info, Phone, Scale, ShieldAlert, Smartphone } from "lucide-react";
 
 import {
   PORTAL_AVAILABILITY_NOTE,
@@ -15,7 +14,7 @@ import {
   type Row,
 } from "@/lib/providers";
 import { useToast } from "@/hooks/use-toast";
-import { KIND_LABEL, accentBadgeStyle, accentDividerColor, valueBadgeStyle, valueColor } from "./helpers";
+import { KIND_LABEL, accentBadgeStyle, accentDividerColor, ussdTelHref, valueBadgeStyle, valueColor } from "./helpers";
 
 interface PkgCardProps {
   r: Row & { t?: number };
@@ -65,12 +64,7 @@ export function PkgCard({
   };
 
   return (
-    <motion.article
-      layout="position"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+    <article
       className={`group flex flex-col rounded-xl border bg-card p-5 transition-colors ${
         r.isBest
           ? "border-primary/65 bg-primary/[0.03] dark:bg-primary/[0.045]"
@@ -268,23 +262,36 @@ export function PkgCard({
           </div>
         </div>
 
-        {/* Footer metadata + USSD quick copy */}
+        {/* Footer metadata + USSD quick copy & direct dial */}
         <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-border/40 pt-2.5 text-[11px] text-muted-foreground">
           {r.ussd ? (
-            <button
-              type="button"
-              onClick={handleCopyUssd}
-              className="inline-flex min-h-[30px] items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-0.5 font-mono text-xs text-foreground transition-colors hover:bg-secondary cursor-pointer"
-              dir="ltr"
-              title="کپی کد دستوری"
-            >
-              {copied ? (
-                <Check className="h-3.5 w-3.5 text-primary" />
-              ) : (
-                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+            <div className="inline-flex min-w-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={handleCopyUssd}
+                className="inline-flex min-h-[30px] items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-0.5 font-mono text-xs text-foreground transition-colors hover:bg-secondary cursor-pointer"
+                dir="ltr"
+                title="کپی کد دستوری"
+              >
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-primary" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                )}
+                <span>{r.ussd}</span>
+              </button>
+              {ussdTelHref(r.ussd) && (
+                <a
+                  href={ussdTelHref(r.ussd)!}
+                  title={`شماره‌گیری ${r.ussd}`}
+                  aria-label={`شماره‌گیری کد دستوری ${r.ussd}`}
+                  className="inline-flex min-h-[30px] items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                >
+                  <Phone className="h-3 w-3 shrink-0" />
+                  <span className="hidden sm:inline">شماره‌گیری</span>
+                </a>
               )}
-              <span>{r.ussd}</span>
-            </button>
+            </div>
           ) : (
             <span dir="ltr" className="truncate font-mono opacity-80">
               {r.regulatoryCode ? `REG: ${r.regulatoryCode}` : r.sourceKind === "api" ? "API" : "capture"}
@@ -296,6 +303,6 @@ export function PkgCard({
           </span>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }

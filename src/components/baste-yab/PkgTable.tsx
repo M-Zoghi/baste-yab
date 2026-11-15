@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Award, Check, Copy, ExternalLink, Gift, Info, Scale, ShieldAlert, Smartphone } from "lucide-react";
+import { Award, Check, Copy, ExternalLink, Gift, Info, Phone, Scale, ShieldAlert, Smartphone } from "lucide-react";
 
 import {
   PORTAL_AVAILABILITY_NOTE,
@@ -14,7 +14,7 @@ import {
   type Row,
 } from "@/lib/providers";
 import { useToast } from "@/hooks/use-toast";
-import { KIND_LABEL, accentBadgeStyle, valueBadgeStyle, valueColor } from "./helpers";
+import { KIND_LABEL, accentBadgeStyle, ussdTelHref, valueBadgeStyle, valueColor } from "./helpers";
 
 interface PkgTableProps {
   rows: (Row & { t?: number })[];
@@ -139,20 +139,32 @@ export function PkgTable({
                       {r.ussd && (
                         <>
                           <span aria-hidden="true" className="text-border">·</span>
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(uid, r.ussd!, r.providerName)}
-                            className="inline-flex items-center gap-1 rounded bg-muted/80 px-1.5 py-0.5 font-mono text-[11px] text-foreground hover:bg-secondary cursor-pointer"
-                            dir="ltr"
-                            title="کپی کد دستوری"
-                          >
-                            {copiedId === uid ? (
-                              <Check className="h-3 w-3 text-primary" />
-                            ) : (
-                              <Copy className="h-3 w-3 text-muted-foreground" />
+                          <span className="inline-flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(uid, r.ussd!, r.providerName)}
+                              className="inline-flex items-center gap-1 rounded bg-muted/80 px-1.5 py-0.5 font-mono text-[11px] text-foreground hover:bg-secondary cursor-pointer"
+                              dir="ltr"
+                              title="کپی کد دستوری"
+                            >
+                              {copiedId === uid ? (
+                                <Check className="h-3 w-3 text-primary" />
+                              ) : (
+                                <Copy className="h-3 w-3 text-muted-foreground" />
+                              )}
+                              <span>{r.ussd}</span>
+                            </button>
+                            {ussdTelHref(r.ussd) && (
+                              <a
+                                href={ussdTelHref(r.ussd)!}
+                                title={`شماره‌گیری ${r.ussd}`}
+                                aria-label={`شماره‌گیری کد دستوری ${r.ussd}`}
+                                className="inline-flex items-center justify-center rounded bg-primary/10 p-1 text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                              >
+                                <Phone className="h-3 w-3" />
+                              </a>
                             )}
-                            <span>{r.ussd}</span>
-                          </button>
+                          </span>
                         </>
                       )}
                     </div>

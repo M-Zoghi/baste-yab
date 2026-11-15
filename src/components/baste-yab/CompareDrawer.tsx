@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Trash2, X } from "lucide-react";
+import { ExternalLink, Phone, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,7 @@ import {
   fmtValue,
   type Row,
 } from "@/lib/providers";
-import { KIND_LABEL } from "./helpers";
+import { KIND_LABEL, ussdTelHref } from "./helpers";
 
 interface CompareDrawerProps {
   open: boolean;
@@ -201,11 +201,30 @@ export function CompareDrawer({
                   </tr>
                   <tr>
                     <td className="py-3 ps-2 pe-4 text-xs font-bold text-muted-foreground">کد دستوری</td>
-                    {items.map((item) => (
-                      <td key={`${item.entryKey}:${item.id}`} className="py-3 px-3 font-mono text-xs" dir="ltr">
-                        {item.ussd ?? "—"}
-                      </td>
-                    ))}
+                    {items.map((item) => {
+                      const tel = item.ussd ? ussdTelHref(item.ussd) : null;
+                      return (
+                        <td key={`${item.entryKey}:${item.id}`} className="py-3 px-3 font-mono text-xs" dir="ltr">
+                          {item.ussd ? (
+                            <span className="inline-flex items-center gap-1.5">
+                              <span>{item.ussd}</span>
+                              {tel && (
+                                <a
+                                  href={tel}
+                                  title={`شماره‌گیری ${item.ussd}`}
+                                  aria-label={`شماره‌گیری ${item.ussd}`}
+                                  className="inline-flex items-center justify-center rounded bg-primary/10 p-1 text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                                >
+                                  <Phone className="h-3 w-3" />
+                                </a>
+                              )}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      );
+                    })}
                   </tr>
                   <tr>
                     <td className="py-3 ps-2 pe-4 text-xs font-bold text-muted-foreground">توضیحات</td>

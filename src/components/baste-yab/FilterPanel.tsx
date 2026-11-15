@@ -11,12 +11,25 @@ import {
   ENTRIES,
   faDigits,
   fmtToman,
+  type Category,
+  type HomeTech,
   type Kind,
   type RestrictionTag,
 } from "@/lib/providers";
-import { KIND_LABEL, RESTRICTION_OPTIONS } from "./helpers";
+import {
+  DURATION_OPTIONS,
+  HOME_TECH_OPTIONS,
+  KIND_LABEL,
+  RESTRICTION_OPTIONS,
+  type DurationKey,
+} from "./helpers";
+import type { HomeTechFilter } from "@/hooks/use-baste-yab-state";
 
 interface FilterPanelProps {
+  cat: Category;
+  homeTech: HomeTechFilter;
+  onHomeTechChange: (t: HomeTechFilter) => void;
+  homeTechCounts: Record<HomeTech, number>;
   query: string;
   onQueryChange: (q: string) => void;
   liveEntries: (typeof ENTRIES)[number][];
@@ -28,6 +41,11 @@ interface FilterPanelProps {
   kinds: Set<Kind>;
   onToggleKind: (k: Kind) => void;
   kindCounts: Record<Kind, number>;
+  durations: Set<DurationKey>;
+  onToggleDuration: (d: DurationKey) => void;
+  onClearDurations: () => void;
+  durationCounts: Record<DurationKey, number>;
+  vat: boolean;
   maxPrice: number | null;
   priceCap: number;
   onMaxPriceChange: (val: number | null) => void;
@@ -38,6 +56,9 @@ interface FilterPanelProps {
   onOnlyDiscChange: (val: boolean) => void;
   hideFree: boolean;
   onHideFreeChange: (val: boolean) => void;
+  hidePortalOnly: boolean;
+  onHidePortalOnlyChange: (val: boolean) => void;
+  portalOnlyCount: number;
   includedRestrictions: Set<RestrictionTag>;
   restrictionCounts: Record<RestrictionTag, number>;
   onToggleRestriction: (tag: RestrictionTag) => void;
@@ -48,6 +69,10 @@ interface FilterPanelProps {
 }
 
 export function FilterPanel({
+  cat,
+  homeTech,
+  onHomeTechChange,
+  homeTechCounts,
   query,
   onQueryChange,
   liveEntries,
@@ -59,6 +84,11 @@ export function FilterPanel({
   kinds,
   onToggleKind,
   kindCounts,
+  durations,
+  onToggleDuration,
+  onClearDurations,
+  durationCounts,
+  vat,
   maxPrice,
   priceCap,
   onMaxPriceChange,
@@ -69,6 +99,9 @@ export function FilterPanel({
   onOnlyDiscChange,
   hideFree,
   onHideFreeChange,
+  hidePortalOnly,
+  onHidePortalOnlyChange,
+  portalOnlyCount,
   includedRestrictions,
   restrictionCounts,
   onToggleRestriction,
@@ -176,11 +209,16 @@ export function FilterPanel({
                 <TooltipTrigger asChild>
                   <span className="inline-flex min-h-[36px] cursor-not-allowed items-center gap-1.5 rounded-lg border border-dashed border-border/80 px-2.5 py-1.5 text-[12px] text-muted-foreground/70 whitespace-nowrap shrink-0">
                     <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/35" />
-                    {e.nameFa}
+                    <span>{e.nameFa}</span>
+                    {e.homeTech === "fixed" && (
+                      <span className="text-[10px] opacity-75">(خط ثابت)</span>
+                    )}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-56 text-right">
-                  <div className="font-bold">{e.nameFa} — در انتظار داده</div>
+                  <div className="font-bold">
+                    {e.nameFa} — {e.tech}
+                  </div>
                   <div className="text-xs opacity-85">{e.awaitingNote}</div>
                 </TooltipContent>
               </Tooltip>
@@ -188,6 +226,53 @@ export function FilterPanel({
           ))}
         </div>
       </div>
+
+      {/* Home connection technology split (TD-LTE/5G modem vs ADSL/fiber) */}
+      {cat === "home" && (
+        <div className="border-t border-border/60 pt-4">
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="text-xs font-bold text-muted-foreground">فناوری اتصال ثابت</span>
+            {homeTech !== "all" && (
+              <button
+                type="button"
+                onClick={() => onHomeTechChange("all")}
+                className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+              >
+                همه
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {HOME_TECH_OPTIONS.map((opt) => {
+              const on = homeTech === opt.key;
+              const cnt = homeTechCounts[opt.key] ?? 0;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => onHomeTechChange(on ? "all" : opt.key)}
+                  aria-pressed={on}
+                  className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    on
+                      ? "border-primary/45 bg-primary/10 text-primary"
+                      : cnt === 0
+                        ? "border-dashed border-border/70 bg-background/30 text-muted-foreground/60"
+                        : "border-border bg-background/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  }`}
+                >
+                  <span>{opt.shortLabel}</span>
+                  <span className="fa-num text-[11px] opacity-80">
+                    {cnt > 0 ? faDigits(cnt) : "در انتظار"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
+            بسته‌های فعلی این بخش مربوط به مودم‌های سیم‌کارتی TD-LTE/5G است؛ سرویس‌های ADSL و فیبر پس از دریافت داده اضافه می‌شوند.
+          </p>
+        </div>
+      )}
 
       {/* Package Kind */}
       <div className="border-t border-border/60 pt-4">
@@ -216,6 +301,46 @@ export function FilterPanel({
         <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
           رومینگ به‌طور پیش‌فرض غیرفعال است؛ تعرفه‌ی آن با بسته‌های داخلی قابل مقایسه نیست.
         </p>
+      </div>
+
+      {/* Duration Presets */}
+      <div className="border-t border-border/60 pt-4">
+        <div className="mb-2.5 flex items-center justify-between">
+          <span className="text-xs font-bold text-muted-foreground">مدت اعتبار</span>
+          {durations.size > 0 && (
+            <button
+              type="button"
+              onClick={onClearDurations}
+              className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+            >
+              همه دوره‌ها
+            </button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {DURATION_OPTIONS.map((opt) => {
+            const on = durations.has(opt.key);
+            const cnt = durationCounts[opt.key] ?? 0;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => onToggleDuration(opt.key)}
+                aria-pressed={on}
+                className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  on
+                    ? "border-primary/45 bg-primary/10 text-primary"
+                    : cnt === 0
+                      ? "border-border/60 bg-background/30 text-muted-foreground/50"
+                      : "border-border bg-background/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                }`}
+              >
+                <span>{opt.label}</span>
+                <span className="fa-num text-[11px] opacity-80">{faDigits(cnt)}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Inclusion filters for restricted / special packages */}
@@ -276,7 +401,9 @@ export function FilterPanel({
       <div className="space-y-4 border-t border-border/60 pt-4">
         <div>
           <div className="mb-2.5 flex items-baseline justify-between gap-2">
-            <span className="text-xs font-bold text-muted-foreground">حداکثر قیمت</span>
+            <span className="text-xs font-bold text-muted-foreground">
+              حداکثر قیمت{vat ? " (با مالیات)" : ""}
+            </span>
             <span className="fa-num text-[13px] font-bold text-primary">
               {maxPrice == null ? "همه قیمت‌ها" : `تا ${fmtToman(maxPrice)} تومان`}
             </span>
@@ -327,6 +454,17 @@ export function FilterPanel({
           <span>پنهان‌کردن هدایای رایگان</span>
           <Switch checked={hideFree} onCheckedChange={onHideFreeChange} />
         </label>
+        {portalOnlyCount > 0 && (
+          <label className="flex min-h-[34px] cursor-pointer items-center justify-between gap-3 text-[12.5px] font-medium">
+            <span className="min-w-0 leading-5">
+              پنهان‌کردن بسته‌های اختصاصی اپ{" "}
+              <span className="fa-num text-[11px] text-muted-foreground">
+                ({faDigits(portalOnlyCount)})
+              </span>
+            </span>
+            <Switch checked={hidePortalOnly} onCheckedChange={onHidePortalOnlyChange} />
+          </label>
+        )}
       </div>
 
       {activeFilters > 0 && (

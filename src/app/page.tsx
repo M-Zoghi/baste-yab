@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState, useSyncExternalStore } from "react";
-import { AnimatePresence } from "framer-motion";
 import {
+  Calculator,
   Database,
   Filter,
   Gift,
@@ -43,14 +43,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 import {
   ENTRIES,
+  VAT_RATE,
   allPackages,
   faDate,
   faDigits,
   fmtValue,
   rankRows,
   type Category,
+  type HomeTech,
   type Kind,
-  type Metric,
   type RestrictionTag,
   type Row,
   type SortKey,
@@ -64,16 +65,20 @@ import {
   OperatorNoticesSection,
   ProviderSourcesSection,
 } from "@/components/baste-yab/InfoSections";
+import { NeedCalculator } from "@/components/baste-yab/NeedCalculator";
 import { PkgCard } from "@/components/baste-yab/PkgCard";
 import { PkgTable } from "@/components/baste-yab/PkgTable";
 import {
   ALL_RESTRICTION_TAGS,
   DEFAULT_KINDS,
+  durationBucketOf,
   liveKeysOf,
   norm,
+  type DurationKey,
 } from "@/components/baste-yab/helpers";
+import { useBasteYabState, type HomeTechFilter } from "@/hooks/use-baste-yab-state";
 
-type ViewMode = "grid" | "table";
+const PAGE_STEP = 36;
 
 export default function Page() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -84,24 +89,33 @@ export default function Page() {
   );
   const dark = mounted ? resolvedTheme !== "light" : true;
 
-  const [cat, setCat] = useState<Category>("mobile");
-  const [metric, setMetric] = useState<Metric>("pergb");
-  const [vat, setVat] = useState(false);
-  const [sort, setSort] = useState<SortKey>("best");
-  const [view, setView] = useState<ViewMode>("grid");
-  const [query, setQuery] = useState("");
-  const [provSel, setProvSel] = useState<Set<string>>(() => new Set(liveKeysOf("mobile")));
-  const [kinds, setKinds] = useState<Set<Kind>>(() => new Set(DEFAULT_KINDS));
-  const [maxPrice, setMaxPrice] = useState<number | null>(null);
-  const [minGB, setMinGB] = useState<number>(0);
-  const [onlyDisc, setOnlyDisc] = useState(false);
-  const [hideFree, setHideFree] = useState(false);
-  const [includedRestrictions, setIncludedRestrictions] = useState<Set<RestrictionTag>>(
-    () => new Set(ALL_RESTRICTION_TAGS),
-  );
+  const [state, updateState] = useBasteYabState();
+  const {
+    cat,
+    homeTech,
+    metric,
+    vat,
+    sort,
+    view,
+    query,
+    provSel,
+    kinds,
+    durations,
+    maxPrice,
+    minGB,
+    onlyDisc,
+    hideFree,
+    hidePortalOnly,
+    includedRestrictions,
+  } = state;
+
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [calcOpen, setCalcOpen] = useState(false);
+  const [visibleLimit, setVisibleLimit] = useState(PAGE_STEP);
+
+  const vatFactor = vat ? 1 + VAT_RATE : 1;
 
   const liveEntries = useMemo(
     () => ENTRIES.filter((e) => e.category === cat && e.status === "live"),
@@ -138,8 +152,10 @@ export default function Page() {
   const priceCap = useMemo(() => {
     const list = inCat.filter((p) => kinds.has(p.kind));
     if (!list.length) return 0;
-    return Math.ceil(Math.max(...list.map((p) => p.price)) / 500000) * 500000;
-  }, [inCat, kinds]);
+    return Math.ceil(Math.max(...list.map((p) => p.price * vatFactor)) / 500000) * 500000;
+  }, [inCat, kinds, vatFactor]);
+
+  const effectiveMaxPrice = maxPrice != null && priceCap > 0 && maxPrice >= priceCap ? null : maxPrice;
 
   const gbCap = useMemo(() => {
     const list = inCat.filter((p) => kinds.has(p.kind));
@@ -155,6 +171,36 @@ export default function Page() {
     return m;
   }, [inCat, provSel]);
 
+  const homeTechCounts = useMemo(() => {
+    const m: Record<HomeTech, number> = { modem: 0, fixed: 0 };
+    for (const p of inCat) {
+      if (!provSel.has(p.entryKey) || !kinds.has(p.kind)) continue;
+      if (p.homeTech) m[p.homeTech] += 1;
+    }
+    return m;
+  }, [inCat, provSel, kinds]);
+
+  const durationCounts = useMemo(() => {
+    const m: Record<DurationKey, number> = { short: 0, weekly: 0, monthly: 0, long: 0 };
+    for (const p of inCat) {
+      if (!provSel.has(p.entryKey) || !kinds.has(p.kind)) continue;
+      if (cat === "home" && homeTech !== "all" && p.homeTech !== homeTech) continue;
+      const b = durationBucketOf(p.days);
+      if (b) m[b] += 1;
+    }
+    return m;
+  }, [inCat, provSel, kinds, cat, homeTech]);
+
+  const portalOnlyCount = useMemo(() => {
+    let count = 0;
+    for (const p of inCat) {
+      if (!provSel.has(p.entryKey) || !kinds.has(p.kind)) continue;
+      if (cat === "home" && homeTech !== "all" && p.homeTech !== homeTech) continue;
+      if (p.portalOnly) count += 1;
+    }
+    return count;
+  }, [inCat, provSel, kinds, cat, homeTech]);
+
   const restrictionCounts = useMemo(() => {
     const m: Record<RestrictionTag, number> = {
       night: 0,
@@ -165,36 +211,79 @@ export default function Page() {
     };
     for (const p of inCat) {
       if (!provSel.has(p.entryKey) || !kinds.has(p.kind)) continue;
+      if (cat === "home" && homeTech !== "all" && p.homeTech !== homeTech) continue;
       for (const r of p.restrictions) m[r] += 1;
     }
     return m;
-  }, [inCat, provSel, kinds]);
+  }, [inCat, provSel, kinds, cat, homeTech]);
 
   const filtered = useMemo(() => {
     const q = norm(query);
     let list = inCat.filter((p) => provSel.has(p.entryKey) && kinds.has(p.kind));
+    if (cat === "home" && homeTech !== "all") {
+      list = list.filter((p) => p.homeTech === homeTech);
+    }
     if (q) {
       list = list.filter((p) =>
-        [p.title, p.providerName, p.regulatoryCode ?? "", p.group ?? "", p.note ?? ""].some(
+        [p.title, p.providerName, p.regulatoryCode ?? "", p.ussd ?? "", p.group ?? "", p.note ?? ""].some(
           (s) => norm(s).includes(q),
         ),
       );
     }
-    if (maxPrice != null) list = list.filter((p) => p.price <= maxPrice);
+    if (durations.size > 0) {
+      list = list.filter((p) => {
+        const b = durationBucketOf(p.days);
+        return b != null && durations.has(b);
+      });
+    }
+    if (effectiveMaxPrice != null) list = list.filter((p) => p.price * vatFactor <= effectiveMaxPrice);
     if (minGB > 0) list = list.filter((p) => p.gb >= minGB);
     if (onlyDisc) list = list.filter((p) => p.discountPct != null);
     if (hideFree) list = list.filter((p) => p.price > 0);
+    if (hidePortalOnly) list = list.filter((p) => !p.portalOnly);
     list = list.filter(
       (p) =>
         p.restrictions.length === 0 ||
         p.restrictions.every((tag) => includedRestrictions.has(tag)),
     );
     return list;
-  }, [inCat, provSel, kinds, query, maxPrice, minGB, onlyDisc, hideFree, includedRestrictions]);
+  }, [
+    inCat,
+    provSel,
+    kinds,
+    cat,
+    homeTech,
+    query,
+    durations,
+    effectiveMaxPrice,
+    vatFactor,
+    minGB,
+    onlyDisc,
+    hideFree,
+    hidePortalOnly,
+    includedRestrictions,
+  ]);
+
+  const calcPool = useMemo(() => {
+    return inCat.filter(
+      (p) =>
+        provSel.has(p.entryKey) &&
+        kinds.has(p.kind) &&
+        (cat !== "home" || homeTech === "all" || p.homeTech === homeTech) &&
+        (!hidePortalOnly || !p.portalOnly) &&
+        (p.restrictions.length === 0 ||
+          p.restrictions.every((tag) => includedRestrictions.has(tag))),
+    );
+  }, [inCat, provSel, kinds, cat, homeTech, hidePortalOnly, includedRestrictions]);
 
   const rows = useMemo(
     () => rankRows(filtered, { metric, vat, sort }),
     [filtered, metric, vat, sort],
+  );
+
+  const visibleRows = useMemo(
+    () => (rows.length > visibleLimit ? rows.slice(0, visibleLimit) : rows),
+    [rows, visibleLimit],
   );
 
   // Market stats across paid filtered items
@@ -247,49 +336,73 @@ export default function Page() {
 
   const activeFilters =
     (query ? 1 : 0) +
-    (maxPrice != null ? 1 : 0) +
+    (cat === "home" && homeTech !== "all" ? 1 : 0) +
+    (durations.size > 0 ? 1 : 0) +
+    (effectiveMaxPrice != null ? 1 : 0) +
     (minGB > 0 ? 1 : 0) +
     (onlyDisc ? 1 : 0) +
     (hideFree ? 1 : 0) +
+    (hidePortalOnly ? 1 : 0) +
     ALL_RESTRICTION_TAGS.filter((t) => !includedRestrictions.has(t)).length +
     (provSel.size !== liveEntries.length ? 1 : 0) +
     (sort !== "best" ? 1 : 0) +
     (kinds.size !== DEFAULT_KINDS.length || DEFAULT_KINDS.some((k) => !kinds.has(k)) ? 1 : 0);
 
   const reset = () => {
-    setQuery("");
-    setMaxPrice(null);
-    setMinGB(0);
-    setOnlyDisc(false);
-    setHideFree(false);
-    setIncludedRestrictions(new Set(ALL_RESTRICTION_TAGS));
-    setProvSel(new Set(liveEntries.map((e) => e.key)));
-    setKinds(new Set(DEFAULT_KINDS));
-    setSort("best");
+    setVisibleLimit(PAGE_STEP);
+    updateState((prev) => ({
+      ...prev,
+      homeTech: "all",
+      query: "",
+      durations: new Set(),
+      maxPrice: null,
+      minGB: 0,
+      onlyDisc: false,
+      hideFree: false,
+      hidePortalOnly: false,
+      includedRestrictions: new Set(ALL_RESTRICTION_TAGS),
+      provSel: new Set(liveKeysOf(prev.cat)),
+      kinds: new Set(DEFAULT_KINDS),
+      sort: "best",
+    }));
   };
 
   const switchCat = (c: Category) => {
-    setCat(c);
-    setProvSel(new Set(liveKeysOf(c)));
-    setMaxPrice(null);
-    setMinGB(0);
+    setVisibleLimit(PAGE_STEP);
+    updateState((prev) => ({
+      ...prev,
+      cat: c,
+      homeTech: "all",
+      provSel: new Set(liveKeysOf(c)),
+      maxPrice: null,
+      minGB: 0,
+    }));
   };
 
   const toggleProvider = (key: string) => {
-    setProvSel((prev) => {
-      const next = new Set(prev);
+    updateState((prev) => {
+      const next = new Set(prev.provSel);
       if (next.has(key)) next.delete(key);
       else next.add(key);
-      return next;
+      return { ...prev, provSel: next };
     });
   };
 
   const toggleKind = (k: Kind) => {
-    setKinds((prev) => {
-      const next = new Set(prev);
+    updateState((prev) => {
+      const next = new Set(prev.kinds);
       if (next.has(k)) next.delete(k);
       else next.add(k);
-      return next;
+      return { ...prev, kinds: next };
+    });
+  };
+
+  const toggleDuration = (d: DurationKey) => {
+    updateState((prev) => {
+      const next = new Set(prev.durations);
+      if (next.has(d)) next.delete(d);
+      else next.add(d);
+      return { ...prev, durations: next };
     });
   };
 
@@ -302,41 +415,57 @@ export default function Page() {
   };
 
   const toggleRestriction = (tag: RestrictionTag) => {
-    setIncludedRestrictions((prev) => {
-      const next = new Set(prev);
+    updateState((prev) => {
+      const next = new Set(prev.includedRestrictions);
       if (next.has(tag)) next.delete(tag);
       else next.add(tag);
-      return next;
+      return { ...prev, includedRestrictions: next };
     });
   };
 
   const filterProps = {
+    cat,
+    homeTech,
+    onHomeTechChange: (t: HomeTechFilter) => updateState((prev) => ({ ...prev, homeTech: t })),
+    homeTechCounts,
     query,
-    onQueryChange: setQuery,
+    onQueryChange: (q: string) => updateState((prev) => ({ ...prev, query: q })),
     liveEntries,
     awaitingEntries,
     provSel,
     onToggleProvider: toggleProvider,
-    onSelectAllProviders: () => setProvSel(new Set(liveEntries.map((e) => e.key))),
+    onSelectAllProviders: () =>
+      updateState((prev) => ({ ...prev, provSel: new Set(liveKeysOf(prev.cat)) })),
     provCounts,
     kinds,
     onToggleKind: toggleKind,
     kindCounts,
-    maxPrice,
+    durations,
+    onToggleDuration: toggleDuration,
+    onClearDurations: () => updateState((prev) => ({ ...prev, durations: new Set() })),
+    durationCounts,
+    vat,
+    maxPrice: effectiveMaxPrice,
     priceCap,
-    onMaxPriceChange: setMaxPrice,
+    onMaxPriceChange: (val: number | null) => updateState((prev) => ({ ...prev, maxPrice: val })),
     minGB,
     gbCap,
-    onMinGBChange: setMinGB,
+    onMinGBChange: (val: number) => updateState((prev) => ({ ...prev, minGB: val })),
     onlyDisc,
-    onOnlyDiscChange: setOnlyDisc,
+    onOnlyDiscChange: (val: boolean) => updateState((prev) => ({ ...prev, onlyDisc: val })),
     hideFree,
-    onHideFreeChange: setHideFree,
+    onHideFreeChange: (val: boolean) => updateState((prev) => ({ ...prev, hideFree: val })),
+    hidePortalOnly,
+    onHidePortalOnlyChange: (val: boolean) =>
+      updateState((prev) => ({ ...prev, hidePortalOnly: val })),
+    portalOnlyCount,
     includedRestrictions,
     restrictionCounts,
     onToggleRestriction: toggleRestriction,
-    onIncludeAllRestrictions: (tags: RestrictionTag[]) => setIncludedRestrictions(new Set(tags)),
-    onClearRestrictions: () => setIncludedRestrictions(new Set()),
+    onIncludeAllRestrictions: (tags: RestrictionTag[]) =>
+      updateState((prev) => ({ ...prev, includedRestrictions: new Set(tags) })),
+    onClearRestrictions: () =>
+      updateState((prev) => ({ ...prev, includedRestrictions: new Set() })),
     activeFilters,
     onReset: reset,
   };
@@ -561,7 +690,9 @@ export default function Page() {
                 <span className="text-[11px] font-bold text-muted-foreground">محاسبه مالیات</span>
                 <button
                   type="button"
-                  onClick={() => setVat(!vat)}
+                  onClick={() =>
+                    updateState((prev) => ({ ...prev, vat: !prev.vat }), { persistPrefs: true })
+                  }
                   className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
                 >
                   {vat ? "حذف مالیات" : "اعمال +۱۰٪"}
@@ -603,7 +734,12 @@ export default function Page() {
                       >
                         <button
                           type="button"
-                          onClick={() => setMetric("pergb")}
+                          onClick={() =>
+                            updateState(
+                              (prev) => ({ ...prev, metric: "pergb" }),
+                              { persistPrefs: true },
+                            )
+                          }
                           aria-pressed={metric === "pergb"}
                           className={`min-h-[34px] rounded-md px-2.5 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                             metric === "pergb"
@@ -615,7 +751,12 @@ export default function Page() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => setMetric("pergbday")}
+                          onClick={() =>
+                            updateState(
+                              (prev) => ({ ...prev, metric: "pergbday" }),
+                              { persistPrefs: true },
+                            )
+                          }
                           aria-pressed={metric === "pergbday"}
                           className={`min-h-[34px] rounded-md px-2.5 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                             metric === "pergbday"
@@ -637,7 +778,12 @@ export default function Page() {
                     <TooltipTrigger asChild>
                       <button
                         type="button"
-                        onClick={() => setVat(!vat)}
+                        onClick={() =>
+                          updateState(
+                            (prev) => ({ ...prev, vat: !prev.vat }),
+                            { persistPrefs: true },
+                          )
+                        }
                         aria-pressed={vat}
                         className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                           vat
@@ -655,11 +801,31 @@ export default function Page() {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+
+                {/* Need Calculator Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setCalcOpen((prev) => !prev)}
+                  aria-expanded={calcOpen}
+                  className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                    calcOpen
+                      ? "border-primary/50 bg-primary/15 text-primary"
+                      : "border-border bg-background/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  }`}
+                >
+                  <Calculator className="h-3.5 w-3.5" />
+                  <span>محاسبه نیاز من</span>
+                </button>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 ms-auto">
                 {/* Sort Select */}
-                <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+                <Select
+                  value={sort}
+                  onValueChange={(v) =>
+                    updateState((prev) => ({ ...prev, sort: v as SortKey }))
+                  }
+                >
                   <SelectTrigger className="h-9 min-w-[165px] bg-background/60 text-xs font-bold" dir="rtl">
                     <SelectValue />
                   </SelectTrigger>
@@ -679,7 +845,9 @@ export default function Page() {
                 >
                   <button
                     type="button"
-                    onClick={() => setView("grid")}
+                    onClick={() =>
+                      updateState((prev) => ({ ...prev, view: "grid" }), { persistPrefs: true })
+                    }
                     aria-pressed={view === "grid"}
                     aria-label="نمای کارتی"
                     className={`inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
@@ -693,7 +861,9 @@ export default function Page() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setView("table")}
+                    onClick={() =>
+                      updateState((prev) => ({ ...prev, view: "table" }), { persistPrefs: true })
+                    }
                     aria-pressed={view === "table"}
                     aria-label="نمای جدولی"
                     className={`inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
@@ -708,6 +878,16 @@ export default function Page() {
                 </div>
               </div>
             </div>
+
+            {/* Interactive Need / Multi-pack Calculator */}
+            {calcOpen && liveEntries.length > 0 && (
+              <NeedCalculator
+                packages={calcPool}
+                vat={vat}
+                dark={dark}
+                onClose={() => setCalcOpen(false)}
+              />
+            )}
 
             {/* Package List / Empty State */}
             {liveEntries.length === 0 ? (
@@ -737,33 +917,50 @@ export default function Page() {
               <>
                 {view === "grid" ? (
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <AnimatePresence initial={false}>
-                      {rows.map((r) => {
-                        const uid = `${r.entryKey}:${r.id}`;
-                        return (
-                          <PkgCard
-                            key={uid}
-                            r={r}
-                            dark={dark}
-                            metric={metric}
-                            vat={vat}
-                            isCompared={compareIds.includes(uid)}
-                            canCompare={compareIds.length < 3}
-                            onToggleCompare={toggleCompare}
-                          />
-                        );
-                      })}
-                    </AnimatePresence>
+                    {visibleRows.map((r) => {
+                      const uid = `${r.entryKey}:${r.id}`;
+                      return (
+                        <PkgCard
+                          key={uid}
+                          r={r}
+                          dark={dark}
+                          metric={metric}
+                          vat={vat}
+                          isCompared={compareIds.includes(uid)}
+                          canCompare={compareIds.length < 3}
+                          onToggleCompare={toggleCompare}
+                        />
+                      );
+                    })}
                   </div>
                 ) : (
                   <PkgTable
-                    rows={rows}
+                    rows={visibleRows}
                     dark={dark}
                     metric={metric}
                     vat={vat}
                     compareIds={compareIds}
                     onToggleCompare={toggleCompare}
                   />
+                )}
+
+                {rows.length > visibleLimit && (
+                  <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setVisibleLimit((prev) => prev + PAGE_STEP)}
+                      className="fa-num h-10 rounded-xl px-4 text-xs font-bold"
+                    >
+                      نمایش {faDigits(Math.min(PAGE_STEP, rows.length - visibleLimit))} بسته دیگر
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setVisibleLimit(rows.length)}
+                      className="fa-num h-10 rounded-xl px-4 text-xs font-bold text-muted-foreground hover:text-foreground"
+                    >
+                      نمایش همه ({faDigits(rows.length)} بسته)
+                    </Button>
+                  </div>
                 )}
 
                 {awaitingEntries.length > 0 && <AwaitingStrip entries={awaitingEntries} />}

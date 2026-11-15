@@ -30,6 +30,13 @@ const MODE_LABEL: Record<UpdateMode, string> = {
   manual: "نیازمند بروزرسانی دستی از ایران",
 };
 
+const PART_LABEL: Record<string, string> = {
+  public: "کاتالوگ عمومی",
+  web: "وب‌سایت",
+  shop: "فروشگاه آنلاین",
+  portal: "اپ/پنل اختصاصی",
+};
+
 export function OperatorNoticesSection({
   entries,
 }: {
@@ -250,6 +257,7 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
         {ENTRIES.filter((e) => e.status === "live").map((e) => {
           const fetchedAt = e.doc?.source.fetchedAt ?? "";
           const age = mounted && fetchedAt ? faRelativeAge(fetchedAt) : null;
+          const partsEntries = Object.entries(e.doc?.source.parts ?? {});
           const cmdKey = e.key === "rightel-tdlte" ? "rightel" : e.key;
           const singleCmd = `node update/fetch-providers.mjs --only ${cmdKey}`;
 
@@ -292,7 +300,33 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
                 {age && <span className="ms-1 text-muted-foreground">({age})</span>}
               </div>
 
-              <div className="fa-num mt-1 text-[11px] text-muted-foreground">
+              {partsEntries.length > 0 && (
+                <div className="mt-2 space-y-1 rounded-lg border border-border/60 bg-muted/35 px-2.5 py-2 text-[11px]">
+                  {partsEntries.map(([partKey, part]) => {
+                    const partAge = mounted && part.fetchedAt ? faRelativeAge(part.fetchedAt) : null;
+                    return (
+                      <div key={partKey} className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+                        <span className="text-muted-foreground">
+                          {PART_LABEL[partKey] ?? partKey}
+                          <span className="ms-1 opacity-75">
+                            ({part.kind === "har" ? "دستی HAR" : "API"})
+                          </span>
+                        </span>
+                        <span className="fa-num font-semibold text-foreground">
+                          {faDate(part.fetchedAt)}
+                          {partAge && (
+                            <span className="ms-1 font-normal text-muted-foreground">
+                              ({partAge})
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="fa-num mt-1.5 text-[11px] text-muted-foreground">
                 {faDigits(e.doc?.packages.length ?? 0)} بسته · {e.tech}
               </div>
 
