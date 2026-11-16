@@ -680,12 +680,15 @@ export default function Page() {
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-3.5 pb-24 sm:px-6 lg:pb-12">
-        {/* ── Desktop Intro Header (lg+; mobile shows dynamic subtitle directly in App Top Bar) ── */}
-        <section aria-label="معرفی بسته‌یاب" className="hidden lg:block mt-4">
-          <h1 className="text-xl font-extrabold tracking-tight text-foreground">
+        {/* ── First-Sight Intro Header (always on lg+; shown at top of browse on mobile) ── */}
+        <section
+          aria-label="معرفی بسته‌یاب"
+          className={mobileSubTab === "browse" ? "mt-3 sm:mt-4" : "hidden lg:block mt-4"}
+        >
+          <h1 className="text-[16.5px] sm:text-xl font-extrabold tracking-tight text-foreground leading-snug">
             مقایسه‌ی قیمت واقعی بسته‌های اینترنت ایران
           </h1>
-          <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">
+          <p className="mt-0.5 text-[12px] sm:text-[13px] leading-5 text-muted-foreground">
             هر گیگابایت چند تومان می‌شود؟ بسته‌های همراه اول، ایرانسل، رایتل، سامانتل و آپتل را از ارزان‌ترین به گران‌ترین مقایسه کنید.
           </p>
         </section>
@@ -849,6 +852,30 @@ export default function Page() {
                   <SelectItem value="days">بیشترین مدت</SelectItem>
                 </SelectContent>
               </Select>
+
+              <button
+                type="button"
+                onClick={() =>
+                  updateState(
+                    (prev) => ({ ...prev, view: prev.view === "grid" ? "table" : "grid" }),
+                    { persistPrefs: true },
+                  )
+                }
+                aria-label={view === "grid" ? "تغییر به نمای جدولی" : "تغییر به نمای کارتی"}
+                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-bold text-foreground transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer"
+              >
+                {view === "grid" ? (
+                  <>
+                    <Table2 className="h-3.5 w-3.5 text-primary" />
+                    <span>جدولی</span>
+                  </>
+                ) : (
+                  <>
+                    <LayoutGrid className="h-3.5 w-3.5 text-primary" />
+                    <span>کارتی</span>
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Quiet 1-line Mobile Status Strip */}
