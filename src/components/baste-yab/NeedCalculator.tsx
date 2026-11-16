@@ -28,7 +28,8 @@ interface NeedCalculatorProps {
   packages: DerivedPkg[];
   vat: boolean;
   dark: boolean;
-  onClose: () => void;
+  embedded?: boolean;
+  onClose?: () => void;
 }
 
 interface CalcOption {
@@ -48,6 +49,7 @@ export function NeedCalculator({
   packages,
   vat,
   dark,
+  embedded = false,
   onClose,
 }: NeedCalculatorProps) {
   const { toast } = useToast();
@@ -152,7 +154,7 @@ export function NeedCalculator({
   return (
     <section
       aria-label="محاسبه‌گر نیاز من"
-      className="rounded-xl border border-primary/45 bg-card p-4 shadow-xs sm:p-5 space-y-4"
+      className="rounded-2xl sm:rounded-xl border border-primary/45 bg-card p-4 shadow-xs sm:p-5 space-y-4"
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
@@ -169,14 +171,16 @@ export function NeedCalculator({
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="بستن ماشین‌حساب"
-          className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {!embedded && onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="بستن ماشین‌حساب"
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Controls */}

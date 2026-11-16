@@ -253,15 +253,17 @@ export function ActiveFilterChips({
   return (
     <div
       aria-label="فیلترهای فعال"
-      className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 shadow-xs"
+      className="flex flex-nowrap lg:flex-wrap items-center gap-1.5 overflow-x-auto lg:overflow-visible rail rounded-2xl lg:rounded-xl border border-border bg-card px-3 py-2 shadow-xs"
     >
-      <span className="text-[11px] font-bold text-muted-foreground me-0.5">فیلترهای فعال:</span>
+      <span className="text-[11px] font-bold text-muted-foreground me-0.5 whitespace-nowrap shrink-0">
+        فیلترهای فعال:
+      </span>
       {chips.map((chip) => (
         <button
           key={chip.id}
           type="button"
           onClick={chip.onClear}
-          className="inline-flex min-h-[28px] items-center gap-1.5 rounded-lg border border-input bg-muted/60 px-2 py-0.5 text-[11.5px] font-bold text-foreground transition-colors hover:border-destructive/50 hover:bg-destructive/15 hover:text-destructive cursor-pointer"
+          className="inline-flex min-h-[28px] shrink-0 items-center gap-1.5 rounded-lg border border-input bg-muted/60 px-2 py-0.5 text-[11.5px] font-bold text-foreground transition-colors hover:border-destructive/50 hover:bg-destructive/15 hover:text-destructive whitespace-nowrap cursor-pointer"
         >
           {chip.dotColor && (
             <span
@@ -277,7 +279,7 @@ export function ActiveFilterChips({
         <button
           type="button"
           onClick={onResetAll}
-          className="ms-auto inline-flex min-h-[28px] items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold text-primary hover:bg-primary/12 cursor-pointer"
+          className="ms-auto inline-flex min-h-[28px] shrink-0 items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold text-primary hover:bg-primary/12 whitespace-nowrap cursor-pointer"
         >
           <RotateCcw className="h-3 w-3" />
           <span>پاک‌کردن همه</span>

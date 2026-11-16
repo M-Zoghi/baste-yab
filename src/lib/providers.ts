@@ -138,7 +138,7 @@ export const ENTRIES: Entry[] = [
     site: "https://www.irancell.ir", buyUrl: "https://irancell.ir/p/305229/td-lte-internet-packages",
     status: "live", doc: DOCS["irancell-tdlte"],
     updateMode: "auto",
-    updateNote: "بروزرسانی خودکار روزانه حدود ۰۶:۴۷ تهران (GitHub Actions)",
+    updateNote: "بروزرسانی خودکار روزانه (GitHub Actions)",
   },
   {
     key: "rightel-tdlte", nameFa: "رایتل (مودم)", nameEn: "Rightel Modem", category: "home", homeTech: "modem",
@@ -171,7 +171,7 @@ export const ENTRIES: Entry[] = [
     site: "https://samantel.ir", buyUrl: "https://payment.samantel.ir/package",
     status: "live", doc: DOCS.samantel,
     updateMode: "auto",
-    updateNote: "بروزرسانی خودکار روزانه حدود ۰۶:۴۷ تهران (GitHub Actions)",
+    updateNote: "بروزرسانی خودکار روزانه (GitHub Actions)",
   },
   {
     key: "aptel", nameFa: "آپتل", nameEn: "Aptel", category: "mobile",

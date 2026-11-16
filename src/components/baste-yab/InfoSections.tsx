@@ -197,9 +197,9 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
             <strong className="text-foreground">سامانتل</strong>، بخش عمومی{" "}
             <strong className="text-foreground">آپتل</strong>، وب‌سایت{" "}
             <strong className="text-foreground">ایرانسل</strong> و{" "}
-            <strong className="text-foreground">ایرانسل (ثابت / TD-LTE)</strong> هر روز حدود ساعت
-            ۰۶:۴۷ به‌وقت تهران به‌طور <strong className="text-primary">خودکار</strong> از GitHub
-            Actions بروزرسانی می‌شوند.{" "}
+            <strong className="text-foreground">ایرانسل (ثابت / TD-LTE)</strong> هر روز به‌طور{" "}
+            <strong className="text-primary">خودکار</strong> در GitHub Actions بروزرسانی می‌شوند
+            (زمان دقیق آخرین برداشت روی کارت هر اپراتور درج شده است).{" "}
             <strong className="text-foreground">رایتل (همراه و مودم)</strong>،{" "}
             <strong className="text-foreground">همراه اول</strong>، بخش اپ{" "}
             <strong className="text-foreground">ایرانسل من</strong> و بخش اپ{" "}

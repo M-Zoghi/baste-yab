@@ -189,7 +189,7 @@ export function OfflineIndicator() {
   return (
     <div
       dir="rtl"
-      className="fixed bottom-16 start-4 z-50 flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-600 px-3.5 py-2 text-xs font-bold text-white shadow-lg lg:bottom-4"
+      className="fixed bottom-20 start-4 z-50 flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-600 px-3.5 py-2 text-xs font-bold text-white shadow-lg lg:bottom-4"
       role="status"
       aria-live="polite"
     >

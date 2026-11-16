@@ -65,7 +65,7 @@ export function PkgCard({
 
   return (
     <article
-      className={`group flex flex-col rounded-xl border bg-card p-4 sm:p-5 shadow-xs transition-colors ${
+      className={`group flex flex-col rounded-2xl sm:rounded-xl border bg-card p-4 sm:p-5 shadow-xs transition-colors ${
         r.isBest
           ? "border-primary/70 bg-primary/[0.045] dark:bg-primary/[0.065]"
           : isCompared
@@ -254,7 +254,7 @@ export function PkgCard({
               target="_blank"
               rel="noreferrer"
               title={r.portalOnly ? (r.portalHint ?? "خرید از اپلیکیشن اپراتور") : undefined}
-              className="inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg bg-secondary px-4 py-1.5 text-[13px] font-bold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground whitespace-nowrap shrink-0"
+              className="inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-xl sm:rounded-lg bg-secondary px-4 py-1.5 text-[13px] font-bold text-secondary-foreground transition-all hover:bg-primary hover:text-primary-foreground active:scale-[0.97] whitespace-nowrap shrink-0"
             >
               <span>خرید</span>
               <ExternalLink className="h-3.5 w-3.5" />

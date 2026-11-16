@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useSyncExternalStore } from "react";
+import { MotionConfig, motion } from "framer-motion";
 import {
   ArrowUp,
   Calculator,
@@ -13,7 +14,9 @@ import {
   Percent,
   RotateCcw,
   Scale,
+  Search,
   SearchX,
+  SlidersHorizontal,
   Smartphone,
   Sun,
   Table2,
@@ -21,6 +24,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { PWAInstallButton } from "@/components/baste-yab/PwaInstall";
+import { useToast } from "@/hooks/use-toast";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
@@ -39,6 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 import {
@@ -58,7 +63,7 @@ import {
 } from "@/lib/providers";
 
 import { ActiveFilterChips } from "@/components/baste-yab/ActiveFilterChips";
-import { CompareDrawer } from "@/components/baste-yab/CompareDrawer";
+import { CompareBody, CompareDrawer } from "@/components/baste-yab/CompareDrawer";
 import { FilterPanel } from "@/components/baste-yab/FilterPanel";
 import {
   AwaitingPanel,
@@ -66,7 +71,7 @@ import {
   OperatorNoticesSection,
   ProviderSourcesSection,
 } from "@/components/baste-yab/InfoSections";
-import { MobileBottomNav } from "@/components/baste-yab/MobileBottomNav";
+import { MobileBottomNav, type MobileTab } from "@/components/baste-yab/MobileBottomNav";
 import { NeedCalculator } from "@/components/baste-yab/NeedCalculator";
 import { OperatorBestRow } from "@/components/baste-yab/OperatorBestRow";
 import { PkgCard } from "@/components/baste-yab/PkgCard";
@@ -155,10 +160,12 @@ export default function Page() {
     includedRestrictions,
   } = state;
 
+  const { toast } = useToast();
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
+  const [mobileSubTab, setMobileSubTab] = useState<"browse" | "calc" | "compare" | "info">("browse");
   const [visibleLimit, setVisibleLimit] = useState(PAGE_STEP);
 
   const vatFactor = vat ? 1 + VAT_RATE : 1;
@@ -454,11 +461,19 @@ export default function Page() {
   };
 
   const toggleCompare = (uid: string) => {
-    setCompareIds((prev) => {
-      if (prev.includes(uid)) return prev.filter((id) => id !== uid);
-      if (prev.length >= 3) return prev;
-      return [...prev, uid];
-    });
+    if (compareIds.includes(uid)) {
+      const next = compareIds.filter((id) => id !== uid);
+      setCompareIds(next);
+      toast({ title: "از لیست مقایسه حذف شد" });
+      return;
+    }
+    if (compareIds.length >= 3) {
+      toast({ title: "حداکثر ۳ بسته قابل مقایسه کنار هم است" });
+      return;
+    }
+    const next = [...compareIds, uid];
+    setCompareIds(next);
+    toast({ title: `به مقایسه اضافه شد (${faDigits(next.length)} از ۳)` });
   };
 
   const toggleRestriction = (tag: RestrictionTag) => {
@@ -517,63 +532,55 @@ export default function Page() {
     onReset: reset,
   };
 
-  const handleMobileSelectCat = (target: Category) => {
+  const activeMobileTab: MobileTab = mobileSubTab === "browse" ? cat : mobileSubTab;
+
+  const handleSelectMobileTab = (tab: MobileTab) => {
     setFilterDrawerOpen(false);
     setCompareOpen(false);
-    setCalcOpen(false);
-    if (cat !== target) {
-      switchCat(target);
+    if (tab === "mobile" || tab === "home") {
+      if (cat !== tab) {
+        switchCat(tab);
+      }
+      setMobileSubTab("browse");
+    } else {
+      setMobileSubTab(tab);
     }
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  const handleMobileToggleCalc = () => {
-    setFilterDrawerOpen(false);
-    setCompareOpen(false);
-    if (!calcOpen) {
-      setCalcOpen(true);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          document.getElementById("need-calculator")?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        });
-      });
-    } else if (typeof window !== "undefined" && window.scrollY > 260) {
-      document.getElementById("need-calculator")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    } else {
-      setCalcOpen(false);
-    }
-  };
-
-  const jumpFromDrawerTo = (sectionId: string) => {
-    setFilterDrawerOpen(false);
-    setTimeout(() => {
-      document.getElementById(sectionId)?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 180);
-  };
+  const mobileSubtitle =
+    mobileSubTab === "calc"
+      ? "محاسبه ترکیب و بسته مناسب نیاز"
+      : mobileSubTab === "compare"
+        ? "مقایسه کنار هم بسته‌ها"
+        : mobileSubTab === "info"
+          ? "تنظیمات، نکات اپراتورها و منابع"
+          : cat === "mobile"
+            ? "مقایسه قیمت واقعی اینترنت همراه"
+            : "مقایسه قیمت واقعی اینترنت ثابت";
 
   const unitShort = metric === "pergb" ? "ت/گیگ" : "ت/گیگ×روز";
   const unitLong = metric === "pergb" ? "تومان بر گیگابایت" : "تومان بر (گیگابایت × روز)";
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="min-h-dvh flex flex-col bg-background text-foreground">
-      {/* ── Top Bar: 3-zone single-row contract ── */}
+      {/* ── Top Bar: Native App Top Bar (< lg) + 3-zone Desktop Bar (lg+) ── */}
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 shadow-xs backdrop-blur-md">
-        <div className="mx-auto flex h-12 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
+        <div className="mx-auto flex h-[52px] w-full max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
           {/* Zone 1: Brand logo & wordmark */}
           <a
             href="#"
-            className="inline-flex items-center gap-2 whitespace-nowrap shrink-0 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+            onClick={(e) => {
+              e.preventDefault();
+              setMobileSubTab("browse");
+              if (typeof window !== "undefined") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+            className="inline-flex min-w-0 items-center gap-2.5 whitespace-nowrap text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
           >
             <img
               src={`${BASE_PATH}/pwa-192x192.png`}
@@ -581,9 +588,16 @@ export default function Page() {
               width={32}
               height={32}
               referrerPolicy="no-referrer"
-              className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg shadow-xs"
+              className="h-8 w-8 shrink-0 rounded-xl shadow-xs"
             />
-            <span className="text-[16px] sm:text-[17px] font-extrabold tracking-tight">بسته‌یاب</span>
+            <div className="min-w-0">
+              <span className="block text-[15.5px] sm:text-[17px] font-extrabold tracking-tight leading-tight">
+                بسته‌یاب
+              </span>
+              <span className="block lg:hidden truncate text-[10.5px] font-medium text-muted-foreground leading-tight">
+                {mobileSubtitle}
+              </span>
+            </div>
           </a>
 
           {/* Zone 2: Category Switcher (desktop center; < lg uses bottom nav bar) */}
@@ -665,99 +679,470 @@ export default function Page() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-24 sm:px-6 lg:pb-12">
-        {/* ── First-Sight Intro Header ── */}
-        <section aria-label="معرفی بسته‌یاب" className="mt-3 sm:mt-4">
-          <h1 className="text-[16px] sm:text-xl font-extrabold tracking-tight text-foreground">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-3.5 pb-24 sm:px-6 lg:pb-12">
+        {/* ── Desktop Intro Header (lg+; mobile shows dynamic subtitle directly in App Top Bar) ── */}
+        <section aria-label="معرفی بسته‌یاب" className="hidden lg:block mt-4">
+          <h1 className="text-xl font-extrabold tracking-tight text-foreground">
             مقایسه‌ی قیمت واقعی بسته‌های اینترنت ایران
           </h1>
-          <p className="mt-0.5 text-xs sm:text-[13px] leading-5 text-muted-foreground">
+          <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">
             هر گیگابایت چند تومان می‌شود؟ بسته‌های همراه اول، ایرانسل، رایتل، سامانتل و آپتل را از ارزان‌ترین به گران‌ترین مقایسه کنید.
           </p>
         </section>
 
-        {/* 1-Tap Mobile Operator Quick Strip (< lg) */}
-        {liveEntries.length > 0 && (
-          <div
-            role="group"
-            aria-label="انتخاب سریع اپراتور"
-            className="mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-1 rail lg:hidden"
+        {/* ── Mobile Native Browse Top Controls (< lg) ── */}
+        {mobileSubTab === "browse" && (
+          <motion.div
+            key={`browse-${cat}`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.16, ease: "easeOut" }}
+            className="mt-3 space-y-2.5 lg:hidden"
           >
-            <button
-              type="button"
-              onClick={() => {
-                setVisibleLimit(PAGE_STEP);
-                updateState((prev) => ({ ...prev, provSel: new Set(liveKeysOf(prev.cat)) }));
-              }}
-              aria-pressed={provSel.size === liveEntries.length}
-              className={`inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                provSel.size === liveEntries.length
-                  ? "border-primary bg-primary text-primary-foreground shadow-xs"
-                  : "border-border bg-card text-foreground hover:bg-muted"
-              }`}
-            >
-              <span>همه</span>
-              <span className="fa-num text-[11px] opacity-85">{faDigits(inCat.length)}</span>
-            </button>
-            {liveEntries.map((e) => {
-              const isFocused = provSel.size === 1 && provSel.has(e.key);
-              const isSubsetSelected =
-                provSel.size < liveEntries.length && provSel.has(e.key);
-              return (
-                <button
-                  key={e.key}
-                  type="button"
-                  onClick={() => {
+            {/* Native Search Input + Filter Sheet Trigger */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => {
                     setVisibleLimit(PAGE_STEP);
-                    updateState((prev) => ({
-                      ...prev,
-                      provSel: isFocused ? new Set(liveKeysOf(prev.cat)) : new Set([e.key]),
-                    }));
+                    updateState((prev) => ({ ...prev, query: e.target.value }));
                   }}
-                  aria-pressed={isFocused || isSubsetSelected}
-                  className={`inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                    isFocused
-                      ? "border-foreground bg-foreground text-background shadow-xs"
-                      : isSubsetSelected
-                        ? "border-primary/60 bg-primary/15 text-foreground shadow-xs"
-                        : "border-border bg-card text-foreground hover:bg-muted"
-                  }`}
+                  placeholder={
+                    cat === "mobile"
+                      ? "جست‌وجو در بسته‌های همراه..."
+                      : "جست‌وجو در بسته‌های ثابت..."
+                  }
+                  aria-label="جست‌وجو در بسته‌ها"
+                  className="h-11 w-full rounded-2xl border border-input bg-card ps-9 pe-9 text-[13px] font-medium text-foreground placeholder:text-muted-foreground shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => updateState((prev) => ({ ...prev, query: "" }))}
+                    aria-label="پاک کردن جست‌وجو"
+                    className="absolute end-1.5 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCompareOpen(false);
+                  setFilterDrawerOpen(true);
+                }}
+                aria-label="فیلترهای پیشرفته"
+                className={`relative inline-flex h-11 shrink-0 items-center gap-1.5 rounded-2xl border px-3.5 text-xs font-bold shadow-xs transition-transform active:scale-[0.97] cursor-pointer ${
+                  activeFilters > 0
+                    ? "border-primary/60 bg-primary/12 text-primary"
+                    : "border-border bg-card text-foreground"
+                }`}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                <span>فیلتر</span>
+                {activeFilters > 0 && (
+                  <span className="fa-num inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10.5px] font-extrabold leading-none text-primary-foreground">
+                    {faDigits(activeFilters)}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Single-Row Scrollable Chip Rail: Operators + VAT Pill + Sort Pill */}
+            <div
+              role="group"
+              aria-label="فیلتر سریع اپراتور و مرتب‌سازی"
+              className="flex items-center gap-1.5 overflow-x-auto pb-0.5 rail"
+            >
+              {liveEntries.length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVisibleLimit(PAGE_STEP);
+                      updateState((prev) => ({ ...prev, provSel: new Set(liveKeysOf(prev.cat)) }));
+                    }}
+                    aria-pressed={provSel.size === liveEntries.length}
+                    className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
+                      provSel.size === liveEntries.length
+                        ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                        : "border-border bg-card text-foreground"
+                    }`}
+                  >
+                    <span>همه</span>
+                    <span className="fa-num text-[11px] opacity-85">{faDigits(inCat.length)}</span>
+                  </button>
+                  {liveEntries.map((e) => {
+                    const isFocused = provSel.size === 1 && provSel.has(e.key);
+                    const isSubsetSelected =
+                      provSel.size < liveEntries.length && provSel.has(e.key);
+                    return (
+                      <button
+                        key={e.key}
+                        type="button"
+                        onClick={() => {
+                          setVisibleLimit(PAGE_STEP);
+                          updateState((prev) => ({
+                            ...prev,
+                            provSel: isFocused ? new Set(liveKeysOf(prev.cat)) : new Set([e.key]),
+                          }));
+                        }}
+                        aria-pressed={isFocused || isSubsetSelected}
+                        className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
+                          isFocused
+                            ? "border-foreground bg-foreground text-background shadow-xs"
+                            : isSubsetSelected
+                              ? "border-primary/60 bg-primary/15 text-foreground shadow-xs"
+                              : "border-border bg-card text-foreground"
+                        }`}
+                      >
+                        <span
+                          className="h-2 w-2 shrink-0 rounded-full ring-1 ring-black/15 dark:ring-white/25"
+                          style={{ backgroundColor: e.accent }}
+                        />
+                        <span>{e.nameFa}</span>
+                      </button>
+                    );
+                  })}
+                  <span aria-hidden="true" className="mx-0.5 h-5 w-px shrink-0 bg-border" />
+                </>
+              )}
+
+              <button
+                type="button"
+                onClick={() =>
+                  updateState((prev) => ({ ...prev, vat: !prev.vat }), { persistPrefs: true })
+                }
+                aria-pressed={vat}
+                className={`inline-flex min-h-[36px] items-center gap-1 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
+                  vat
+                    ? "border-amber-600/50 bg-amber-500/15 text-amber-800 dark:border-amber-400/50 dark:text-amber-300"
+                    : "border-border bg-card text-foreground"
+                }`}
+              >
+                <Percent className="h-3.5 w-3.5" />
+                <span>مالیات {vat ? "+۱۰٪" : "بدون"}</span>
+              </button>
+
+              <Select
+                value={sort}
+                onValueChange={(v) =>
+                  updateState((prev) => ({ ...prev, sort: v as SortKey }))
+                }
+              >
+                <SelectTrigger
+                  aria-label="مرتب‌سازی"
+                  className="h-9 w-auto min-w-[125px] shrink-0 rounded-full border-border bg-card px-3 text-[11.5px] font-bold"
+                  dir="rtl"
                 >
-                  <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-black/15 dark:ring-white/25"
-                    style={{ backgroundColor: e.accent }}
-                  />
-                  <span>{e.nameFa}</span>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent dir="rtl">
+                  <SelectItem value="best">بهترین ارزش</SelectItem>
+                  <SelectItem value="price">کمترین قیمت</SelectItem>
+                  <SelectItem value="gb">بیشترین حجم</SelectItem>
+                  <SelectItem value="days">بیشترین مدت</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Quiet 1-line Mobile Status Strip */}
+            <div className="flex flex-wrap items-center justify-between gap-2 px-0.5 text-[11.5px] text-muted-foreground">
+              <div className="min-w-0 truncate">
+                <span className="fa-num font-bold text-foreground">
+                  {faDigits(rows.length)} بسته
+                </span>
+                {bestPaid && (
+                  <>
+                    <span> · بهترین: </span>
+                    <span className="font-bold text-foreground">{bestPaid.providerName}</span>{" "}
+                    <span className="fa-num font-extrabold text-primary">
+                      ({fmtValue(bestPaid.value)} {unitShort})
+                    </span>
+                  </>
+                )}
+              </div>
+              {activeFilters > 0 && (
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="shrink-0 font-bold text-primary hover:underline cursor-pointer"
+                >
+                  پاک‌کردن فیلترها
                 </button>
-              );
-            })}
-          </div>
+              )}
+            </div>
+          </motion.div>
         )}
 
-        {/* ── Mobile Compact Summary Strip (< lg) ── */}
-        <section
-          aria-label="خلاصه مقایسه موبایل"
-          className="mt-2.5 flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-3.5 py-2.5 shadow-xs lg:hidden"
-        >
-          <div className="min-w-0 text-xs">
-            {bestPaid ? (
-              <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-                <span className="font-semibold text-muted-foreground">بهترین فعلی:</span>
-                <span className="font-bold text-foreground">{bestPaid.providerName}</span>
-                <span className="fa-num font-extrabold text-primary">
-                  {fmtValue(bestPaid.value)} {unitShort}
-                </span>
+        {/* ── Mobile Dedicated Calculator Screen (< lg) ── */}
+        {mobileSubTab === "calc" && (
+          <motion.section
+            key="mobile-calc"
+            aria-label="محاسبه‌گر بسته مناسب"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="mt-3 space-y-3 lg:hidden"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div
+                role="group"
+                aria-label="دسته محاسبه‌گر"
+                className="inline-flex items-center rounded-xl border border-border bg-muted p-0.5"
+              >
+                <button
+                  type="button"
+                  onClick={() => switchCat("mobile")}
+                  aria-pressed={cat === "mobile"}
+                  className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg px-3 text-xs font-bold transition-colors cursor-pointer ${
+                    cat === "mobile"
+                      ? "bg-card text-foreground shadow-xs"
+                      : "text-foreground/75"
+                  }`}
+                >
+                  <Smartphone className="h-3.5 w-3.5" />
+                  <span>همراه</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchCat("home")}
+                  aria-pressed={cat === "home"}
+                  className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg px-3 text-xs font-bold transition-colors cursor-pointer ${
+                    cat === "home"
+                      ? "bg-card text-foreground shadow-xs"
+                      : "text-foreground/75"
+                  }`}
+                >
+                  <Home className="h-3.5 w-3.5" />
+                  <span>ثابت</span>
+                </button>
               </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  updateState((prev) => ({ ...prev, vat: !prev.vat }), { persistPrefs: true })
+                }
+                aria-pressed={vat}
+                className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold cursor-pointer ${
+                  vat
+                    ? "border-amber-600/50 bg-amber-500/15 text-amber-800 dark:border-amber-400/50 dark:text-amber-300"
+                    : "border-border bg-card text-foreground"
+                }`}
+              >
+                <Percent className="h-3.5 w-3.5" />
+                <span>مالیات {vat ? "+۱۰٪" : "بدون"}</span>
+              </button>
+            </div>
+
+            {liveEntries.length > 0 ? (
+              <NeedCalculator packages={calcPool} vat={vat} dark={dark} embedded />
             ) : (
-              <span className="text-muted-foreground">
-                {rows.length ? "—" : "بسته‌ای یافت نشد"}
-              </span>
+              <AwaitingPanel
+                entries={awaitingEntries}
+                title={cat === "home" ? "بسته‌های اینترنت ثابت" : "بسته‌های اینترنت همراه"}
+              />
             )}
-          </div>
-          <span className="fa-num shrink-0 rounded-md border border-border bg-muted px-2 py-0.5 text-[11px] font-bold text-foreground">
-            {faDigits(rows.length)} بسته
-          </span>
-        </section>
+          </motion.section>
+        )}
+
+        {/* ── Mobile Dedicated Compare Screen (< lg) ── */}
+        {mobileSubTab === "compare" && (
+          <motion.section
+            key="mobile-compare"
+            aria-label="مقایسه کنار هم بسته‌ها"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="mt-3 space-y-3 lg:hidden"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <h1 className="text-base font-extrabold text-foreground">مقایسه کنار هم</h1>
+              <button
+                type="button"
+                onClick={() =>
+                  updateState((prev) => ({ ...prev, vat: !prev.vat }), { persistPrefs: true })
+                }
+                aria-pressed={vat}
+                className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold cursor-pointer ${
+                  vat
+                    ? "border-amber-600/50 bg-amber-500/15 text-amber-800 dark:border-amber-400/50 dark:text-amber-300"
+                    : "border-border bg-card text-foreground"
+                }`}
+              >
+                <Percent className="h-3.5 w-3.5" />
+                <span>مالیات {vat ? "+۱۰٪" : "بدون"}</span>
+              </button>
+            </div>
+
+            <CompareBody
+              items={compareItems}
+              vat={vat}
+              onRemove={(uid) => setCompareIds((prev) => prev.filter((id) => id !== uid))}
+              onClear={() => setCompareIds([])}
+              onBrowse={() => setMobileSubTab("browse")}
+            />
+          </motion.section>
+        )}
+
+        {/* ── Mobile Dedicated Info & Settings Screen (< lg) ── */}
+        {mobileSubTab === "info" && (
+          <motion.section
+            key="mobile-info"
+            aria-label="تنظیمات و اطلاعات برنامه"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="mt-3 space-y-4 lg:hidden"
+          >
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xs divide-y divide-border">
+              <div className="bg-muted/45 px-4 py-2.5 text-xs font-extrabold text-foreground">
+                تنظیمات و نمایش
+              </div>
+
+              {/* Theme Selector Row */}
+              <div className="flex items-center justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-foreground">ظاهر برنامه</div>
+                  <div className="text-[11px] text-muted-foreground">هماهنگ با دستگاه یا انتخابی</div>
+                </div>
+                <div
+                  role="group"
+                  aria-label="انتخاب پوسته"
+                  className="inline-flex shrink-0 items-center rounded-xl border border-border bg-muted p-0.5"
+                >
+                  {(
+                    [
+                      { k: "system", l: "خودکار" },
+                      { k: "light", l: "روشن" },
+                      { k: "dark", l: "تاریک" },
+                    ] as const
+                  ).map((opt) => (
+                    <button
+                      key={opt.k}
+                      type="button"
+                      onClick={() => setTheme(opt.k)}
+                      aria-pressed={mounted && theme === opt.k}
+                      className={`min-h-[34px] rounded-lg px-2.5 text-[11.5px] font-bold transition-colors cursor-pointer ${
+                        mounted && theme === opt.k
+                          ? "bg-card text-foreground shadow-xs"
+                          : "text-foreground/75"
+                      }`}
+                    >
+                      {opt.l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* VAT Switch Row */}
+              <label className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer">
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-foreground">محاسبه ۱۰٪ مالیات ارزش افزوده</div>
+                  <div className="text-[11px] text-muted-foreground">اعمال نرخ پرداخت درگاه روی قیمت‌ها</div>
+                </div>
+                <Switch
+                  checked={vat}
+                  onCheckedChange={() =>
+                    updateState((prev) => ({ ...prev, vat: !prev.vat }), { persistPrefs: true })
+                  }
+                />
+              </label>
+
+              {/* Metric Row */}
+              <div className="flex items-center justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-foreground">معیار ارزش</div>
+                  <div className="text-[11px] text-muted-foreground">مبنای رتبه‌بندی بسته‌ها</div>
+                </div>
+                <div
+                  role="group"
+                  aria-label="معیار ارزش"
+                  className="inline-flex shrink-0 items-center rounded-xl border border-border bg-muted p-0.5"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateState((prev) => ({ ...prev, metric: "pergb" }), { persistPrefs: true })
+                    }
+                    aria-pressed={metric === "pergb"}
+                    className={`min-h-[34px] rounded-lg px-2.5 text-[11.5px] font-bold transition-colors cursor-pointer ${
+                      metric === "pergb"
+                        ? "bg-card text-foreground shadow-xs"
+                        : "text-foreground/75"
+                    }`}
+                  >
+                    ت/گیگ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateState((prev) => ({ ...prev, metric: "pergbday" }), { persistPrefs: true })
+                    }
+                    aria-pressed={metric === "pergbday"}
+                    className={`min-h-[34px] rounded-lg px-2.5 text-[11.5px] font-bold transition-colors cursor-pointer ${
+                      metric === "pergbday"
+                        ? "bg-card text-foreground shadow-xs"
+                        : "text-foreground/75"
+                    }`}
+                  >
+                    گیگ×روز
+                  </button>
+                </div>
+              </div>
+
+              {/* View Mode Row */}
+              <div className="flex items-center justify-between gap-3 px-4 py-3">
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-foreground">نمای فهرست بسته‌ها</div>
+                  <div className="text-[11px] text-muted-foreground">کارت‌های لمسی یا جدول فشرده</div>
+                </div>
+                <div
+                  role="group"
+                  aria-label="نمای فهرست"
+                  className="inline-flex shrink-0 items-center rounded-xl border border-border bg-muted p-0.5"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateState((prev) => ({ ...prev, view: "grid" }), { persistPrefs: true })
+                    }
+                    aria-pressed={view === "grid"}
+                    className={`inline-flex min-h-[34px] items-center gap-1 rounded-lg px-2.5 text-[11.5px] font-bold transition-colors cursor-pointer ${
+                      view === "grid"
+                        ? "bg-card text-foreground shadow-xs"
+                        : "text-foreground/75"
+                    }`}
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                    <span>کارتی</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateState((prev) => ({ ...prev, view: "table" }), { persistPrefs: true })
+                    }
+                    aria-pressed={view === "table"}
+                    className={`inline-flex min-h-[34px] items-center gap-1 rounded-lg px-2.5 text-[11.5px] font-bold transition-colors cursor-pointer ${
+                      view === "table"
+                        ? "bg-card text-foreground shadow-xs"
+                        : "text-foreground/75"
+                    }`}
+                  >
+                    <Table2 className="h-3.5 w-3.5" />
+                    <span>جدولی</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.section>
+        )}
 
         {/* ── Summary Strip (Desktop/Large 4-cell KPI bar) ── */}
         <section
@@ -864,7 +1249,11 @@ export default function Page() {
         </section>
 
         {/* ── Two-Column Workspace: Sticky Sidebar (lg+) + Results ── */}
-        <div className="mt-4 lg:mt-5 grid grid-cols-1 items-start gap-6 lg:grid-cols-[296px_minmax(0,1fr)]">
+        <div
+          className={`${
+            mobileSubTab === "browse" ? "grid" : "hidden lg:grid"
+          } mt-3 lg:mt-5 grid-cols-1 items-start gap-6 lg:grid-cols-[296px_minmax(0,1fr)]`}
+        >
           {/* Desktop Filter Sidebar */}
           <aside
             aria-label="فیلترهای جست‌وجو"
@@ -874,9 +1263,9 @@ export default function Page() {
           </aside>
 
           {/* Main Results Column */}
-          <div className="min-w-0 space-y-4">
-            {/* Workspace Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-2.5 shadow-xs sm:px-3.5">
+          <div className="min-w-0 space-y-3 sm:space-y-4">
+            {/* Workspace Toolbar (Desktop/Large; mobile uses Search + Chip Rail + Settings tab) */}
+            <div className="hidden lg:flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 shadow-xs">
               <div className="flex flex-wrap items-center gap-2">
                 {/* Metric Segmented Switch (desktop/tablet; on mobile inside Filter Drawer) */}
                 <TooltipProvider>
@@ -1071,9 +1460,9 @@ export default function Page() {
               onResetAll={reset}
             />
 
-            {/* Interactive Need / Multi-pack Calculator */}
+            {/* Interactive Need / Multi-pack Calculator (Desktop inline; mobile has dedicated Calc tab) */}
             {calcOpen && liveEntries.length > 0 && (
-              <div id="need-calculator" className="scroll-mt-14 lg:scroll-mt-20">
+              <div id="need-calculator" className="hidden lg:block scroll-mt-20">
                 <NeedCalculator
                   packages={calcPool}
                   vat={vat}
@@ -1174,14 +1563,18 @@ export default function Page() {
           </div>
         </div>
 
-        {/* Dedicated Operator Notices Section (below packages so results start right at the top) */}
-        <OperatorNoticesSection entries={liveEntries.filter((e) => provSel.has(e.key))} />
+        {/* Dedicated Operator Notices Section (always on lg+; inside Info tab on mobile) */}
+        <div className={mobileSubTab === "info" ? "block mt-4 lg:mt-0" : "hidden lg:block"}>
+          <OperatorNoticesSection entries={liveEntries.filter((e) => provSel.has(e.key))} />
+        </div>
       </main>
 
-      {/* ── Footer ── */}
+      {/* ── Footer (always on lg+; inside Info tab on mobile) ── */}
       <footer
         id="sources"
-        className="mt-auto border-t border-border/80 bg-card/50 pb-24 lg:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+        className={`${
+          mobileSubTab === "info" ? "block" : "hidden lg:block"
+        } mt-auto border-t border-border/80 bg-card/50 pb-24 lg:pb-[max(1.5rem,env(safe-area-inset-bottom))]`}
       >
         <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 space-y-6">
           <ProviderSourcesSection mounted={mounted} />
@@ -1247,129 +1640,23 @@ export default function Page() {
         }}
       />
 
-      {/* ── Mobile Filter & Settings Drawer (< lg, opened via MobileBottomNav) ── */}
+      {/* ── Mobile Filter Drawer (< lg, opened via Filter button in Browse header) ── */}
       <Drawer open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen}>
         <DrawerContent className="mx-auto max-h-[86dvh] max-w-md border-border bg-card lg:hidden" dir="rtl">
           <div className="border-b border-border px-5 py-3">
             <DrawerTitle className="text-start text-base font-bold">
-              فیلترها و تنظیمات نمایش
+              فیلترهای پیشرفته
             </DrawerTitle>
             <DrawerDescription className="fa-num text-start text-xs">
               {faDigits(rows.length)} بسته در نمایش · از {faDigits(inCat.length)} بسته
             </DrawerDescription>
           </div>
           <div className="overflow-y-auto px-5 pb-8 pt-4 space-y-5">
-            {/* Mobile Display & Metric Settings */}
-            <div className="space-y-2.5 rounded-xl border border-border bg-muted/50 p-3">
-              <div className="text-xs font-bold text-foreground">نحوه نمایش و معیار محاسبه</div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <div className="text-[11px] font-semibold text-muted-foreground">معیار ارزش</div>
-                  <div className="grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted p-0.5">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateState(
-                          (prev) => ({ ...prev, metric: "pergb" }),
-                          { persistPrefs: true },
-                        )
-                      }
-                      aria-pressed={metric === "pergb"}
-                      className={`min-h-[38px] rounded-md px-1.5 text-[11.5px] font-bold transition-colors ${
-                        metric === "pergb"
-                          ? "border border-border/80 bg-card text-foreground shadow-xs"
-                          : "border border-transparent text-foreground/75"
-                      }`}
-                    >
-                      ت/گیگ
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateState(
-                          (prev) => ({ ...prev, metric: "pergbday" }),
-                          { persistPrefs: true },
-                        )
-                      }
-                      aria-pressed={metric === "pergbday"}
-                      className={`min-h-[38px] rounded-md px-1.5 text-[11.5px] font-bold transition-colors ${
-                        metric === "pergbday"
-                          ? "border border-border/80 bg-card text-foreground shadow-xs"
-                          : "border border-transparent text-foreground/75"
-                      }`}
-                    >
-                      گیگ×روز
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="text-[11px] font-semibold text-muted-foreground">نمای فهرست</div>
-                  <div className="grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted p-0.5">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateState(
-                          (prev) => ({ ...prev, view: "grid" }),
-                          { persistPrefs: true },
-                        )
-                      }
-                      aria-pressed={view === "grid"}
-                      className={`inline-flex min-h-[38px] items-center justify-center gap-1 rounded-md px-1.5 text-[11.5px] font-bold transition-colors ${
-                        view === "grid"
-                          ? "border border-border/80 bg-card text-foreground shadow-xs"
-                          : "border border-transparent text-foreground/75"
-                      }`}
-                    >
-                      <LayoutGrid className="h-3.5 w-3.5" />
-                      <span>کارتی</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateState(
-                          (prev) => ({ ...prev, view: "table" }),
-                          { persistPrefs: true },
-                        )
-                      }
-                      aria-pressed={view === "table"}
-                      className={`inline-flex min-h-[38px] items-center justify-center gap-1 rounded-md px-1.5 text-[11.5px] font-bold transition-colors ${
-                        view === "table"
-                          ? "border border-border/80 bg-card text-foreground shadow-xs"
-                          : "border border-transparent text-foreground/75"
-                      }`}
-                    >
-                      <Table2 className="h-3.5 w-3.5" />
-                      <span>جدولی</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <FilterPanel {...filterProps} />
-
-            {/* Quick Section Anchors for Mobile */}
-            <div className="grid grid-cols-2 gap-2 border-t border-border pt-3">
-              <button
-                type="button"
-                onClick={() => jumpFromDrawerTo("notices")}
-                className="min-h-[38px] rounded-lg border border-border bg-muted/60 px-2.5 text-xs font-bold text-foreground hover:bg-muted cursor-pointer"
-              >
-                نکات اپراتورها ↓
-              </button>
-              <button
-                type="button"
-                onClick={() => jumpFromDrawerTo("sources")}
-                className="min-h-[38px] rounded-lg border border-border bg-muted/60 px-2.5 text-xs font-bold text-foreground hover:bg-muted cursor-pointer"
-              >
-                بروزرسانی داده‌ها ↓
-              </button>
-            </div>
 
             <Button
               onClick={() => setFilterDrawerOpen(false)}
-              className="h-11 w-full rounded-xl font-bold"
+              className="h-11 w-full rounded-2xl font-bold cursor-pointer"
             >
               نمایش {faDigits(rows.length)} بسته
             </Button>
@@ -1377,24 +1664,11 @@ export default function Page() {
         </DrawerContent>
       </Drawer>
 
-      {/* ── Native-Style Mobile Bottom Navigation Bar (< lg) ── */}
+      {/* ── Native-Style 5-Tab Mobile Bottom Navigation Bar (< lg) ── */}
       <MobileBottomNav
-        cat={cat}
-        calcOpen={calcOpen}
-        filterOpen={filterDrawerOpen}
-        compareOpen={compareOpen}
-        activeFilters={activeFilters}
+        activeTab={activeMobileTab}
         compareCount={compareItems.length}
-        onSelectCat={handleMobileSelectCat}
-        onToggleCalc={handleMobileToggleCalc}
-        onOpenFilters={() => {
-          setCompareOpen(false);
-          setFilterDrawerOpen(true);
-        }}
-        onOpenCompare={() => {
-          setFilterDrawerOpen(false);
-          setCompareOpen(true);
-        }}
+        onSelectTab={handleSelectMobileTab}
       />
 
       {/* ── Floating Back-to-Top Button ── */}
@@ -1403,12 +1677,13 @@ export default function Page() {
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="بازگشت به بالا"
-          className="fixed bottom-[4.75rem] end-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-border bg-card/95 px-3 py-2 text-xs font-bold text-foreground shadow-lg backdrop-blur-md transition-colors hover:bg-muted cursor-pointer lg:bottom-5"
+          className="fixed bottom-[5.25rem] end-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-border bg-card/95 px-3 py-2 text-xs font-bold text-foreground shadow-lg backdrop-blur-md transition-colors hover:bg-muted cursor-pointer lg:bottom-5"
         >
           <ArrowUp className="h-3.5 w-3.5 text-primary" />
           <span className="hidden sm:inline">بازگشت به بالا</span>
         </button>
       )}
     </div>
+    </MotionConfig>
   );
 }
