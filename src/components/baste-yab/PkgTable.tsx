@@ -53,11 +53,11 @@ export function PkgTable({
   const unitLabel = metric === "pergb" ? "ت/گیگ" : "ت/گیگ×روز";
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card">
+    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
       <div className="overflow-x-auto rail">
         <table className="w-full min-w-[680px] border-collapse text-right text-[13.5px]">
           <thead>
-            <tr className="border-b border-border bg-muted/50 text-[11.5px] font-bold text-muted-foreground">
+            <tr className="border-b border-border bg-muted text-[11.5px] font-bold text-foreground/85">
               <th className="w-12 py-3 ps-4 pe-2 text-center">رتبه</th>
               <th className="py-3 px-3">بسته</th>
               <th className="w-24 py-3 px-3 whitespace-nowrap">حجم</th>
@@ -69,7 +69,7 @@ export function PkgTable({
               <th className="w-28 py-3 ps-3 pe-4 text-end whitespace-nowrap">اقدام</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border/50">
+          <tbody className="divide-y divide-border/80">
             {rows.map((r) => {
               const uid = `${r.entryKey}:${r.id}`;
               const t = r.t ?? 0;

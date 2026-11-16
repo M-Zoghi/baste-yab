@@ -5,10 +5,10 @@ import {
   ArrowUp,
   Calculator,
   Database,
-  Filter,
   Gift,
   Home,
   LayoutGrid,
+  Monitor,
   Moon,
   Percent,
   RotateCcw,
@@ -30,7 +30,6 @@ import {
   DrawerContent,
   DrawerDescription,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import {
   Select,
@@ -67,6 +66,7 @@ import {
   OperatorNoticesSection,
   ProviderSourcesSection,
 } from "@/components/baste-yab/InfoSections";
+import { MobileBottomNav } from "@/components/baste-yab/MobileBottomNav";
 import { NeedCalculator } from "@/components/baste-yab/NeedCalculator";
 import { OperatorBestRow } from "@/components/baste-yab/OperatorBestRow";
 import { PkgCard } from "@/components/baste-yab/PkgCard";
@@ -91,7 +91,7 @@ const getScrollSnapshot = () => window.scrollY > 480;
 const getScrollServerSnapshot = () => false;
 
 export default function Page() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -102,7 +102,38 @@ export default function Page() {
     getScrollSnapshot,
     getScrollServerSnapshot,
   );
-  const dark = mounted ? resolvedTheme !== "light" : true;
+  const dark = mounted ? resolvedTheme === "dark" : false;
+
+  const cycleTheme = () => {
+    const osDark =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const osTheme = osDark ? "dark" : "light";
+    const oppositeTheme = osDark ? "light" : "dark";
+    if (theme === "system") {
+      setTheme(oppositeTheme);
+    } else if (theme === oppositeTheme) {
+      setTheme(osTheme);
+    } else {
+      setTheme("system");
+    }
+  };
+
+  const themeLabel = !mounted
+    ? "پوسته"
+    : theme === "system"
+      ? "خودکار"
+      : theme === "dark"
+        ? "تاریک"
+        : "روشن";
+
+  const themeAriaLabel = !mounted
+    ? "تغییر پوسته"
+    : theme === "system"
+      ? "پوسته: خودکار مطابق دستگاه (کلیک برای تغییر)"
+      : theme === "dark"
+        ? "پوسته: تاریک (کلیک برای تغییر)"
+        : "پوسته: روشن (کلیک برای تغییر)";
 
   const [state, updateState] = useBasteYabState();
   const {
@@ -486,18 +517,63 @@ export default function Page() {
     onReset: reset,
   };
 
+  const handleMobileSelectCat = (target: Category) => {
+    setFilterDrawerOpen(false);
+    setCompareOpen(false);
+    setCalcOpen(false);
+    if (cat !== target) {
+      switchCat(target);
+    }
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleMobileToggleCalc = () => {
+    setFilterDrawerOpen(false);
+    setCompareOpen(false);
+    if (!calcOpen) {
+      setCalcOpen(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          document.getElementById("need-calculator")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      });
+    } else if (typeof window !== "undefined" && window.scrollY > 260) {
+      document.getElementById("need-calculator")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    } else {
+      setCalcOpen(false);
+    }
+  };
+
+  const jumpFromDrawerTo = (sectionId: string) => {
+    setFilterDrawerOpen(false);
+    setTimeout(() => {
+      document.getElementById(sectionId)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 180);
+  };
+
   const unitShort = metric === "pergb" ? "ت/گیگ" : "ت/گیگ×روز";
   const unitLong = metric === "pergb" ? "تومان بر گیگابایت" : "تومان بر (گیگابایت × روز)";
 
   return (
     <div className="min-h-dvh flex flex-col bg-background text-foreground">
       {/* ── Top Bar: 3-zone single-row contract ── */}
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:h-16 sm:px-6">
+      <header className="sticky top-0 z-40 border-b border-border bg-card/95 shadow-xs backdrop-blur-md">
+        <div className="mx-auto flex h-12 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
           {/* Zone 1: Brand logo & wordmark */}
           <a
             href="#"
-            className="inline-flex items-center gap-2.5 whitespace-nowrap shrink-0 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+            className="inline-flex items-center gap-2 whitespace-nowrap shrink-0 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
           >
             <img
               src={`${BASE_PATH}/pwa-192x192.png`}
@@ -505,15 +581,15 @@ export default function Page() {
               width={32}
               height={32}
               referrerPolicy="no-referrer"
-              className="h-8 w-8 rounded-lg shadow-xs"
+              className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg shadow-xs"
             />
-            <span className="text-[17px] font-extrabold tracking-tight">بسته‌یاب</span>
+            <span className="text-[16px] sm:text-[17px] font-extrabold tracking-tight">بسته‌یاب</span>
           </a>
 
-          {/* Zone 2: Category Switcher (desktop/tablet center) */}
+          {/* Zone 2: Category Switcher (desktop center; < lg uses bottom nav bar) */}
           <nav
             aria-label="دسته‌بندی اینترنت"
-            className="hidden sm:flex items-center gap-1 rounded-lg border border-border bg-muted/60 p-1"
+            className="hidden lg:flex items-center gap-1 rounded-lg border border-border bg-muted p-1"
           >
             <button
               type="button"
@@ -521,13 +597,13 @@ export default function Page() {
               aria-pressed={cat === "mobile"}
               className={`inline-flex min-h-[34px] items-center gap-2 rounded-md px-3.5 py-1 text-[13px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 cat === "mobile"
-                  ? "bg-card text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "border border-border/80 bg-card text-foreground shadow-xs"
+                  : "border border-transparent text-foreground/75 hover:text-foreground"
               }`}
             >
               <Smartphone className="h-3.5 w-3.5" />
               <span>اینترنت همراه</span>
-              <span className="fa-num text-[11px] font-medium text-muted-foreground">
+              <span className="fa-num text-[11px] font-semibold text-muted-foreground">
                 {faDigits(countByCat.mobile)}
               </span>
             </button>
@@ -537,13 +613,13 @@ export default function Page() {
               aria-pressed={cat === "home"}
               className={`inline-flex min-h-[34px] items-center gap-2 rounded-md px-3.5 py-1 text-[13px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 cat === "home"
-                  ? "bg-card text-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "border border-border/80 bg-card text-foreground shadow-xs"
+                  : "border border-transparent text-foreground/75 hover:text-foreground"
               }`}
             >
               <Home className="h-3.5 w-3.5" />
               <span>اینترنت ثابت</span>
-              <span className="fa-num text-[11px] font-medium text-muted-foreground">
+              <span className="fa-num text-[11px] font-semibold text-muted-foreground">
                 {faDigits(countByCat.home)}
               </span>
             </button>
@@ -553,81 +629,144 @@ export default function Page() {
           <div className="flex items-center gap-2 shrink-0">
             <a
               href="#notices"
-              className="hidden md:inline-flex items-center px-2 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap shrink-0"
+              className="hidden md:inline-flex items-center px-2 py-1.5 text-[13px] font-semibold text-foreground/75 transition-colors hover:text-foreground whitespace-nowrap shrink-0"
             >
               نکات اپراتورها
             </a>
             <a
               href="#sources"
-              className="hidden md:inline-flex items-center px-2 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap shrink-0"
+              className="hidden md:inline-flex items-center px-2 py-1.5 text-[13px] font-semibold text-foreground/75 transition-colors hover:text-foreground whitespace-nowrap shrink-0"
             >
               بروزرسانی داده‌ها
             </a>
             <PWAInstallButton />
             <Button
               variant="outline"
-              size="icon"
-              className="h-9 w-9 cursor-pointer"
-              onClick={() => setTheme(dark ? "light" : "dark")}
-              aria-label={dark ? "تغییر به حالت روشن" : "تغییر به حالت تاریک"}
+              size="sm"
+              className="h-8 sm:h-9 w-8 sm:w-auto sm:px-2.5 gap-1.5 border-border bg-card text-foreground hover:bg-muted cursor-pointer"
+              onClick={cycleTheme}
+              title={themeAriaLabel}
+              aria-label={themeAriaLabel}
             >
               {mounted ? (
-                dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />
+                theme === "system" ? (
+                  <Monitor className="h-4 w-4" />
+                ) : theme === "dark" ? (
+                  <Moon className="h-4 w-4" />
+                ) : (
+                  <Sun className="h-4 w-4" />
+                )
               ) : (
-                <Sun className="h-4 w-4 opacity-0" />
+                <Monitor className="h-4 w-4 opacity-0" />
               )}
+              <span className="hidden md:inline text-xs font-bold">{themeLabel}</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-28 sm:px-6 lg:pb-12">
-        {/* Mobile Category Switcher (non-sticky to keep sticky chrome minimal) */}
-        <div className="mt-3 sm:hidden">
-          <div className="grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted/60 p-1">
-            <button
-              type="button"
-              onClick={() => switchCat("mobile")}
-              aria-pressed={cat === "mobile"}
-              className={`inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-md px-2 text-[13px] font-bold transition-colors whitespace-nowrap ${
-                cat === "mobile"
-                  ? "bg-card text-foreground shadow-xs"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <Smartphone className="h-3.5 w-3.5" />
-              <span>اینترنت همراه</span>
-              <span className="fa-num text-[11px] font-medium text-muted-foreground">
-                {faDigits(countByCat.mobile)}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => switchCat("home")}
-              aria-pressed={cat === "home"}
-              className={`inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-md px-2 text-[13px] font-bold transition-colors whitespace-nowrap ${
-                cat === "home"
-                  ? "bg-card text-foreground shadow-xs"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <Home className="h-3.5 w-3.5" />
-              <span>اینترنت ثابت</span>
-              <span className="fa-num text-[11px] font-medium text-muted-foreground">
-                {faDigits(countByCat.home)}
-              </span>
-            </button>
-          </div>
-        </div>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-24 sm:px-6 lg:pb-12">
+        {/* ── First-Sight Intro Header ── */}
+        <section aria-label="معرفی بسته‌یاب" className="mt-3 sm:mt-4">
+          <h1 className="text-[16px] sm:text-xl font-extrabold tracking-tight text-foreground">
+            مقایسه‌ی قیمت واقعی بسته‌های اینترنت ایران
+          </h1>
+          <p className="mt-0.5 text-xs sm:text-[13px] leading-5 text-muted-foreground">
+            هر گیگابایت چند تومان می‌شود؟ بسته‌های همراه اول، ایرانسل، رایتل، سامانتل و آپتل را از ارزان‌ترین به گران‌ترین مقایسه کنید.
+          </p>
+        </section>
 
-        {/* ── Summary Strip (Single-elevation 4-cell KPI bar) ── */}
+        {/* 1-Tap Mobile Operator Quick Strip (< lg) */}
+        {liveEntries.length > 0 && (
+          <div
+            role="group"
+            aria-label="انتخاب سریع اپراتور"
+            className="mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-1 rail lg:hidden"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setVisibleLimit(PAGE_STEP);
+                updateState((prev) => ({ ...prev, provSel: new Set(liveKeysOf(prev.cat)) }));
+              }}
+              aria-pressed={provSel.size === liveEntries.length}
+              className={`inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                provSel.size === liveEntries.length
+                  ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                  : "border-border bg-card text-foreground hover:bg-muted"
+              }`}
+            >
+              <span>همه</span>
+              <span className="fa-num text-[11px] opacity-85">{faDigits(inCat.length)}</span>
+            </button>
+            {liveEntries.map((e) => {
+              const isFocused = provSel.size === 1 && provSel.has(e.key);
+              const isSubsetSelected =
+                provSel.size < liveEntries.length && provSel.has(e.key);
+              return (
+                <button
+                  key={e.key}
+                  type="button"
+                  onClick={() => {
+                    setVisibleLimit(PAGE_STEP);
+                    updateState((prev) => ({
+                      ...prev,
+                      provSel: isFocused ? new Set(liveKeysOf(prev.cat)) : new Set([e.key]),
+                    }));
+                  }}
+                  aria-pressed={isFocused || isSubsetSelected}
+                  className={`inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                    isFocused
+                      ? "border-foreground bg-foreground text-background shadow-xs"
+                      : isSubsetSelected
+                        ? "border-primary/60 bg-primary/15 text-foreground shadow-xs"
+                        : "border-border bg-card text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-black/15 dark:ring-white/25"
+                    style={{ backgroundColor: e.accent }}
+                  />
+                  <span>{e.nameFa}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── Mobile Compact Summary Strip (< lg) ── */}
+        <section
+          aria-label="خلاصه مقایسه موبایل"
+          className="mt-2.5 flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-3.5 py-2.5 shadow-xs lg:hidden"
+        >
+          <div className="min-w-0 text-xs">
+            {bestPaid ? (
+              <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+                <span className="font-semibold text-muted-foreground">بهترین فعلی:</span>
+                <span className="font-bold text-foreground">{bestPaid.providerName}</span>
+                <span className="fa-num font-extrabold text-primary">
+                  {fmtValue(bestPaid.value)} {unitShort}
+                </span>
+              </div>
+            ) : (
+              <span className="text-muted-foreground">
+                {rows.length ? "—" : "بسته‌ای یافت نشد"}
+              </span>
+            )}
+          </div>
+          <span className="fa-num shrink-0 rounded-md border border-border bg-muted px-2 py-0.5 text-[11px] font-bold text-foreground">
+            {faDigits(rows.length)} بسته
+          </span>
+        </section>
+
+        {/* ── Summary Strip (Desktop/Large 4-cell KPI bar) ── */}
         <section
           aria-label="خلاصه مقایسه"
-          className="mt-4 overflow-hidden rounded-xl border border-border bg-card"
+          className="mt-4 hidden overflow-hidden rounded-xl border border-border bg-card shadow-xs lg:block"
         >
-          <div className="grid grid-cols-1 divide-y divide-border/70 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x lg:divide-x-reverse">
+          <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x lg:divide-x-reverse">
             {/* Cell 1: Best paid package */}
-            <div className="p-4 sm:border-b lg:border-b-0 border-border/70 sm:border-e">
+            <div className="p-4 sm:border-b lg:border-b-0 border-border sm:border-e">
               <div className="text-[11px] font-bold text-muted-foreground">بهترین ارزش فعلی</div>
               {bestPaid ? (
                 <>
@@ -662,7 +801,7 @@ export default function Page() {
             </div>
 
             {/* Cell 2: Market Median & Range */}
-            <div className="p-4 sm:border-b lg:border-b-0 border-border/70">
+            <div className="p-4 sm:border-b lg:border-b-0 border-border">
               <div className="text-[11px] font-bold text-muted-foreground">میانه و بازه تعرفه‌ها</div>
               {marketStats ? (
                 <>
@@ -684,7 +823,7 @@ export default function Page() {
             </div>
 
             {/* Cell 3: Inventory & Data Freshness */}
-            <div className="p-4 sm:border-e border-border/70">
+            <div className="p-4 sm:border-e border-border">
               <div className="text-[11px] font-bold text-muted-foreground">بسته‌های فعال و داده</div>
               <div className="fa-num mt-1 text-lg font-extrabold text-foreground">
                 {faDigits(rows.length)}{" "}
@@ -725,11 +864,11 @@ export default function Page() {
         </section>
 
         {/* ── Two-Column Workspace: Sticky Sidebar (lg+) + Results ── */}
-        <div className="mt-5 grid grid-cols-1 items-start gap-6 lg:grid-cols-[296px_minmax(0,1fr)]">
+        <div className="mt-4 lg:mt-5 grid grid-cols-1 items-start gap-6 lg:grid-cols-[296px_minmax(0,1fr)]">
           {/* Desktop Filter Sidebar */}
           <aside
             aria-label="فیلترهای جست‌وجو"
-            className="hidden lg:block lg:sticky lg:top-20 rounded-xl border border-border bg-card p-5 max-h-[calc(100dvh-6rem)] overflow-y-auto rail"
+            className="hidden lg:block lg:sticky lg:top-20 rounded-xl border border-border bg-card p-5 shadow-xs max-h-[calc(100dvh-6rem)] overflow-y-auto rail"
           >
             <FilterPanel {...filterProps} />
           </aside>
@@ -737,16 +876,16 @@ export default function Page() {
           {/* Main Results Column */}
           <div className="min-w-0 space-y-4">
             {/* Workspace Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-border bg-card px-3.5 py-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-2.5 shadow-xs sm:px-3.5">
               <div className="flex flex-wrap items-center gap-2">
-                {/* Metric Segmented Switch */}
+                {/* Metric Segmented Switch (desktop/tablet; on mobile inside Filter Drawer) */}
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div
                         role="group"
                         aria-label="معیار ارزش"
-                        className="inline-flex items-center rounded-lg border border-border bg-muted/50 p-0.5"
+                        className="hidden sm:inline-flex items-center rounded-lg border border-border bg-muted p-0.5"
                       >
                         <button
                           type="button"
@@ -759,8 +898,8 @@ export default function Page() {
                           aria-pressed={metric === "pergb"}
                           className={`min-h-[34px] rounded-md px-2.5 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                             metric === "pergb"
-                              ? "bg-card text-foreground shadow-xs"
-                              : "text-muted-foreground hover:text-foreground"
+                              ? "border border-border/80 bg-card text-foreground shadow-xs"
+                              : "border border-transparent text-foreground/75 hover:text-foreground"
                           }`}
                         >
                           ت/گیگ
@@ -776,8 +915,8 @@ export default function Page() {
                           aria-pressed={metric === "pergbday"}
                           className={`min-h-[34px] rounded-md px-2.5 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                             metric === "pergbday"
-                              ? "bg-card text-foreground shadow-xs"
-                              : "text-muted-foreground hover:text-foreground"
+                              ? "border border-border/80 bg-card text-foreground shadow-xs"
+                              : "border border-transparent text-foreground/75 hover:text-foreground"
                           }`}
                         >
                           ت/گیگ×روز
@@ -801,10 +940,10 @@ export default function Page() {
                           )
                         }
                         aria-pressed={vat}
-                        className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                        className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-2.5 sm:px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                           vat
-                            ? "border-amber-500/50 bg-amber-500/15 text-amber-700 dark:text-amber-300"
-                            : "border-border bg-background/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            ? "border-amber-600/50 bg-amber-500/15 text-amber-800 dark:border-amber-400/50 dark:text-amber-300"
+                            : "border-border bg-muted/55 text-foreground hover:bg-muted"
                         }`}
                       >
                         <Percent className="h-3.5 w-3.5" />
@@ -818,15 +957,15 @@ export default function Page() {
                   </Tooltip>
                 </TooltipProvider>
 
-                {/* Need Calculator Toggle */}
+                {/* Need Calculator Toggle (desktop toolbar; on mobile in Bottom Nav Bar) */}
                 <button
                   type="button"
                   onClick={() => setCalcOpen((prev) => !prev)}
                   aria-expanded={calcOpen}
-                  className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`hidden lg:inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                     calcOpen
-                      ? "border-primary/50 bg-primary/15 text-primary"
-                      : "border-border bg-background/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      ? "border-primary/60 bg-primary/15 text-primary"
+                      : "border-border bg-muted/55 text-foreground hover:bg-muted"
                   }`}
                 >
                   <Calculator className="h-3.5 w-3.5" />
@@ -842,7 +981,7 @@ export default function Page() {
                     updateState((prev) => ({ ...prev, sort: v as SortKey }))
                   }
                 >
-                  <SelectTrigger className="h-9 min-w-[165px] bg-background/60 text-xs font-bold" dir="rtl">
+                  <SelectTrigger className="h-9 min-w-[155px] sm:min-w-[165px] border-input bg-card text-xs font-bold" dir="rtl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent dir="rtl">
@@ -853,11 +992,11 @@ export default function Page() {
                   </SelectContent>
                 </Select>
 
-                {/* View Switcher */}
+                {/* View Switcher (desktop/tablet; on mobile inside Filter Drawer) */}
                 <div
                   role="group"
                   aria-label="نحوه نمایش"
-                  className="inline-flex items-center rounded-lg border border-border bg-muted/50 p-0.5"
+                  className="hidden sm:inline-flex items-center rounded-lg border border-border bg-muted p-0.5"
                 >
                   <button
                     type="button"
@@ -868,12 +1007,12 @@ export default function Page() {
                     aria-label="نمای کارتی"
                     className={`inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                       view === "grid"
-                        ? "bg-card text-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "border border-border/80 bg-card text-foreground shadow-xs"
+                        : "border border-transparent text-foreground/75 hover:text-foreground"
                     }`}
                   >
                     <LayoutGrid className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">کارتی</span>
+                    <span>کارتی</span>
                   </button>
                   <button
                     type="button"
@@ -884,12 +1023,12 @@ export default function Page() {
                     aria-label="نمای جدولی"
                     className={`inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                       view === "table"
-                        ? "bg-card text-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "border border-border/80 bg-card text-foreground shadow-xs"
+                        : "border border-transparent text-foreground/75 hover:text-foreground"
                     }`}
                   >
                     <Table2 className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">جدولی</span>
+                    <span>جدولی</span>
                   </button>
                 </div>
               </div>
@@ -934,12 +1073,14 @@ export default function Page() {
 
             {/* Interactive Need / Multi-pack Calculator */}
             {calcOpen && liveEntries.length > 0 && (
-              <NeedCalculator
-                packages={calcPool}
-                vat={vat}
-                dark={dark}
-                onClose={() => setCalcOpen(false)}
-              />
+              <div id="need-calculator" className="scroll-mt-14 lg:scroll-mt-20">
+                <NeedCalculator
+                  packages={calcPool}
+                  vat={vat}
+                  dark={dark}
+                  onClose={() => setCalcOpen(false)}
+                />
+              </div>
             )}
 
             {/* Package List / Empty State */}
@@ -1040,7 +1181,7 @@ export default function Page() {
       {/* ── Footer ── */}
       <footer
         id="sources"
-        className="mt-auto border-t border-border/80 bg-card/50 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+        className="mt-auto border-t border-border/80 bg-card/50 pb-24 lg:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
       >
         <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 space-y-6">
           <ProviderSourcesSection mounted={mounted} />
@@ -1067,9 +1208,9 @@ export default function Page() {
         </div>
       </footer>
 
-      {/* ── Floating Compare Bar (appears only when items are pinned) ── */}
+      {/* ── Floating Compare Bar (Desktop lg+; mobile uses Bottom Nav Compare tab) ── */}
       {compareItems.length > 0 && (
-        <div className="fixed inset-x-0 bottom-16 z-40 mx-auto w-fit max-w-[calc(100vw-2rem)] lg:bottom-5">
+        <div className="hidden lg:block fixed inset-x-0 bottom-5 z-40 mx-auto w-fit max-w-[calc(100vw-2rem)]">
           <div className="flex items-center gap-3 rounded-xl border border-border bg-card/95 px-4 py-2.5 shadow-lg backdrop-blur-md">
             <div className="flex items-center gap-2 text-xs font-bold">
               <Scale className="h-4 w-4 text-primary" />
@@ -1106,41 +1247,155 @@ export default function Page() {
         }}
       />
 
-      {/* ── Mobile Filter Bar + Drawer (< lg) ── */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-background/95 px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
-        <div className="mx-auto max-w-xl">
-          <Drawer open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen}>
-            <DrawerTrigger asChild>
-              <Button className="h-11 w-full gap-2 rounded-xl text-sm font-bold" size="lg">
-                <Filter className="h-4 w-4" />
-                <span>فیلترها و جست‌وجو</span>
-                {activeFilters > 0 && (
-                  <span className="fa-num rounded-md bg-black/20 px-1.5 py-0.5 text-xs">
-                    {faDigits(activeFilters)}
-                  </span>
-                )}
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent className="mx-auto max-h-[86dvh] max-w-md" dir="rtl">
-              <div className="border-b border-border/60 px-5 py-3">
-                <DrawerTitle className="text-start text-base font-bold">فیلترها</DrawerTitle>
-                <DrawerDescription className="fa-num text-start text-xs">
-                  {faDigits(rows.length)} بسته در نمایش · از {faDigits(inCat.length)} بسته
-                </DrawerDescription>
+      {/* ── Mobile Filter & Settings Drawer (< lg, opened via MobileBottomNav) ── */}
+      <Drawer open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen}>
+        <DrawerContent className="mx-auto max-h-[86dvh] max-w-md border-border bg-card lg:hidden" dir="rtl">
+          <div className="border-b border-border px-5 py-3">
+            <DrawerTitle className="text-start text-base font-bold">
+              فیلترها و تنظیمات نمایش
+            </DrawerTitle>
+            <DrawerDescription className="fa-num text-start text-xs">
+              {faDigits(rows.length)} بسته در نمایش · از {faDigits(inCat.length)} بسته
+            </DrawerDescription>
+          </div>
+          <div className="overflow-y-auto px-5 pb-8 pt-4 space-y-5">
+            {/* Mobile Display & Metric Settings */}
+            <div className="space-y-2.5 rounded-xl border border-border bg-muted/50 p-3">
+              <div className="text-xs font-bold text-foreground">نحوه نمایش و معیار محاسبه</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <div className="text-[11px] font-semibold text-muted-foreground">معیار ارزش</div>
+                  <div className="grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted p-0.5">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateState(
+                          (prev) => ({ ...prev, metric: "pergb" }),
+                          { persistPrefs: true },
+                        )
+                      }
+                      aria-pressed={metric === "pergb"}
+                      className={`min-h-[38px] rounded-md px-1.5 text-[11.5px] font-bold transition-colors ${
+                        metric === "pergb"
+                          ? "border border-border/80 bg-card text-foreground shadow-xs"
+                          : "border border-transparent text-foreground/75"
+                      }`}
+                    >
+                      ت/گیگ
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateState(
+                          (prev) => ({ ...prev, metric: "pergbday" }),
+                          { persistPrefs: true },
+                        )
+                      }
+                      aria-pressed={metric === "pergbday"}
+                      className={`min-h-[38px] rounded-md px-1.5 text-[11.5px] font-bold transition-colors ${
+                        metric === "pergbday"
+                          ? "border border-border/80 bg-card text-foreground shadow-xs"
+                          : "border border-transparent text-foreground/75"
+                      }`}
+                    >
+                      گیگ×روز
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="text-[11px] font-semibold text-muted-foreground">نمای فهرست</div>
+                  <div className="grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted p-0.5">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateState(
+                          (prev) => ({ ...prev, view: "grid" }),
+                          { persistPrefs: true },
+                        )
+                      }
+                      aria-pressed={view === "grid"}
+                      className={`inline-flex min-h-[38px] items-center justify-center gap-1 rounded-md px-1.5 text-[11.5px] font-bold transition-colors ${
+                        view === "grid"
+                          ? "border border-border/80 bg-card text-foreground shadow-xs"
+                          : "border border-transparent text-foreground/75"
+                      }`}
+                    >
+                      <LayoutGrid className="h-3.5 w-3.5" />
+                      <span>کارتی</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateState(
+                          (prev) => ({ ...prev, view: "table" }),
+                          { persistPrefs: true },
+                        )
+                      }
+                      aria-pressed={view === "table"}
+                      className={`inline-flex min-h-[38px] items-center justify-center gap-1 rounded-md px-1.5 text-[11.5px] font-bold transition-colors ${
+                        view === "table"
+                          ? "border border-border/80 bg-card text-foreground shadow-xs"
+                          : "border border-transparent text-foreground/75"
+                      }`}
+                    >
+                      <Table2 className="h-3.5 w-3.5" />
+                      <span>جدولی</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="overflow-y-auto px-5 pb-8 pt-4">
-                <FilterPanel {...filterProps} />
-                <Button
-                  onClick={() => setFilterDrawerOpen(false)}
-                  className="mt-5 h-11 w-full rounded-xl font-bold"
-                >
-                  نمایش {faDigits(rows.length)} بسته
-                </Button>
-              </div>
-            </DrawerContent>
-          </Drawer>
-        </div>
-      </div>
+            </div>
+
+            <FilterPanel {...filterProps} />
+
+            {/* Quick Section Anchors for Mobile */}
+            <div className="grid grid-cols-2 gap-2 border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={() => jumpFromDrawerTo("notices")}
+                className="min-h-[38px] rounded-lg border border-border bg-muted/60 px-2.5 text-xs font-bold text-foreground hover:bg-muted cursor-pointer"
+              >
+                نکات اپراتورها ↓
+              </button>
+              <button
+                type="button"
+                onClick={() => jumpFromDrawerTo("sources")}
+                className="min-h-[38px] rounded-lg border border-border bg-muted/60 px-2.5 text-xs font-bold text-foreground hover:bg-muted cursor-pointer"
+              >
+                بروزرسانی داده‌ها ↓
+              </button>
+            </div>
+
+            <Button
+              onClick={() => setFilterDrawerOpen(false)}
+              className="h-11 w-full rounded-xl font-bold"
+            >
+              نمایش {faDigits(rows.length)} بسته
+            </Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* ── Native-Style Mobile Bottom Navigation Bar (< lg) ── */}
+      <MobileBottomNav
+        cat={cat}
+        calcOpen={calcOpen}
+        filterOpen={filterDrawerOpen}
+        compareOpen={compareOpen}
+        activeFilters={activeFilters}
+        compareCount={compareItems.length}
+        onSelectCat={handleMobileSelectCat}
+        onToggleCalc={handleMobileToggleCalc}
+        onOpenFilters={() => {
+          setCompareOpen(false);
+          setFilterDrawerOpen(true);
+        }}
+        onOpenCompare={() => {
+          setFilterDrawerOpen(false);
+          setCompareOpen(true);
+        }}
+      />
 
       {/* ── Floating Back-to-Top Button ── */}
       {showScrollTop && (
@@ -1148,7 +1403,7 @@ export default function Page() {
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="بازگشت به بالا"
-          className="fixed bottom-[4.5rem] end-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-border bg-card/95 px-3 py-2 text-xs font-bold text-foreground shadow-lg backdrop-blur-md transition-colors hover:bg-secondary cursor-pointer lg:bottom-5"
+          className="fixed bottom-[4.75rem] end-4 z-30 inline-flex items-center gap-1.5 rounded-xl border border-border bg-card/95 px-3 py-2 text-xs font-bold text-foreground shadow-lg backdrop-blur-md transition-colors hover:bg-muted cursor-pointer lg:bottom-5"
         >
           <ArrowUp className="h-3.5 w-3.5 text-primary" />
           <span className="hidden sm:inline">بازگشت به بالا</span>

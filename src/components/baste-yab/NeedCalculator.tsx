@@ -152,12 +152,12 @@ export function NeedCalculator({
   return (
     <section
       aria-label="محاسبه‌گر نیاز من"
-      className="rounded-xl border border-primary/35 bg-card p-4 sm:p-5 space-y-4"
+      className="rounded-xl border border-primary/45 bg-card p-4 shadow-xs sm:p-5 space-y-4"
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2.5">
-          <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+          <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
             <Calculator className="h-4 w-4" />
           </span>
           <div>
@@ -173,14 +173,14 @@ export function NeedCalculator({
           type="button"
           onClick={onClose}
           aria-label="بستن ماشین‌حساب"
-          className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer"
+          className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
 
       {/* Controls */}
-      <div className="grid gap-4 rounded-lg border border-border/70 bg-muted/35 p-3.5 md:grid-cols-2">
+      <div className="grid gap-4 rounded-lg border border-border bg-muted/50 p-3.5 md:grid-cols-2">
         {/* Needed Volume */}
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-2">
@@ -212,8 +212,8 @@ export function NeedCalculator({
                 onClick={() => setNeedGB(g)}
                 className={`fa-num min-h-[28px] rounded-md border px-2 py-0.5 text-[11.5px] font-bold transition-colors cursor-pointer ${
                   needGB === g
-                    ? "border-primary/50 bg-primary/15 text-primary"
-                    : "border-border bg-background/70 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    ? "border-primary/60 bg-primary/15 text-primary"
+                    : "border-input bg-card text-foreground/85 hover:bg-muted hover:text-foreground"
                 }`}
               >
                 {faDigits(g)} گیگ
@@ -253,8 +253,8 @@ export function NeedCalculator({
                 onClick={() => setNeedDays(d)}
                 className={`fa-num min-h-[28px] rounded-md border px-2 py-0.5 text-[11.5px] font-bold transition-colors cursor-pointer ${
                   needDays === d
-                    ? "border-primary/50 bg-primary/15 text-primary"
-                    : "border-border bg-background/70 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    ? "border-primary/60 bg-primary/15 text-primary"
+                    : "border-input bg-card text-foreground/85 hover:bg-muted hover:text-foreground"
                 }`}
               >
                 {faDigits(d)} روز
@@ -313,10 +313,10 @@ export function NeedCalculator({
             return (
               <div
                 key={uid}
-                className={`flex flex-col justify-between gap-2.5 rounded-xl border p-3.5 ${
+                className={`flex flex-col justify-between gap-2.5 rounded-xl border p-3.5 shadow-xs ${
                   idx === 0
-                    ? "border-primary/55 bg-primary/[0.035]"
-                    : "border-border bg-background/50"
+                    ? "border-primary/60 bg-primary/[0.06]"
+                    : "border-border bg-card"
                 }`}
               >
                 <div>

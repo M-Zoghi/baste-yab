@@ -46,7 +46,7 @@ export function OperatorBestRow({
   return (
     <section
       aria-label="بهترین بسته هر اپراتور"
-      className="rounded-xl border border-border/80 bg-card/85 p-3.5"
+      className="rounded-xl border border-border bg-card p-3.5 shadow-xs"
     >
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
@@ -54,11 +54,11 @@ export function OperatorBestRow({
           <h2 className="text-xs font-extrabold text-foreground">بهترینِ هر اپراتور</h2>
         </div>
         <span className="text-[11px] text-muted-foreground">
-          بر اساس کمترین {unitShort} در فیلترهای فعلی · برای تمرکز کلیک کنید
+          بر اساس کمترین {unitShort} · برای فیلتر کلیک کنید
         </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="flex gap-2.5 overflow-x-auto pb-1 snap-x snap-mandatory rail sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 xl:grid-cols-4">
         {bestList.map((r, idx) => {
           const isLeader = idx === 0;
           const accentText = accentTextColor(r.providerAccent, dark);
@@ -66,10 +66,10 @@ export function OperatorBestRow({
           return (
             <div
               key={r.entryKey}
-              className={`group flex flex-col justify-between rounded-lg border px-3 py-2.5 transition-colors ${
+              className={`group flex min-w-[220px] shrink-0 snap-start flex-col justify-between rounded-lg border px-3 py-2.5 transition-colors sm:min-w-0 ${
                 isLeader
-                  ? "border-primary/40 bg-primary/[0.04]"
-                  : "border-border/75 bg-background/60 hover:border-border"
+                  ? "border-primary/60 bg-primary/[0.06] dark:bg-primary/[0.09]"
+                  : "border-border bg-muted/50 hover:border-foreground/30 hover:bg-muted/80"
               }`}
             >
               <div className="flex items-start justify-between gap-2">
@@ -79,7 +79,7 @@ export function OperatorBestRow({
                   className="flex min-w-0 flex-1 items-center gap-1.5 text-start cursor-pointer"
                 >
                   <span
-                    className="h-2 w-2 rounded-full shrink-0"
+                    className="h-2.5 w-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: r.providerAccent }}
                   />
                   <span className="truncate text-xs font-extrabold" style={{ color: accentText }}>

@@ -121,16 +121,16 @@ export const ENTRIES: Entry[] = [
     tech: "ADSL/VDSL/فیبر", regions: ["سراسری"], accent: "#14b8a6",
     site: "https://tci.ir", status: "awaiting",
     updateMode: "manual",
-    updateNote: "مسدود از خارج ایران — در انتظار اولین فایل HAR/JSON",
-    awaitingNote: "از خارج از ایران در دسترس نیست — یک HAR یا JSON از صفحه تعرفه‌ها لازم است",
+    updateNote: "آداپتور هنوز نوشته نشده — در انتظار اولین فایل HAR/JSON",
+    awaitingNote: "یک فایل HAR یا JSON از صفحه تعرفه‌های مخابرات لازم است تا آداپتور نوشته شود",
   },
   {
     key: "asiatech", nameFa: "آسیاتک", nameEn: "Asiatech", category: "home", homeTech: "fixed",
     tech: "ADSL/VDSL/فیبر", regions: ["سراسری"], accent: "#f97316",
     site: "https://www.asiatech.ir", status: "awaiting",
     updateMode: "manual",
-    updateNote: "مسدود از خارج ایران — در انتظار اولین فایل HAR/JSON",
-    awaitingNote: "از خارج از ایران در دسترس نیست — HAR/JSON از پنل یا سایت آسیاتک لازم است",
+    updateNote: "آداپتور هنوز نوشته نشده — در انتظار اولین فایل HAR/JSON",
+    awaitingNote: "یک فایل HAR یا JSON از پنل یا سایت آسیاتک لازم است تا آداپتور نوشته شود",
   },
   {
     key: "irancell-tdlte", nameFa: "ایرانسل (ثابت)", nameEn: "Irancell TD-LTE", category: "home", homeTech: "modem",
@@ -179,7 +179,7 @@ export const ENTRIES: Entry[] = [
     site: "https://www.aptel.ir", buyUrl: "https://www.aptel.ir/packages",
     status: "live", doc: DOCS.aptel, personalized: DOCS.aptel?.personalized,
     updateMode: "hybrid",
-    updateNote: "ادغام فروشگاه عمومی + پنل «آپتل من» (۵۵ بسته): عمومی خودکار روزانه · پنل دستی با HAR",
+    updateNote: "ادغام فروشگاه عمومی + اپ «آپتل من» (۵۵ بسته): عمومی خودکار روزانه · اپ دستی با HAR",
   },
   {
     key: "irancell", nameFa: "ایرانسل", nameEn: "Irancell", category: "mobile",
@@ -187,7 +187,7 @@ export const ENTRIES: Entry[] = [
     site: "https://www.irancell.ir", buyUrl: "https://irancell.ir/o/1001/mobile-internet-packages",
     status: "live", doc: DOCS.irancell,
     updateMode: "hybrid",
-    updateNote: "ادغام وب‌سایت + اپ ایرانسل‌من (۷۰ بسته): سایت خودکار روزانه · اپ دستی از ایران",
+    updateNote: "ادغام وب‌سایت + اپ ایرانسل‌من (۸۸ بسته): سایت خودکار روزانه · اپ دستی از ایران",
   },
   {
     key: "rightel", nameFa: "رایتل", nameEn: "Rightel", category: "mobile",

@@ -65,14 +65,14 @@ export function PkgCard({
 
   return (
     <article
-      className={`group flex flex-col rounded-xl border bg-card p-5 transition-colors ${
+      className={`group flex flex-col rounded-xl border bg-card p-4 sm:p-5 shadow-xs transition-colors ${
         r.isBest
-          ? "border-primary/65 bg-primary/[0.03] dark:bg-primary/[0.045]"
+          ? "border-primary/70 bg-primary/[0.045] dark:bg-primary/[0.065]"
           : isCompared
-            ? "border-primary/50"
+            ? "border-primary/65"
             : r.isWorst
-              ? "border-destructive/35 hover:border-destructive/60"
-              : "border-border hover:border-foreground/25"
+              ? "border-destructive/45 hover:border-destructive/70"
+              : "border-border hover:border-foreground/35"
       }`}
     >
       {/* Top kicker line — clean unboxed metadata */}
@@ -117,10 +117,10 @@ export function PkgCard({
                   ? "افزودن به مقایسه"
                   : "حداکثر ۳ بسته قابل مقایسه است"
             }
-            className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
+            className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
               isCompared
-                ? "border-primary/50 bg-primary/10 text-primary font-bold"
-                : "border-border/80 bg-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"
+                ? "border-primary/60 bg-primary/15 text-primary"
+                : "border-border bg-muted/50 text-foreground/80 hover:bg-secondary hover:text-foreground"
             }`}
           >
             {isCompared ? <Check className="h-3.5 w-3.5" /> : <Scale className="h-3.5 w-3.5" />}
@@ -175,22 +175,22 @@ export function PkgCard({
       {/* Bottom-aligned specs + Value & Price section so boxes line up across grid rows */}
       <div className="mt-auto pt-4">
         {/* Readable 2-cell specs bar right above the price/unit-value line */}
-        <div className="grid grid-cols-2 divide-x divide-x-reverse divide-border/70 rounded-lg border border-border/60 bg-muted/40 py-2.5 text-center">
+        <div className="grid grid-cols-2 divide-x divide-x-reverse divide-border rounded-lg border border-border bg-muted/70 py-2.5 text-center">
           <div className="px-3">
-            <div className="text-[11px] text-muted-foreground">حجم بسته</div>
+            <div className="text-[11px] font-medium text-muted-foreground">حجم بسته</div>
             <div className="fa-num mt-0.5 text-sm font-bold text-foreground">
               {fmtGB(r.gb)}
             </div>
           </div>
           <div className="px-3">
-            <div className="text-[11px] text-muted-foreground">مدت اعتبار</div>
+            <div className="text-[11px] font-medium text-muted-foreground">مدت اعتبار</div>
             <div className="fa-num mt-0.5 text-sm font-bold text-foreground">
               {r.days ? `${faDigits(r.days)} روز` : "—"}
             </div>
           </div>
         </div>
 
-        <div className="mt-3.5 border-t border-border/60 pt-3.5">
+        <div className="mt-3.5 border-t border-border pt-3.5">
           {/* Row 1: Unit value & Total price on the exact same line */}
           <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <div className="flex flex-wrap items-baseline gap-1.5 min-w-0">
@@ -263,13 +263,13 @@ export function PkgCard({
         </div>
 
         {/* Footer metadata + USSD quick copy & direct dial */}
-        <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-border/40 pt-2.5 text-[11px] text-muted-foreground">
+        <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-border/75 pt-2.5 text-[11px] text-muted-foreground">
           {r.ussd ? (
-            <div className="inline-flex min-w-0 items-center gap-1">
+            <div className="inline-flex min-w-0 items-center gap-1.5">
               <button
                 type="button"
                 onClick={handleCopyUssd}
-                className="inline-flex min-h-[30px] items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-0.5 font-mono text-xs text-foreground transition-colors hover:bg-secondary cursor-pointer"
+                className="inline-flex min-h-[34px] items-center gap-1.5 rounded-md border border-border bg-muted px-2.5 py-0.5 font-mono text-xs text-foreground transition-colors hover:bg-secondary cursor-pointer"
                 dir="ltr"
                 title="کپی کد دستوری"
               >
@@ -285,22 +285,24 @@ export function PkgCard({
                   href={ussdTelHref(r.ussd)!}
                   title={`شماره‌گیری ${r.ussd}`}
                   aria-label={`شماره‌گیری کد دستوری ${r.ussd}`}
-                  className="inline-flex min-h-[30px] items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                  className="inline-flex min-h-[34px] items-center gap-1 rounded-md border border-primary/30 bg-primary/12 px-2.5 py-0.5 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
                 >
                   <Phone className="h-3 w-3 shrink-0" />
-                  <span className="hidden sm:inline">شماره‌گیری</span>
+                  <span>شماره‌گیری</span>
                 </a>
               )}
             </div>
           ) : (
-            <span dir="ltr" className="truncate font-mono opacity-80">
+            <span dir="ltr" className="truncate font-mono opacity-85">
               {r.regulatoryCode ? `REG: ${r.regulatoryCode}` : r.sourceKind === "api" ? "API" : "capture"}
             </span>
           )}
 
-          <span className="fa-num shrink-0 font-medium text-muted-foreground">
-            {r.perGB >= 1000 ? `${fmtToman(r.perGB)} ت/گیگ` : `${fmtValue(r.perGB)} ت/گیگ`}
-          </span>
+          {metric !== "pergb" && (
+            <span className="fa-num shrink-0 font-medium text-muted-foreground">
+              {r.perGB >= 1000 ? `${fmtToman(r.perGB)} ت/گیگ` : `${fmtValue(r.perGB)} ت/گیگ`}
+            </span>
+          )}
         </div>
       </div>
     </article>

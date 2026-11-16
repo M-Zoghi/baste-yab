@@ -121,8 +121,13 @@ export function CompareDrawer({
 
         <div className="overflow-auto p-5">
           {items.length === 0 ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">
-              هنوز بسته‌ای برای مقایسه انتخاب نشده است.
+            <div className="py-10 text-center space-y-1.5">
+              <div className="text-sm font-bold text-foreground">
+                هنوز بسته‌ای برای مقایسه انتخاب نشده است
+              </div>
+              <p className="text-xs leading-6 text-muted-foreground">
+                روی دکمه‌ی «مقایسه» در کارت هر بسته بزنید (حداکثر ۳ بسته) تا قیمت، حجم، مدت و کد دستوری آن‌ها را کنار هم ببینید.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto rail">

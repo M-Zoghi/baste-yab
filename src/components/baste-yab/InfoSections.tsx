@@ -114,7 +114,7 @@ export function OperatorNoticesSection({
         )}
 
         {mciEntry && (
-          <div className="rounded-xl border border-border bg-card p-4 text-xs leading-6">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-xs text-xs leading-6">
             <div className="flex items-center gap-2 font-bold text-foreground">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: mciEntry.accent }} />
               <span>همراه اول — فروشگاه رسمی + اپ همراه من</span>
@@ -135,7 +135,7 @@ export function OperatorNoticesSection({
         )}
 
         {irancellEntry && (
-          <div className="rounded-xl border border-border bg-card p-4 text-xs leading-6">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-xs text-xs leading-6">
             <div className="flex items-center gap-2 font-bold text-foreground">
               <span
                 className="h-2 w-2 rounded-full"
@@ -194,14 +194,20 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
             وضعیت بروزرسانی و منابع داده‌ی اپراتورها
           </h2>
           <p className="mt-1 text-xs leading-6 text-muted-foreground">
-            <strong className="text-foreground">سامانتل</strong> و بخش عمومی{" "}
-            <strong className="text-foreground">آپتل</strong> هر روز حدود ساعت ۰۶:۴۷ به‌وقت تهران
-            به‌طور <strong className="text-primary">خودکار</strong> از GitHub Actions بروزرسانی
-            می‌شوند. <strong className="text-foreground">ایرانسل</strong>،{" "}
+            <strong className="text-foreground">سامانتل</strong>، بخش عمومی{" "}
+            <strong className="text-foreground">آپتل</strong>، وب‌سایت{" "}
+            <strong className="text-foreground">ایرانسل</strong> و{" "}
+            <strong className="text-foreground">ایرانسل (ثابت / TD-LTE)</strong> هر روز حدود ساعت
+            ۰۶:۴۷ به‌وقت تهران به‌طور <strong className="text-primary">خودکار</strong> از GitHub
+            Actions بروزرسانی می‌شوند.{" "}
             <strong className="text-foreground">رایتل (همراه و مودم)</strong>،{" "}
-            <strong className="text-foreground">همراه اول</strong> و بخش پنل{" "}
+            <strong className="text-foreground">همراه اول</strong>، بخش اپ{" "}
+            <strong className="text-foreground">ایرانسل من</strong> و بخش اپ{" "}
             <strong className="text-foreground">آپتل من</strong> نیازمند{" "}
-            <strong className="text-amber-600 dark:text-amber-400">بروزرسانی دستی از داخل ایران</strong> هستند.
+            <strong className="text-amber-600 dark:text-amber-400">
+              بروزرسانی دستی یا فایل HAR
+            </strong>{" "}
+            هستند.
           </p>
         </div>
       </div>
@@ -274,19 +280,22 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
           );
           const isStale = mounted && maxStaleDays > STALE_WARN_DAYS;
 
-          const cmdKey = e.key === "rightel-tdlte" ? "rightel" : e.key;
+          const cmdKey =
+            e.key === "rightel-tdlte" ? "rightel" : e.key === "mci-modem" ? "mci" : e.key;
           const singleCmd =
             e.key === "aptel"
               ? "node update/fetch-providers.mjs --only aptel --input my.aptel.ir.har"
-              : `node update/fetch-providers.mjs --only ${cmdKey}`;
+              : e.key === "irancell"
+                ? "node update/fetch-providers.mjs --only irancell --input my.irancell.ir.har"
+                : `node update/fetch-providers.mjs --only ${cmdKey}`;
 
           return (
             <div
               key={e.key}
-              className={`flex min-w-0 flex-col rounded-xl border p-4 text-xs leading-5 ${
+              className={`flex min-w-0 flex-col rounded-xl border p-4 shadow-xs text-xs leading-5 ${
                 isStale
-                  ? "border-amber-500/45 bg-amber-500/[0.03]"
-                  : "border-border/80 bg-card"
+                  ? "border-amber-500/60 bg-amber-500/[0.06]"
+                  : "border-border bg-card"
               }`}
             >
               <div className="flex items-center justify-between gap-2">
@@ -333,7 +342,7 @@ export function ProviderSourcesSection({ mounted }: { mounted: boolean }) {
               )}
 
               {partsEntries.length > 0 && (
-                <div className="mt-2 space-y-1 rounded-lg border border-border/60 bg-muted/35 px-2.5 py-2 text-[11px]">
+                <div className="mt-2 space-y-1 rounded-lg border border-border bg-muted/55 px-2.5 py-2 text-[11px]">
                   {partsEntries.map(([partKey, part]) => {
                     const partAge = mounted && part.fetchedAt ? faRelativeAge(part.fetchedAt) : null;
                     const partAgeDays = mounted && part.fetchedAt ? faAgeDays(part.fetchedAt) : null;
@@ -417,15 +426,15 @@ export function AwaitingPanel({
             {title} — هنوز داده‌ای دریافت نشده
           </h2>
           <p className="mt-1 text-[13px] leading-6 text-muted-foreground">
-            این ارائه‌دهنده‌ها فعلاً از خارج از ایران قابل استخراج نیستند. اگر داخل ایران هستید،
-            با یک ضمیمه‌ی HAR از DevTools می‌توانید داده‌ی زنده‌ی این ارائه‌دهنده‌ها را اضافه کنید.
+            برای این ارائه‌دهنده‌ها هنوز داده‌ای ثبت نشده است. با یک ضمیمه‌ی HAR یا JSON از صفحه‌ی
+            تعرفه‌ها می‌توانید داده‌ی آن‌ها را به فهرست اضافه کنید.
           </p>
         </div>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {entries.map((e) => (
-          <div key={e.key} className="rounded-lg border border-border/80 bg-background/50 p-4">
+          <div key={e.key} className="rounded-lg border border-border bg-muted/45 p-4">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: e.accent }} />
@@ -453,8 +462,8 @@ export function AwaitingPanel({
 
 export function AwaitingStrip({ entries }: { entries: (typeof ENTRIES)[number][] }) {
   return (
-    <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-border/80 bg-card/70 px-4 py-3 text-xs text-muted-foreground">
-      <span className="font-bold text-foreground/80">در انتظار داده (دستی از ایران):</span>
+    <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-border bg-card px-4 py-3 shadow-xs text-xs text-muted-foreground">
+      <span className="font-bold text-foreground/80">در انتظار داده (نیازمند نمونه‌ی HAR):</span>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {entries.map((e, idx) => (
           <TooltipProvider key={e.key}>

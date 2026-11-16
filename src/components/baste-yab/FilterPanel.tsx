@@ -141,7 +141,7 @@ export function FilterPanel({
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="نام بسته، اپراتور، کد رگولاتوری…"
-            className="min-h-[42px] bg-background/60 ps-9 pe-8 text-[13px]"
+            className="min-h-[42px] bg-card ps-9 pe-8 text-[13px]"
           />
           {query && (
             <button
@@ -183,7 +183,7 @@ export function FilterPanel({
                 className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12.5px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   on
                     ? "border-transparent text-white shadow-xs [text-shadow:0_1px_1px_rgb(0_0_0/0.22)]"
-                    : "border-border bg-background/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    : "border-border bg-muted/60 text-foreground/85 hover:bg-secondary hover:text-foreground"
                 }`}
                 style={on ? { backgroundColor: e.accent } : undefined}
               >
@@ -254,10 +254,10 @@ export function FilterPanel({
                   aria-pressed={on}
                   className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                     on
-                      ? "border-primary/45 bg-primary/10 text-primary"
+                      ? "border-primary/60 bg-primary/15 text-primary"
                       : cnt === 0
-                        ? "border-dashed border-border/70 bg-background/30 text-muted-foreground/60"
-                        : "border-border bg-background/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        ? "border-dashed border-border bg-muted/30 text-muted-foreground/75"
+                        : "border-border bg-muted/60 text-foreground/85 hover:bg-secondary hover:text-foreground"
                   }`}
                 >
                   <span>{opt.shortLabel}</span>
@@ -288,8 +288,8 @@ export function FilterPanel({
                 aria-pressed={on}
                 className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12.5px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   on
-                    ? "border-primary/45 bg-primary/10 text-primary"
-                    : "border-border bg-background/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    ? "border-primary/60 bg-primary/15 text-primary"
+                    : "border-border bg-muted/60 text-foreground/85 hover:bg-secondary hover:text-foreground"
                 }`}
               >
                 <span>{KIND_LABEL[k]}</span>
@@ -329,10 +329,10 @@ export function FilterPanel({
                 aria-pressed={on}
                 className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   on
-                    ? "border-primary/45 bg-primary/10 text-primary"
+                    ? "border-primary/60 bg-primary/15 text-primary"
                     : cnt === 0
-                      ? "border-border/60 bg-background/30 text-muted-foreground/50"
-                      : "border-border bg-background/50 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      ? "border-border/80 bg-muted/30 text-muted-foreground/70"
+                      : "border-border bg-muted/60 text-foreground/85 hover:bg-secondary hover:text-foreground"
                 }`}
               >
                 <span>{opt.label}</span>
