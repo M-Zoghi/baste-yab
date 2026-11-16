@@ -169,7 +169,7 @@ export function CompareBody({
                 </button>
               </div>
 
-              <div className="mt-3 grid grid-cols-3 divide-x divide-x-reverse divide-border rounded-xl border border-border bg-muted/60 py-2 text-center">
+              <div className="mt-3 grid grid-cols-3 rounded-xl border border-border bg-muted/60 py-2 text-center">
                 <div className="px-1.5">
                   <div className="text-[10px] text-muted-foreground">ارزش گیگ</div>
                   <div
@@ -180,7 +180,7 @@ export function CompareBody({
                     {fmtValue(val)} ت
                   </div>
                 </div>
-                <div className="px-1.5">
+                <div className="border-s border-border px-1.5">
                   <div className="text-[10px] text-muted-foreground">حجم</div>
                   <div
                     className={`fa-num mt-0.5 text-xs font-bold ${
@@ -190,7 +190,7 @@ export function CompareBody({
                     {fmtGB(item.gb)}
                   </div>
                 </div>
-                <div className="px-1.5">
+                <div className="border-s border-border px-1.5">
                   <div className="text-[10px] text-muted-foreground">مدت</div>
                   <div
                     className={`fa-num mt-0.5 text-xs font-bold ${

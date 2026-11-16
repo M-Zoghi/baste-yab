@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Award, Check, Copy, ExternalLink, Gift, Phone, Scale, ShieldAlert, Smartphone } from "lucide-react";
+import { Award, Check, Copy, ExternalLink, Gift, Info, Phone, Scale, ShieldAlert, Smartphone } from "lucide-react";
 
 import {
+  PORTAL_AVAILABILITY_NOTE,
   VAT_RATE,
   faDigits,
   fmtGB,
@@ -142,13 +143,19 @@ export function PkgCard({
               </span>
             )}
             {r.portalOnly && (
-              <span
-                className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-semibold"
+              <div
+                className="flex flex-col gap-0.5 rounded-md border px-2 py-1 text-[11px] sm:text-xs leading-4"
                 style={accentBadgeStyle(r.providerAccent, dark)}
               >
-                <Smartphone className="h-3 w-3 shrink-0" />
-                <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
-              </span>
+                <span className="inline-flex items-center gap-1 font-semibold">
+                  <Smartphone className="h-3 w-3 shrink-0" />
+                  <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
+                </span>
+                <span className="inline-flex items-start gap-1 text-[10.5px] sm:text-[11px] opacity-90">
+                  <Info className="mt-0.5 h-3 w-3 shrink-0" />
+                  <span>{r.portalNote ?? PORTAL_AVAILABILITY_NOTE}</span>
+                </span>
+              </div>
             )}
           </div>
         )}
@@ -162,14 +169,14 @@ export function PkgCard({
       {/* Bottom-aligned specs + Value & Price section so boxes line up across grid rows */}
       <div className="mt-auto pt-2.5 sm:pt-4">
         {/* Compact inline specs pill on mobile; 2-line on desktop */}
-        <div className="grid grid-cols-2 divide-x divide-x-reverse divide-border/70 rounded-xl bg-muted/65 py-1.5 sm:py-2 text-center">
+        <div className="grid grid-cols-2 rounded-xl bg-muted/65 py-1.5 sm:py-2 text-center">
           <div className="flex items-center justify-center gap-1.5 px-2 sm:block sm:px-3">
             <span className="text-[10.5px] sm:text-[11px] font-medium text-muted-foreground">حجم</span>
             <span className="fa-num text-[12.5px] sm:mt-0.5 sm:block sm:text-sm font-bold text-foreground">
               {fmtGB(r.gb)}
             </span>
           </div>
-          <div className="flex items-center justify-center gap-1.5 px-2 sm:block sm:px-3">
+          <div className="flex items-center justify-center gap-1.5 border-s border-border/70 px-2 sm:block sm:px-3">
             <span className="text-[10.5px] sm:text-[11px] font-medium text-muted-foreground">مدت</span>
             <span className="fa-num text-[12.5px] sm:mt-0.5 sm:block sm:text-sm font-bold text-foreground">
               {r.days ? `${faDigits(r.days)} روز` : "—"}

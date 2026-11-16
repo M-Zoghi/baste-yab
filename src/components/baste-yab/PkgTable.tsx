@@ -166,12 +166,16 @@ export function PkgTable({
                   <div className="mt-1.5 space-y-1">
                     {r.portalOnly && (
                       <div
-                        className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 rounded-md border px-1.5 py-0.5 text-[10.5px]"
+                        className="flex flex-col gap-0.5 rounded-md border px-2 py-1 text-[10.5px] leading-4"
                         style={accentBadgeStyle(r.providerAccent, dark)}
                       >
                         <span className="inline-flex items-center gap-1 font-semibold">
                           <Smartphone className="h-2.5 w-2.5 shrink-0" />
                           <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
+                        </span>
+                        <span className="inline-flex items-start gap-1 text-[10px] opacity-90">
+                          <Info className="mt-0.5 h-2.5 w-2.5 shrink-0" />
+                          <span>{r.portalNote ?? PORTAL_AVAILABILITY_NOTE}</span>
                         </span>
                       </div>
                     )}
