@@ -45,6 +45,8 @@ const GB_PRESETS = [5, 10, 20, 30, 50, 100];
 const DAY_PRESETS = [7, 15, 30, 90, 180];
 const MAX_REPEAT_COUNT = 12;
 
+const CALC_PAGE_STEP = 12;
+
 export function NeedCalculator({
   packages,
   vat,
@@ -56,13 +58,14 @@ export function NeedCalculator({
   const [needGB, setNeedGB] = useState(20);
   const [needDays, setNeedDays] = useState(30);
   const [allowMulti, setAllowMulti] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(CALC_PAGE_STEP);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const safeGB = Number.isFinite(needGB) && needGB > 0 ? Math.min(2000, needGB) : 1;
   const safeDays = Number.isFinite(needDays) && needDays > 0 ? Math.min(365, needDays) : 1;
   const vatFactor = vat ? 1 + VAT_RATE : 1;
 
-  const { topOptions, bestSingle, savings } = useMemo(() => {
+  const { allOptions, bestSingle, savings } = useMemo(() => {
     const candidates: CalcOption[] = [];
     let cheapestSingle: CalcOption | null = null;
 
@@ -114,18 +117,17 @@ export function NeedCalculator({
       return b.totalDays - a.totalDays;
     });
 
-    // Keep top 3 unique options for a clean, focused list
+    // Keep all unique valid options (dedupe identical entryKey+id+count)
     const seen = new Set<string>();
-    const top: CalcOption[] = [];
+    const all: CalcOption[] = [];
     for (const c of candidates) {
       const k = `${c.pkg.entryKey}:${c.pkg.id}:${c.count}`;
       if (seen.has(k)) continue;
       seen.add(k);
-      top.push(c);
-      if (top.length >= 3) break;
+      all.push(c);
     }
 
-    const best = top[0] ?? null;
+    const best = all[0] ?? null;
     const saved =
       best &&
       best.count > 1 &&
@@ -134,8 +136,13 @@ export function NeedCalculator({
         ? cheapestSingle.totalPrice - best.totalPrice
         : 0;
 
-    return { topOptions: top, bestSingle: cheapestSingle, savings: saved };
+    return { allOptions: all, bestSingle: cheapestSingle, savings: saved };
   }, [packages, safeGB, safeDays, allowMulti, vatFactor]);
+
+  const shownOptions = useMemo(
+    () => (allOptions.length > visibleCount ? allOptions.slice(0, visibleCount) : allOptions),
+    [allOptions, visibleCount],
+  );
 
   const handleCopy = async (uid: string, ussd: string, provider: string) => {
     try {
@@ -167,7 +174,9 @@ export function NeedCalculator({
               چقدر اینترنت می‌خواهید؟
             </h2>
             <p className="text-[11.5px] text-muted-foreground">
-              ارزان‌ترین گزینه برای نیاز شما
+              {allOptions.length > 0
+                ? `${faDigits(allOptions.length)} پیشنهاد مرتب‌شده از ارزان‌ترین`
+                : "ارزان‌ترین گزینه برای نیاز شما"}
             </p>
           </div>
         </div>
@@ -201,6 +210,7 @@ export function NeedCalculator({
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   setNeedGB(Number.isFinite(v) ? Math.max(1, Math.min(2000, v)) : 1);
+                  setVisibleCount(CALC_PAGE_STEP);
                 }}
                 className="fa-num h-9 w-20 rounded-xl bg-card text-center text-sm font-extrabold"
                 dir="ltr"
@@ -213,7 +223,10 @@ export function NeedCalculator({
               <button
                 key={g}
                 type="button"
-                onClick={() => setNeedGB(g)}
+                onClick={() => {
+                  setNeedGB(g);
+                  setVisibleCount(CALC_PAGE_STEP);
+                }}
                 className={`fa-num min-h-[32px] rounded-full border px-2.5 text-xs font-bold transition-colors cursor-pointer ${
                   needGB === g
                     ? "border-primary bg-primary text-primary-foreground shadow-xs"
@@ -242,6 +255,7 @@ export function NeedCalculator({
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   setNeedDays(Number.isFinite(v) ? Math.max(1, Math.min(365, v)) : 1);
+                  setVisibleCount(CALC_PAGE_STEP);
                 }}
                 className="fa-num h-9 w-20 rounded-xl bg-card text-center text-sm font-extrabold"
                 dir="ltr"
@@ -254,7 +268,10 @@ export function NeedCalculator({
               <button
                 key={d}
                 type="button"
-                onClick={() => setNeedDays(d)}
+                onClick={() => {
+                  setNeedDays(d);
+                  setVisibleCount(CALC_PAGE_STEP);
+                }}
                 className={`fa-num min-h-[32px] rounded-full border px-2.5 text-xs font-bold transition-colors cursor-pointer ${
                   needDays === d
                     ? "border-primary bg-primary text-primary-foreground shadow-xs"
@@ -270,163 +287,190 @@ export function NeedCalculator({
         {/* Simple Multi-pack Toggle */}
         <div className="md:col-span-2 flex items-center justify-between gap-3 border-t border-border/60 pt-2.5">
           <label className="flex cursor-pointer items-center gap-2.5 text-xs font-medium text-foreground">
-            <Switch checked={allowMulti} onCheckedChange={setAllowMulti} />
+            <Switch
+              checked={allowMulti}
+              onCheckedChange={(v) => {
+                setAllowMulti(v);
+                setVisibleCount(CALC_PAGE_STEP);
+              }}
+            />
             <span>پیشنهاد خرید چند بسته (اگر ارزان‌تر باشد)</span>
           </label>
         </div>
       </div>
 
-      {/* Focused Top 3 Results */}
-      {topOptions.length === 0 ? (
+      {/* All Results */}
+      {allOptions.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-6 px-4 text-center text-xs text-muted-foreground">
           بسته‌ای برای {faDigits(safeGB)} گیگ در {faDigits(safeDays)} روز با فیلترهای فعلی پیدا نشد.
         </div>
       ) : (
-        <div className="grid gap-3 md:grid-cols-3">
-          {topOptions.map((opt, idx) => {
-            const uid = `calc:${opt.pkg.entryKey}:${opt.pkg.id}:${opt.count}`;
-            const tel = opt.pkg.ussd ? ussdTelHref(opt.pkg.ussd) : null;
-            const isTop = idx === 0;
-            const countText =
-              opt.count === 1
-                ? "تک‌بسته"
-                : opt.mode === "parallel"
-                  ? `${faDigits(opt.count)} عدد هم‌زمان`
-                  : `${faDigits(opt.count)} دوره پشت‌سرهم`;
+        <>
+          <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {shownOptions.map((opt, idx) => {
+              const uid = `calc:${opt.pkg.entryKey}:${opt.pkg.id}:${opt.count}`;
+              const tel = opt.pkg.ussd ? ussdTelHref(opt.pkg.ussd) : null;
+              const isTop = idx === 0;
+              const countText =
+                opt.count === 1
+                  ? "تک‌بسته"
+                  : opt.mode === "parallel"
+                    ? `${faDigits(opt.count)} عدد هم‌زمان`
+                    : `${faDigits(opt.count)} دوره پشت‌سرهم`;
 
-            return (
-              <div
-                key={uid}
-                className={`flex flex-col justify-between gap-3 rounded-2xl border p-4 shadow-xs ${
-                  isTop
-                    ? "border-primary/65 bg-primary/[0.045] dark:bg-primary/[0.07]"
-                    : "border-border bg-card"
-                }`}
-              >
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between gap-2 text-xs">
-                    <div className="flex min-w-0 items-center gap-1.5">
-                      <span
-                        className={`fa-num inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[11px] font-extrabold ${
-                          isTop
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-foreground"
-                        }`}
+              return (
+                <div
+                  key={uid}
+                  className={`flex flex-col justify-between gap-2.5 rounded-2xl border p-3.5 shadow-xs ${
+                    isTop
+                      ? "border-primary/65 bg-primary/[0.045] dark:bg-primary/[0.07]"
+                      : "border-border bg-card"
+                  }`}
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2 text-xs">
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <span
+                          className={`fa-num inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[11px] font-extrabold ${
+                            isTop
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-foreground"
+                          }`}
+                        >
+                          {faDigits(idx + 1)}
+                        </span>
+                        <span
+                          className="h-2 w-2 shrink-0 rounded-full"
+                          style={{ backgroundColor: opt.pkg.providerAccent }}
+                        />
+                        <span className="truncate font-bold text-foreground">
+                          {opt.pkg.providerName}
+                        </span>
+                      </div>
+                      <span className="fa-num shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10.5px] font-bold text-foreground">
+                        {countText}
+                      </span>
+                    </div>
+
+                    <div className="text-[13.5px] font-bold leading-5 text-foreground">
+                      {opt.pkg.title}
+                    </div>
+
+                    <div className="fa-num text-xs text-muted-foreground">
+                      جمع:{" "}
+                      <strong className="text-foreground">{fmtGB(opt.totalGB)}</strong>
+                      {" · "}
+                      <strong className="text-foreground">{faDigits(opt.totalDays)} روز</strong>
+                    </div>
+
+                    {isTop && savings > 0 && bestSingle && (
+                      <div className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2.5 py-0.5 text-[11px] font-bold text-primary">
+                        <Sparkles className="h-3 w-3 shrink-0" />
+                        <span className="fa-num">
+                          {fmtToman(savings)} ت ارزان‌تر از تک‌بسته
+                        </span>
+                      </div>
+                    )}
+
+                    {opt.pkg.portalOnly && (
+                      <div
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold"
+                        style={{ color: accentBadgeStyle(opt.pkg.providerAccent, dark).color }}
                       >
-                        {faDigits(idx + 1)}
-                      </span>
-                      <span
-                        className="h-2 w-2 shrink-0 rounded-full"
-                        style={{ backgroundColor: opt.pkg.providerAccent }}
-                      />
-                      <span className="truncate font-bold text-foreground">
-                        {opt.pkg.providerName}
-                      </span>
-                    </div>
-                    <span className="fa-num shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10.5px] font-bold text-foreground">
-                      {countText}
-                    </span>
-                  </div>
-
-                  <div className="text-[13.5px] font-bold leading-6 text-foreground">
-                    {opt.pkg.title}
-                  </div>
-
-                  <div className="fa-num text-xs text-muted-foreground">
-                    جمع:{" "}
-                    <strong className="text-foreground">{fmtGB(opt.totalGB)}</strong>
-                    {" · "}
-                    <strong className="text-foreground">{faDigits(opt.totalDays)} روز</strong>
-                  </div>
-
-                  {isTop && savings > 0 && bestSingle && (
-                    <div className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2.5 py-0.5 text-[11px] font-bold text-primary">
-                      <Sparkles className="h-3 w-3 shrink-0" />
-                      <span className="fa-num">
-                        {fmtToman(savings)} ت ارزان‌تر از تک‌بسته
-                      </span>
-                    </div>
-                  )}
-
-                  {opt.pkg.portalOnly && (
-                    <div
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold"
-                      style={{ color: accentBadgeStyle(opt.pkg.providerAccent, dark).color }}
-                    >
-                      <Smartphone className="h-3 w-3 shrink-0" />
-                      <span>{opt.pkg.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between gap-2 border-t border-border/50 pt-2.5">
-                  <div>
-                    <div className="fa-num text-[15px] font-extrabold text-primary">
-                      {fmtToman(opt.totalPrice)}{" "}
-                      <span className="text-[11px] font-medium text-muted-foreground">
-                        تومان
-                      </span>
-                    </div>
-                    {opt.count > 1 && (
-                      <div className="fa-num text-[10.5px] text-muted-foreground">
-                        هر عدد {fmtToman(opt.pkg.price * vatFactor)} ت
+                        <Smartphone className="h-3 w-3 shrink-0" />
+                        <span>{opt.pkg.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {opt.pkg.ussd && (
-                      <>
-                        {tel ? (
-                          <a
-                            href={tel}
-                            title={`شماره‌گیری ${opt.pkg.ussd}`}
-                            aria-label={`شماره‌گیری ${opt.pkg.ussd}`}
-                            className="inline-flex h-9 items-center gap-1 rounded-xl border border-border bg-muted px-2 font-mono text-[11px] font-semibold text-foreground"
-                            dir="ltr"
-                          >
-                            <Phone className="h-3 w-3 text-primary" />
-                            <span>{opt.pkg.ussd}</span>
-                          </a>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleCopy(uid, opt.pkg.ussd!, opt.pkg.providerName)
-                            }
-                            title="کپی کد دستوری"
-                            className="inline-flex h-9 items-center gap-1 rounded-xl border border-border bg-muted px-2 font-mono text-[11px] text-foreground cursor-pointer"
-                            dir="ltr"
-                          >
-                            {copiedId === uid ? (
-                              <Check className="h-3 w-3 text-primary" />
-                            ) : (
-                              <Copy className="h-3 w-3 text-muted-foreground" />
-                            )}
-                            <span>{opt.pkg.ussd}</span>
-                          </button>
-                        )}
-                      </>
-                    )}
-                    <a
-                      href={opt.pkg.buyUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={`inline-flex h-9 items-center gap-1 rounded-xl px-3 text-xs font-bold transition-transform active:scale-[0.97] ${
-                        isTop
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground"
-                      }`}
-                    >
-                      <span>خرید</span>
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
+                  <div className="flex items-center justify-between gap-2 border-t border-border/50 pt-2">
+                    <div>
+                      <div className="fa-num text-[15px] font-extrabold text-primary">
+                        {fmtToman(opt.totalPrice)}{" "}
+                        <span className="text-[11px] font-medium text-muted-foreground">
+                          تومان
+                        </span>
+                      </div>
+                      {opt.count > 1 && (
+                        <div className="fa-num text-[10.5px] text-muted-foreground">
+                          هر عدد {fmtToman(opt.pkg.price * vatFactor)} ت
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {opt.pkg.ussd && (
+                        <>
+                          {tel ? (
+                            <a
+                              href={tel}
+                              title={`شماره‌گیری ${opt.pkg.ussd}`}
+                              aria-label={`شماره‌گیری ${opt.pkg.ussd}`}
+                              className="inline-flex h-8 items-center gap-1 rounded-xl border border-border bg-muted px-2 font-mono text-[11px] font-semibold text-foreground"
+                              dir="ltr"
+                            >
+                              <Phone className="h-3 w-3 text-primary" />
+                              <span>{opt.pkg.ussd}</span>
+                            </a>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleCopy(uid, opt.pkg.ussd!, opt.pkg.providerName)
+                              }
+                              title="کپی کد دستوری"
+                              className="inline-flex h-8 items-center gap-1 rounded-xl border border-border bg-muted px-2 font-mono text-[11px] text-foreground cursor-pointer"
+                              dir="ltr"
+                            >
+                              {copiedId === uid ? (
+                                <Check className="h-3 w-3 text-primary" />
+                              ) : (
+                                <Copy className="h-3 w-3 text-muted-foreground" />
+                              )}
+                              <span>{opt.pkg.ussd}</span>
+                            </button>
+                          )}
+                        </>
+                      )}
+                      <a
+                        href={opt.pkg.buyUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`inline-flex h-8 items-center gap-1 rounded-xl px-3 text-xs font-bold transition-transform active:scale-[0.97] ${
+                          isTop
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground"
+                        }`}
+                      >
+                        <span>خرید</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {allOptions.length > visibleCount && (
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setVisibleCount((prev) => prev + CALC_PAGE_STEP)}
+                className="fa-num inline-flex h-9 items-center rounded-xl border border-border bg-card px-3.5 text-xs font-bold text-foreground hover:bg-muted cursor-pointer"
+              >
+                نمایش {faDigits(Math.min(CALC_PAGE_STEP, allOptions.length - visibleCount))} پیشنهاد دیگر
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisibleCount(allOptions.length)}
+                className="fa-num inline-flex h-9 items-center rounded-xl px-3.5 text-xs font-bold text-primary hover:bg-primary/10 cursor-pointer"
+              >
+                نمایش همه ({faDigits(allOptions.length)})
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Calculator, Home, Info, Scale, Smartphone } from "lucide-react";
+import { Calculator, Home, Scale, SlidersHorizontal, Smartphone } from "lucide-react";
 
 import { faDigits } from "@/lib/providers";
 
@@ -8,14 +8,20 @@ export type MobileTab = "mobile" | "home" | "calc" | "compare" | "info";
 
 interface MobileBottomNavProps {
   activeTab: MobileTab;
+  filterOpen: boolean;
+  activeFilters: number;
   compareCount: number;
-  onSelectTab: (tab: MobileTab) => void;
+  onSelectTab: (tab: Exclude<MobileTab, "info">) => void;
+  onOpenFilters: () => void;
 }
 
 export function MobileBottomNav({
   activeTab,
+  filterOpen,
+  activeFilters,
   compareCount,
   onSelectTab,
+  onOpenFilters,
 }: MobileBottomNavProps) {
   const itemClass =
     "group flex h-full min-h-[48px] w-full flex-col items-center justify-center gap-0.5 rounded-xl px-1 transition-transform active:scale-[0.95] cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -32,6 +38,11 @@ export function MobileBottomNav({
       active ? "font-extrabold text-primary" : "font-semibold text-foreground/80 group-hover:text-foreground"
     }`;
 
+  const isMobileActive = !filterOpen && activeTab === "mobile";
+  const isHomeActive = !filterOpen && activeTab === "home";
+  const isCalcActive = !filterOpen && activeTab === "calc";
+  const isCompareActive = !filterOpen && activeTab === "compare";
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur-md dark:shadow-[0_-4px_24px_rgba(0,0,0,0.45)] lg:hidden">
       <nav
@@ -41,58 +52,79 @@ export function MobileBottomNav({
         <button
           type="button"
           onClick={() => onSelectTab("mobile")}
-          aria-current={activeTab === "mobile" ? "page" : undefined}
+          aria-current={isMobileActive ? "page" : undefined}
           className={itemClass}
         >
-          <span className={pillClass(activeTab === "mobile")}>
+          <span className={pillClass(isMobileActive)}>
             <Smartphone
               className="h-[19px] w-[19px]"
-              strokeWidth={activeTab === "mobile" ? 2.4 : 1.9}
+              strokeWidth={isMobileActive ? 2.4 : 1.9}
             />
           </span>
-          <span className={labelClass(activeTab === "mobile")}>همراه</span>
+          <span className={labelClass(isMobileActive)}>همراه</span>
         </button>
 
         <button
           type="button"
           onClick={() => onSelectTab("home")}
-          aria-current={activeTab === "home" ? "page" : undefined}
+          aria-current={isHomeActive ? "page" : undefined}
           className={itemClass}
         >
-          <span className={pillClass(activeTab === "home")}>
+          <span className={pillClass(isHomeActive)}>
             <Home
               className="h-[19px] w-[19px]"
-              strokeWidth={activeTab === "home" ? 2.4 : 1.9}
+              strokeWidth={isHomeActive ? 2.4 : 1.9}
             />
           </span>
-          <span className={labelClass(activeTab === "home")}>ثابت</span>
+          <span className={labelClass(isHomeActive)}>ثابت</span>
         </button>
 
         <button
           type="button"
           onClick={() => onSelectTab("calc")}
-          aria-current={activeTab === "calc" ? "page" : undefined}
+          aria-current={isCalcActive ? "page" : undefined}
           className={itemClass}
         >
-          <span className={pillClass(activeTab === "calc")}>
+          <span className={pillClass(isCalcActive)}>
             <Calculator
               className="h-[19px] w-[19px]"
-              strokeWidth={activeTab === "calc" ? 2.4 : 1.9}
+              strokeWidth={isCalcActive ? 2.4 : 1.9}
             />
           </span>
-          <span className={labelClass(activeTab === "calc")}>محاسبه‌گر</span>
+          <span className={labelClass(isCalcActive)}>محاسبه‌گر</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenFilters}
+          aria-expanded={filterOpen}
+          aria-label="فیلتر بسته‌ها"
+          className={itemClass}
+        >
+          <span className={pillClass(filterOpen)}>
+            <SlidersHorizontal
+              className="h-[19px] w-[19px]"
+              strokeWidth={filterOpen ? 2.4 : 1.9}
+            />
+            {activeFilters > 0 && (
+              <span className="fa-num absolute -top-0.5 end-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-extrabold leading-none text-primary-foreground ring-2 ring-card">
+                {faDigits(activeFilters)}
+              </span>
+            )}
+          </span>
+          <span className={labelClass(filterOpen)}>فیلتر</span>
         </button>
 
         <button
           type="button"
           onClick={() => onSelectTab("compare")}
-          aria-current={activeTab === "compare" ? "page" : undefined}
+          aria-current={isCompareActive ? "page" : undefined}
           className={itemClass}
         >
-          <span className={pillClass(activeTab === "compare")}>
+          <span className={pillClass(isCompareActive)}>
             <Scale
               className="h-[19px] w-[19px]"
-              strokeWidth={activeTab === "compare" ? 2.4 : 1.9}
+              strokeWidth={isCompareActive ? 2.4 : 1.9}
             />
             {compareCount > 0 && (
               <span className="fa-num absolute -top-0.5 end-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-extrabold leading-none text-primary-foreground ring-2 ring-card">
@@ -100,22 +132,7 @@ export function MobileBottomNav({
               </span>
             )}
           </span>
-          <span className={labelClass(activeTab === "compare")}>مقایسه</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onSelectTab("info")}
-          aria-current={activeTab === "info" ? "page" : undefined}
-          className={itemClass}
-        >
-          <span className={pillClass(activeTab === "info")}>
-            <Info
-              className="h-[19px] w-[19px]"
-              strokeWidth={activeTab === "info" ? 2.4 : 1.9}
-            />
-          </span>
-          <span className={labelClass(activeTab === "info")}>اطلاعات</span>
+          <span className={labelClass(isCompareActive)}>مقایسه</span>
         </button>
       </nav>
     </div>

@@ -4,9 +4,12 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   ArrowUp,
   Calculator,
+  ChevronLeft,
+  ChevronRight,
   Database,
   Gift,
   Home,
+  Info,
   LayoutGrid,
   Moon,
   Percent,
@@ -14,7 +17,6 @@ import {
   Scale,
   Search,
   SearchX,
-  SlidersHorizontal,
   Smartphone,
   Sun,
   Table2,
@@ -144,6 +146,7 @@ export default function Page() {
   const [compareOpen, setCompareOpen] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
   const [mobileSubTab, setMobileSubTab] = useState<"browse" | "calc" | "compare" | "info">("browse");
+  const [opPageByCat, setOpPageByCat] = useState<Record<Category, number>>({ mobile: 0, home: 0 });
   const [visibleLimit, setVisibleLimit] = useState(PAGE_STEP);
 
   const vatFactor = vat ? 1 + VAT_RATE : 1;
@@ -382,6 +385,7 @@ export default function Page() {
 
   const reset = () => {
     setVisibleLimit(PAGE_STEP);
+    setOpPageByCat({ mobile: 0, home: 0 });
     updateState((prev) => ({
       ...prev,
       homeTech: "all",
@@ -512,7 +516,7 @@ export default function Page() {
 
   const activeMobileTab: MobileTab = mobileSubTab === "browse" ? cat : mobileSubTab;
 
-  const handleSelectMobileTab = (tab: MobileTab) => {
+  const handleSelectMobileTab = (tab: Exclude<MobileTab, "info">) => {
     setFilterDrawerOpen(false);
     setCompareOpen(false);
     if (tab === "mobile" || tab === "home") {
@@ -634,6 +638,28 @@ export default function Page() {
             <Button
               variant="outline"
               size="sm"
+              className={`lg:hidden h-8 sm:h-9 w-8 sm:w-9 p-0 cursor-pointer ${
+                mobileSubTab === "info"
+                  ? "border-primary/60 bg-primary/12 text-primary hover:bg-primary/18"
+                  : "border-border bg-card text-foreground hover:bg-muted"
+              }`}
+              onClick={() => {
+                setFilterDrawerOpen(false);
+                setCompareOpen(false);
+                setMobileSubTab((prev) => (prev === "info" ? "browse" : "info"));
+                if (typeof window !== "undefined") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
+              aria-pressed={mobileSubTab === "info"}
+              aria-label="اطلاعات و تنظیمات"
+              title="اطلاعات و تنظیمات"
+            >
+              <Info className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               className="h-8 sm:h-9 w-8 sm:w-auto sm:px-2.5 gap-1.5 border-border bg-card text-foreground hover:bg-muted cursor-pointer"
               onClick={toggleTheme}
               title={themeAriaLabel}
@@ -667,117 +693,155 @@ export default function Page() {
         {/* ── Mobile Native Browse Top Controls (< lg — instant paint, zero hydration opacity delay) ── */}
         {mobileSubTab === "browse" && (
           <div className="mt-3 space-y-2.5 lg:hidden">
-            {/* Search Input + Filter Sheet Trigger */}
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="search"
-                  value={query}
-                  onChange={(e) => {
-                    setVisibleLimit(PAGE_STEP);
-                    updateState((prev) => ({ ...prev, query: e.target.value }));
-                  }}
-                  placeholder={
-                    cat === "mobile"
-                      ? "جست‌وجو در بسته‌های همراه..."
-                      : "جست‌وجو در بسته‌های ثابت..."
-                  }
-                  aria-label="جست‌وجو در بسته‌ها"
-                  className="h-11 w-full rounded-2xl border border-input bg-card ps-9 pe-9 text-[13px] font-medium text-foreground placeholder:text-muted-foreground shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                />
-                {query && (
-                  <button
-                    type="button"
-                    onClick={() => updateState((prev) => ({ ...prev, query: "" }))}
-                    aria-label="پاک کردن جست‌وجو"
-                    className="absolute end-1.5 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setCompareOpen(false);
-                  setFilterDrawerOpen(true);
+            {/* Full-width Search Input (Filter is accessible from bottom mobile navigator) */}
+            <div className="relative">
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => {
+                  setVisibleLimit(PAGE_STEP);
+                  updateState((prev) => ({ ...prev, query: e.target.value }));
                 }}
-                aria-label="فیلترهای پیشرفته"
-                className={`relative inline-flex h-11 shrink-0 items-center gap-1.5 rounded-2xl border px-3.5 text-xs font-bold shadow-xs transition-transform active:scale-[0.97] cursor-pointer ${
-                  activeFilters > 0
-                    ? "border-primary/60 bg-primary/12 text-primary"
-                    : "border-border bg-card text-foreground"
-                }`}
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-                <span>فیلتر</span>
-                {activeFilters > 0 && (
-                  <span className="fa-num inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10.5px] font-extrabold leading-none text-primary-foreground">
-                    {faDigits(activeFilters)}
-                  </span>
-                )}
-              </button>
-            </div>
-
-            {/* Clean Operator Chip Rail */}
-            {liveEntries.length > 0 && (
-              <div
-                role="group"
-                aria-label="انتخاب اپراتور"
-                className="flex items-center gap-1.5 overflow-x-auto pb-0.5 rail"
-              >
+                placeholder={
+                  cat === "mobile"
+                    ? "جست‌وجو در بسته‌های همراه..."
+                    : "جست‌وجو در بسته‌های ثابت..."
+                }
+                aria-label="جست‌وجو در بسته‌ها"
+                className="h-11 w-full rounded-2xl border border-input bg-card ps-9 pe-9 text-[13px] font-medium text-foreground placeholder:text-muted-foreground shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              {query && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setVisibleLimit(PAGE_STEP);
-                    updateState((prev) => ({ ...prev, provSel: new Set(liveKeysOf(prev.cat)) }));
-                  }}
-                  aria-pressed={provSel.size === liveEntries.length}
-                  className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
-                    provSel.size === liveEntries.length
-                      ? "border-primary bg-primary text-primary-foreground shadow-xs"
-                      : "border-border bg-card text-foreground"
-                  }`}
+                  onClick={() => updateState((prev) => ({ ...prev, query: "" }))}
+                  aria-label="پاک کردن جست‌وجو"
+                  className="absolute end-1.5 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
                 >
-                  <span>همه</span>
-                  <span className="fa-num text-[11px] opacity-85">{faDigits(inCat.length)}</span>
+                  <X className="h-4 w-4" />
                 </button>
-                {liveEntries.map((e) => {
-                  const isFocused = provSel.size === 1 && provSel.has(e.key);
-                  const isSubsetSelected =
-                    provSel.size < liveEntries.length && provSel.has(e.key);
-                  return (
-                    <button
-                      key={e.key}
-                      type="button"
-                      onClick={() => {
-                        setVisibleLimit(PAGE_STEP);
-                        updateState((prev) => ({
-                          ...prev,
-                          provSel: isFocused ? new Set(liveKeysOf(prev.cat)) : new Set([e.key]),
-                        }));
-                      }}
-                      aria-pressed={isFocused || isSubsetSelected}
-                      className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
-                        isFocused
-                          ? "border-foreground bg-foreground text-background shadow-xs"
-                          : isSubsetSelected
-                            ? "border-primary/60 bg-primary/15 text-foreground shadow-xs"
-                            : "border-border bg-card text-foreground"
-                      }`}
-                    >
-                      <span
-                        className="h-2 w-2 shrink-0 rounded-full ring-1 ring-black/15 dark:ring-white/25"
-                        style={{ backgroundColor: e.accent }}
-                      />
-                      <span>{e.nameFa}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Arrow-Navigated Operator Bar (no horizontal scroll) */}
+            {liveEntries.length > 0 && (() => {
+              const OP_PAGE_SIZE = 2;
+              const opItems = [
+                { type: "all" as const },
+                ...liveEntries.map((entry) => ({ type: "entry" as const, entry })),
+              ];
+              const totalOpPages = Math.max(1, Math.ceil(opItems.length / OP_PAGE_SIZE));
+              const safeOpPage = Math.min(opPageByCat[cat] ?? 0, totalOpPages - 1);
+              const visibleOpItems = opItems.slice(
+                safeOpPage * OP_PAGE_SIZE,
+                safeOpPage * OP_PAGE_SIZE + OP_PAGE_SIZE,
+              );
+
+              return (
+                <div
+                  role="group"
+                  aria-label="انتخاب اپراتور"
+                  className="flex items-center gap-1.5"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpPageByCat((prev) => ({
+                        ...prev,
+                        [cat]: Math.max(0, safeOpPage - 1),
+                      }))
+                    }
+                    disabled={safeOpPage === 0}
+                    aria-label="اپراتورهای قبلی"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-xs transition-transform active:scale-[0.94] hover:bg-muted disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+
+                  <div className="grid flex-1 min-w-0 grid-cols-2 gap-1.5">
+                    {visibleOpItems.map((item) => {
+                      if (item.type === "all") {
+                        const allSelected = provSel.size === liveEntries.length;
+                        return (
+                          <button
+                            key="all"
+                            type="button"
+                            onClick={() => {
+                              setVisibleLimit(PAGE_STEP);
+                              updateState((prev) => ({
+                                ...prev,
+                                provSel: new Set(liveKeysOf(prev.cat)),
+                              }));
+                            }}
+                            aria-pressed={allSelected}
+                            className={`inline-flex h-9 w-full min-w-0 items-center justify-center gap-1.5 rounded-full border px-2.5 text-xs font-bold transition-transform active:scale-[0.96] cursor-pointer ${
+                              allSelected
+                                ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                                : "border-border bg-card text-foreground hover:bg-muted"
+                            }`}
+                          >
+                            <span className="truncate">همه</span>
+                            <span className="fa-num shrink-0 text-[11px] opacity-85">
+                              {faDigits(inCat.length)}
+                            </span>
+                          </button>
+                        );
+                      }
+
+                      const { entry } = item;
+                      const isFocused = provSel.size === 1 && provSel.has(entry.key);
+                      const isSubsetSelected =
+                        provSel.size < liveEntries.length && provSel.has(entry.key);
+
+                      return (
+                        <button
+                          key={entry.key}
+                          type="button"
+                          onClick={() => {
+                            setVisibleLimit(PAGE_STEP);
+                            updateState((prev) => ({
+                              ...prev,
+                              provSel: isFocused
+                                ? new Set(liveKeysOf(prev.cat))
+                                : new Set([entry.key]),
+                            }));
+                          }}
+                          aria-pressed={isFocused || isSubsetSelected}
+                          className={`inline-flex h-9 w-full min-w-0 items-center justify-center gap-1.5 rounded-full border px-2.5 text-xs font-bold transition-transform active:scale-[0.96] cursor-pointer ${
+                            isFocused
+                              ? "border-foreground bg-foreground text-background shadow-xs"
+                              : isSubsetSelected
+                                ? "border-primary/60 bg-primary/15 text-foreground shadow-xs"
+                                : "border-border bg-card text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          <span
+                            className="h-2 w-2 shrink-0 rounded-full ring-1 ring-black/15 dark:ring-white/25"
+                            style={{ backgroundColor: entry.accent }}
+                          />
+                          <span className="truncate">{entry.nameFa}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpPageByCat((prev) => ({
+                        ...prev,
+                        [cat]: Math.min(totalOpPages - 1, safeOpPage + 1),
+                      }))
+                    }
+                    disabled={safeOpPage >= totalOpPages - 1}
+                    aria-label="اپراتورهای بعدی"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-xs transition-transform active:scale-[0.94] hover:bg-muted disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                </div>
+              );
+            })()}
 
             {/* Quiet Utility Bar: Count + Sort + View Toggle */}
             <div className="flex items-center justify-between gap-2 pt-0.5">
@@ -1464,7 +1528,7 @@ export default function Page() {
                 />
 
                 {view === "grid" ? (
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-2.5 sm:gap-4 md:grid-cols-2">
                     {visibleRows.map((r) => {
                       const uid = `${r.entryKey}:${r.id}`;
                       return (
@@ -1594,19 +1658,19 @@ export default function Page() {
         }}
       />
 
-      {/* ── Mobile Filter Drawer (< lg, opened via Filter button in Browse header) ── */}
+      {/* ── Mobile Filter Drawer (< lg, opened via Filter tab in bottom navigator) ── */}
       <Drawer open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen}>
         <DrawerContent className="mx-auto max-h-[86dvh] max-w-md border-border bg-card lg:hidden" dir="rtl">
           <div className="border-b border-border px-5 py-3">
             <DrawerTitle className="text-start text-base font-bold">
-              فیلترهای پیشرفته
+              فیلتر بسته‌ها
             </DrawerTitle>
             <DrawerDescription className="fa-num text-start text-xs">
-              {faDigits(rows.length)} بسته در نمایش · از {faDigits(inCat.length)} بسته
+              {faDigits(rows.length)} بسته از {faDigits(inCat.length)}
             </DrawerDescription>
           </div>
           <div className="overflow-y-auto px-5 pb-8 pt-4 space-y-5">
-            <FilterPanel {...filterProps} />
+            <FilterPanel {...filterProps} hideSearch />
 
             <Button
               onClick={() => setFilterDrawerOpen(false)}
@@ -1621,8 +1685,17 @@ export default function Page() {
       {/* ── Native-Style 5-Tab Mobile Bottom Navigation Bar (< lg) ── */}
       <MobileBottomNav
         activeTab={activeMobileTab}
+        filterOpen={filterDrawerOpen}
+        activeFilters={activeFilters}
         compareCount={compareItems.length}
         onSelectTab={handleSelectMobileTab}
+        onOpenFilters={() => {
+          setCompareOpen(false);
+          if (mobileSubTab !== "browse") {
+            setMobileSubTab("browse");
+          }
+          setFilterDrawerOpen((prev) => !prev);
+        }}
       />
 
       {/* ── Floating Back-to-Top Button ── */}

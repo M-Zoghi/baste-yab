@@ -1,12 +1,11 @@
 "use client";
 
-import { RotateCcw, Search, X } from "lucide-react";
+import { ChevronDown, RotateCcw, Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ENTRIES,
   faDigits,
@@ -17,6 +16,8 @@ import {
   type RestrictionTag,
 } from "@/lib/providers";
 import {
+  ALL_RESTRICTION_TAGS,
+  DEFAULT_KINDS,
   DURATION_OPTIONS,
   HOME_TECH_OPTIONS,
   KIND_LABEL,
@@ -66,7 +67,17 @@ interface FilterPanelProps {
   onClearRestrictions: () => void;
   activeFilters: number;
   onReset: () => void;
+  hideSearch?: boolean;
 }
+
+const SHORT_RESTRICTION_LABEL: Record<RestrictionTag, string> = {
+  night: "شبانه (۲ تا ۷ صبح)",
+  morning: "صبحانت (۶ تا ۱۲)",
+  hourly: "ساعتی",
+  domestic: "انارستان (داخلی)",
+  newUser: "مشترک جدید",
+  youth: "زیر ۲۸ سال",
+};
 
 export function FilterPanel({
   cat,
@@ -76,7 +87,6 @@ export function FilterPanel({
   query,
   onQueryChange,
   liveEntries,
-  awaitingEntries,
   provSel,
   onToggleProvider,
   onSelectAllProviders,
@@ -109,64 +119,73 @@ export function FilterPanel({
   onClearRestrictions,
   activeFilters,
   onReset,
+  hideSearch = false,
 }: FilterPanelProps) {
   const allProvidersSelected = provSel.size === liveEntries.length;
   const availableRestrictions = RESTRICTION_OPTIONS.filter(
     (opt) => (restrictionCounts[opt.key] ?? 0) > 0,
   );
-  const allIncluded =
+  const allRestrictedHidden =
     availableRestrictions.length > 0 &&
-    availableRestrictions.every((opt) => includedRestrictions.has(opt.key));
+    availableRestrictions.every((opt) => !includedRestrictions.has(opt.key));
+
+  const advancedModifiedCount =
+    (cat === "home" && homeTech !== "all" ? 1 : 0) +
+    (kinds.size !== DEFAULT_KINDS.length || DEFAULT_KINDS.some((k) => !kinds.has(k)) ? 1 : 0) +
+    (hideFree ? 1 : 0) +
+    (hidePortalOnly ? 1 : 0);
 
   return (
-    <div className="space-y-5">
-      {/* Search */}
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-bold text-muted-foreground">جست‌وجو در بسته‌ها</span>
-          {activeFilters > 0 && (
-            <button
-              type="button"
-              onClick={onReset}
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline cursor-pointer"
-            >
-              <RotateCcw className="h-3 w-3" />
-              بازنشانی ({faDigits(activeFilters)})
-            </button>
-          )}
+    <div className="space-y-4">
+      {/* Search (Desktop Sidebar; Mobile Drawer hides it since search is already at top of Browse) */}
+      {!hideSearch && (
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-bold text-muted-foreground">جست‌وجو</span>
+            {activeFilters > 0 && (
+              <button
+                type="button"
+                onClick={onReset}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline cursor-pointer"
+              >
+                <RotateCcw className="h-3 w-3" />
+                پاک‌کردن ({faDigits(activeFilters)})
+              </button>
+            )}
+          </div>
+          <div className="relative">
+            <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => onQueryChange(e.target.value)}
+              placeholder="نام بسته، اپراتور..."
+              className="min-h-[40px] bg-card ps-9 pe-8 text-[13px]"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => onQueryChange("")}
+                aria-label="پاک‌کردن جست‌وجو"
+                className="absolute end-2.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
         </div>
-        <div className="relative">
-          <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="نام بسته، اپراتور، کد رگولاتوری…"
-            className="min-h-[42px] bg-card ps-9 pe-8 text-[13px]"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => onQueryChange("")}
-              aria-label="پاک‌کردن جست‌وجو"
-              className="absolute end-2.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
-        </div>
-      </div>
+      )}
 
-      {/* Providers */}
-      <div className="border-t border-border/60 pt-4">
-        <div className="mb-2.5 flex items-center justify-between">
-          <span className="text-xs font-bold text-muted-foreground">ارائه‌دهنده‌ها</span>
+      {/* 1. Operators */}
+      <div className={hideSearch ? "" : "border-t border-border/60 pt-4"}>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-bold text-foreground">اپراتور</span>
           {!allProvidersSelected && (
             <button
               type="button"
               onClick={onSelectAllProviders}
               className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
             >
-              انتخاب همه
+              همه
             </button>
           )}
         </div>
@@ -180,10 +199,10 @@ export function FilterPanel({
                 type="button"
                 onClick={() => onToggleProvider(e.key)}
                 aria-pressed={on}
-                className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12.5px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   on
                     ? "border-transparent text-white shadow-xs [text-shadow:0_1px_1px_rgb(0_0_0/0.22)]"
-                    : "border-border bg-muted/60 text-foreground/85 hover:bg-secondary hover:text-foreground"
+                    : "border-border bg-muted/55 text-foreground/85 hover:bg-secondary hover:text-foreground"
                 }`}
                 style={on ? { backgroundColor: e.accent } : undefined}
               >
@@ -193,8 +212,8 @@ export function FilterPanel({
                 />
                 <span>{e.nameFa}</span>
                 <span
-                  className={`fa-num text-[11px] font-semibold ${
-                    on ? "text-white/90" : "text-muted-foreground/80"
+                  className={`fa-num text-[10.5px] font-semibold ${
+                    on ? "text-white/90" : "text-muted-foreground"
                   }`}
                 >
                   {faDigits(cnt)}
@@ -202,111 +221,13 @@ export function FilterPanel({
               </button>
             );
           })}
-
-          {awaitingEntries.map((e) => (
-            <TooltipProvider key={e.key}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex min-h-[36px] cursor-not-allowed items-center gap-1.5 rounded-lg border border-dashed border-border/80 px-2.5 py-1.5 text-[12px] text-muted-foreground/70 whitespace-nowrap shrink-0">
-                    <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/35" />
-                    <span>{e.nameFa}</span>
-                    {e.homeTech === "fixed" && (
-                      <span className="text-[10px] opacity-75">(خط ثابت)</span>
-                    )}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-56 text-right">
-                  <div className="font-bold">
-                    {e.nameFa} — {e.tech}
-                  </div>
-                  <div className="text-xs opacity-85">{e.awaitingNote}</div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
         </div>
       </div>
 
-      {/* Home connection technology split (TD-LTE/5G modem vs ADSL/fiber) */}
-      {cat === "home" && (
-        <div className="border-t border-border/60 pt-4">
-          <div className="mb-2.5 flex items-center justify-between">
-            <span className="text-xs font-bold text-muted-foreground">فناوری اتصال ثابت</span>
-            {homeTech !== "all" && (
-              <button
-                type="button"
-                onClick={() => onHomeTechChange("all")}
-                className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
-              >
-                همه
-              </button>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {HOME_TECH_OPTIONS.map((opt) => {
-              const on = homeTech === opt.key;
-              const cnt = homeTechCounts[opt.key] ?? 0;
-              return (
-                <button
-                  key={opt.key}
-                  type="button"
-                  onClick={() => onHomeTechChange(on ? "all" : opt.key)}
-                  aria-pressed={on}
-                  className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                    on
-                      ? "border-primary/60 bg-primary/15 text-primary"
-                      : cnt === 0
-                        ? "border-dashed border-border bg-muted/30 text-muted-foreground/75"
-                        : "border-border bg-muted/60 text-foreground/85 hover:bg-secondary hover:text-foreground"
-                  }`}
-                >
-                  <span>{opt.shortLabel}</span>
-                  <span className="fa-num text-[11px] opacity-80">
-                    {cnt > 0 ? faDigits(cnt) : "در انتظار"}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
-            بسته‌های فعلی این بخش مربوط به مودم‌های سیم‌کارتی TD-LTE/5G است؛ سرویس‌های ADSL و فیبر پس از دریافت داده اضافه می‌شوند.
-          </p>
-        </div>
-      )}
-
-      {/* Package Kind */}
+      {/* 2. Duration */}
       <div className="border-t border-border/60 pt-4">
-        <div className="mb-2.5 text-xs font-bold text-muted-foreground">نوع بسته</div>
-        <div className="flex flex-wrap gap-1.5">
-          {(["internet", "combo", "roaming"] as Kind[]).map((k) => {
-            const on = kinds.has(k);
-            return (
-              <button
-                key={k}
-                type="button"
-                onClick={() => onToggleKind(k)}
-                aria-pressed={on}
-                className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12.5px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                  on
-                    ? "border-primary/60 bg-primary/15 text-primary"
-                    : "border-border bg-muted/60 text-foreground/85 hover:bg-secondary hover:text-foreground"
-                }`}
-              >
-                <span>{KIND_LABEL[k]}</span>
-                <span className="fa-num text-[11px] opacity-80">{faDigits(kindCounts[k] ?? 0)}</span>
-              </button>
-            );
-          })}
-        </div>
-        <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
-          رومینگ به‌طور پیش‌فرض غیرفعال است؛ تعرفه‌ی آن با بسته‌های داخلی قابل مقایسه نیست.
-        </p>
-      </div>
-
-      {/* Duration Presets */}
-      <div className="border-t border-border/60 pt-4">
-        <div className="mb-2.5 flex items-center justify-between">
-          <span className="text-xs font-bold text-muted-foreground">مدت اعتبار</span>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-bold text-foreground">مدت اعتبار</span>
           {durations.size > 0 && (
             <button
               type="button"
@@ -327,85 +248,31 @@ export function FilterPanel({
                 type="button"
                 onClick={() => onToggleDuration(opt.key)}
                 aria-pressed={on}
-                className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   on
-                    ? "border-primary/60 bg-primary/15 text-primary"
+                    ? "border-primary bg-primary text-primary-foreground shadow-xs"
                     : cnt === 0
                       ? "border-border/80 bg-muted/30 text-muted-foreground/70"
-                      : "border-border bg-muted/60 text-foreground/85 hover:bg-secondary hover:text-foreground"
+                      : "border-border bg-muted/55 text-foreground/85 hover:bg-secondary hover:text-foreground"
                 }`}
               >
                 <span>{opt.label}</span>
-                <span className="fa-num text-[11px] opacity-80">{faDigits(cnt)}</span>
+                <span className="fa-num text-[10.5px] opacity-80">{faDigits(cnt)}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Inclusion filters for restricted / special packages */}
-      {availableRestrictions.length > 0 && (
-        <div className="border-t border-border/60 pt-4">
-          <div className="mb-1 flex items-center justify-between gap-2">
-            <span className="text-xs font-bold text-muted-foreground">
-              نمایش بسته‌های محدود و خاص
-            </span>
-            {allIncluded ? (
-              <button
-                type="button"
-                onClick={onClearRestrictions}
-                className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
-              >
-                پنهان‌کردن همه
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => onIncludeAllRestrictions(availableRestrictions.map((o) => o.key))}
-                className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
-              >
-                نمایش همه
-              </button>
-            )}
-          </div>
-          <p className="mb-2.5 text-[11px] leading-5 text-muted-foreground">
-            به‌طور پیش‌فرض روشن‌اند؛ برای حذف از فهرست خاموش کنید.
-          </p>
-          <div className="space-y-2.5">
-            {availableRestrictions.map((opt) => {
-              const checked = includedRestrictions.has(opt.key);
-              const count = restrictionCounts[opt.key] ?? 0;
-              return (
-                <label
-                  key={opt.key}
-                  className="flex min-h-[32px] cursor-pointer items-center justify-between gap-2 text-[12.5px] font-medium"
-                >
-                  <span className="min-w-0 leading-5 text-foreground/90">
-                    {opt.label}{" "}
-                    <span className="fa-num text-[11px] text-muted-foreground">
-                      ({faDigits(count)})
-                    </span>
-                  </span>
-                  <Switch
-                    checked={checked}
-                    onCheckedChange={() => onToggleRestriction(opt.key)}
-                  />
-                </label>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Sliders */}
-      <div className="space-y-4 border-t border-border/60 pt-4">
+      {/* 3. Budget & Volume Sliders */}
+      <div className="space-y-3.5 border-t border-border/60 pt-4">
         <div>
-          <div className="mb-2.5 flex items-baseline justify-between gap-2">
-            <span className="text-xs font-bold text-muted-foreground">
+          <div className="mb-2 flex items-baseline justify-between gap-2">
+            <span className="text-xs font-bold text-foreground">
               حداکثر قیمت{vat ? " (با مالیات)" : ""}
             </span>
-            <span className="fa-num text-[13px] font-bold text-primary">
-              {maxPrice == null ? "همه قیمت‌ها" : `تا ${fmtToman(maxPrice)} تومان`}
+            <span className="fa-num text-xs font-extrabold text-primary">
+              {maxPrice == null ? "بدون محدودیت" : `تا ${fmtToman(maxPrice)} ت`}
             </span>
           </div>
           <Slider
@@ -416,16 +283,16 @@ export function FilterPanel({
             onValueChange={([v]) => onMaxPriceChange(v >= priceCap ? null : v)}
             dir="ltr"
           />
-          <div className="fa-num mt-1.5 flex justify-between text-[10.5px] text-muted-foreground" dir="ltr">
+          <div className="fa-num mt-1 flex justify-between text-[10.5px] text-muted-foreground" dir="ltr">
             <span>۰</span>
             <span>{fmtToman(priceCap)}</span>
           </div>
         </div>
 
-        <div className="border-t border-border/40 pt-3.5">
-          <div className="mb-2.5 flex items-baseline justify-between gap-2">
-            <span className="text-xs font-bold text-muted-foreground">حداقل حجم</span>
-            <span className="fa-num text-[13px] font-bold text-primary">
+        <div>
+          <div className="mb-2 flex items-baseline justify-between gap-2">
+            <span className="text-xs font-bold text-foreground">حداقل حجم</span>
+            <span className="fa-num text-xs font-extrabold text-primary">
               {minGB === 0 ? "همه حجم‌ها" : `از ${faDigits(minGB)} گیگ`}
             </span>
           </div>
@@ -437,45 +304,197 @@ export function FilterPanel({
             onValueChange={([v]) => onMinGBChange(v)}
             dir="ltr"
           />
-          <div className="fa-num mt-1.5 flex justify-between text-[10.5px] text-muted-foreground" dir="ltr">
+          <div className="fa-num mt-1 flex justify-between text-[10.5px] text-muted-foreground" dir="ltr">
             <span>۰</span>
             <span>{faDigits(gbCap)} گیگ</span>
           </div>
         </div>
       </div>
 
-      {/* General Boolean Switches */}
+      {/* 4. Two Simple Quick Switches */}
       <div className="space-y-3 border-t border-border/60 pt-4">
-        <label className="flex min-h-[34px] cursor-pointer items-center justify-between gap-3 text-[12.5px] font-medium">
+        <label className="flex min-h-[34px] cursor-pointer items-center justify-between gap-3 text-xs font-bold text-foreground">
           <span>فقط بسته‌های تخفیف‌دار</span>
           <Switch checked={onlyDisc} onCheckedChange={onOnlyDiscChange} />
         </label>
-        <label className="flex min-h-[34px] cursor-pointer items-center justify-between gap-3 text-[12.5px] font-medium">
-          <span>پنهان‌کردن هدایای رایگان</span>
-          <Switch checked={hideFree} onCheckedChange={onHideFreeChange} />
-        </label>
-        {portalOnlyCount > 0 && (
-          <label className="flex min-h-[34px] cursor-pointer items-center justify-between gap-3 text-[12.5px] font-medium">
-            <span className="min-w-0 leading-5">
-              پنهان‌کردن بسته‌های اختصاصی اپ{" "}
-              <span className="fa-num text-[11px] text-muted-foreground">
-                ({faDigits(portalOnlyCount)})
+
+        {availableRestrictions.length > 0 && (
+          <label className="flex min-h-[34px] cursor-pointer items-center justify-between gap-3">
+            <span className="min-w-0">
+              <span className="block text-xs font-bold text-foreground">
+                حذف بسته‌های زمان‌دار و خاص
+              </span>
+              <span className="block text-[11px] text-muted-foreground">
+                شبانه، ساعتی، صبحانت و طرح‌های سنی
               </span>
             </span>
-            <Switch checked={hidePortalOnly} onCheckedChange={onHidePortalOnlyChange} />
+            <Switch
+              checked={allRestrictedHidden}
+              onCheckedChange={(hideAll) => {
+                if (hideAll) onClearRestrictions();
+                else onIncludeAllRestrictions(ALL_RESTRICTION_TAGS);
+              }}
+            />
           </label>
         )}
       </div>
+
+      {/* 5. Collapsible Advanced Filters (for power users only) */}
+      <details className="group border-t border-border/60 pt-3">
+        <summary className="flex cursor-pointer list-none items-center justify-between py-1 text-xs font-bold text-muted-foreground hover:text-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <span>فیلترهای بیشتر</span>
+            {advancedModifiedCount > 0 && (
+              <span className="fa-num rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-extrabold text-primary">
+                {faDigits(advancedModifiedCount)} فعال
+              </span>
+            )}
+          </span>
+          <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+        </summary>
+
+        <div className="mt-3 space-y-4">
+          {/* Home Technology (only when category === home) */}
+          {cat === "home" && (
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-[11.5px] font-bold text-muted-foreground">نوع اینترنت ثابت</span>
+                {homeTech !== "all" && (
+                  <button
+                    type="button"
+                    onClick={() => onHomeTechChange("all")}
+                    className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                  >
+                    همه
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {HOME_TECH_OPTIONS.map((opt) => {
+                  const on = homeTech === opt.key;
+                  const cnt = homeTechCounts[opt.key] ?? 0;
+                  return (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      onClick={() => onHomeTechChange(on ? "all" : opt.key)}
+                      aria-pressed={on}
+                      className={`inline-flex min-h-[32px] items-center gap-1.5 rounded-lg border px-2.5 text-[11.5px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                        on
+                          ? "border-primary/60 bg-primary/15 text-primary"
+                          : "border-border bg-muted/50 text-foreground/85"
+                      }`}
+                    >
+                      <span>{opt.shortLabel}</span>
+                      <span className="fa-num text-[10.5px] opacity-80">
+                        {cnt > 0 ? faDigits(cnt) : "به‌زودی"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Package Kind */}
+          <div>
+            <div className="mb-1.5 text-[11.5px] font-bold text-muted-foreground">نوع بسته</div>
+            <div className="flex flex-wrap gap-1.5">
+              {(["internet", "combo", "roaming"] as Kind[]).map((k) => {
+                const on = kinds.has(k);
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => onToggleKind(k)}
+                    aria-pressed={on}
+                    className={`inline-flex min-h-[32px] items-center gap-1.5 rounded-lg border px-2.5 text-[11.5px] font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                      on
+                        ? "border-primary/60 bg-primary/15 text-primary"
+                        : "border-border bg-muted/50 text-foreground/85"
+                    }`}
+                  >
+                    <span>{KIND_LABEL[k]}</span>
+                    <span className="fa-num text-[10.5px] opacity-80">
+                      {faDigits(kindCounts[k] ?? 0)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Individual Restriction Pills */}
+          {availableRestrictions.length > 0 && (
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-[11.5px] font-bold text-muted-foreground">
+                  بسته‌های زمان‌دار و خاص
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    allRestrictedHidden
+                      ? onIncludeAllRestrictions(ALL_RESTRICTION_TAGS)
+                      : onClearRestrictions()
+                  }
+                  className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                >
+                  {allRestrictedHidden ? "نمایش همه" : "حذف همه"}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {availableRestrictions.map((opt) => {
+                  const shown = includedRestrictions.has(opt.key);
+                  const count = restrictionCounts[opt.key] ?? 0;
+                  return (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      onClick={() => onToggleRestriction(opt.key)}
+                      aria-pressed={shown}
+                      className={`inline-flex min-h-[30px] items-center gap-1 rounded-lg border px-2 text-[11px] font-bold transition-colors cursor-pointer ${
+                        shown
+                          ? "border-primary/50 bg-primary/12 text-primary"
+                          : "border-border bg-muted/40 text-muted-foreground line-through"
+                      }`}
+                    >
+                      <span>{SHORT_RESTRICTION_LABEL[opt.key]}</span>
+                      <span className="fa-num opacity-75">({faDigits(count)})</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Extra Hide Toggles */}
+          <div className="space-y-2.5 border-t border-border/50 pt-2.5">
+            <label className="flex min-h-[30px] cursor-pointer items-center justify-between gap-3 text-xs font-medium text-foreground">
+              <span>پنهان‌کردن هدایای رایگان</span>
+              <Switch checked={hideFree} onCheckedChange={onHideFreeChange} />
+            </label>
+            {portalOnlyCount > 0 && (
+              <label className="flex min-h-[30px] cursor-pointer items-center justify-between gap-3 text-xs font-medium text-foreground">
+                <span>
+                  پنهان‌کردن بسته‌های اختصاصی اپ ({faDigits(portalOnlyCount)})
+                </span>
+                <Switch checked={hidePortalOnly} onCheckedChange={onHidePortalOnlyChange} />
+              </label>
+            )}
+          </div>
+        </div>
+      </details>
 
       {activeFilters > 0 && (
         <Button
           variant="outline"
           size="sm"
           onClick={onReset}
-          className="w-full min-h-[40px] gap-1.5 font-bold"
+          className="w-full min-h-[40px] rounded-xl gap-1.5 font-bold cursor-pointer"
         >
           <RotateCcw className="h-3.5 w-3.5" />
-          بازنشانی همه‌ی فیلترها
+          پاک‌کردن فیلترها
         </Button>
       )}
     </div>
