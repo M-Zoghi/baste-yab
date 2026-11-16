@@ -220,13 +220,14 @@ export function MobileOperatorBar({
       aria-label="انتخاب اپراتور"
       className="relative flex items-center gap-1.5"
     >
-      {/* Hidden intrinsic-width measurement strip */}
+      {/* Hidden intrinsic-width measurement strip (clipped so it never overflows page width) */}
       <div
-        ref={measureRef}
         aria-hidden="true"
-        className="pointer-events-none invisible absolute start-0 top-0 flex w-max items-center gap-1.5"
+        className="pointer-events-none invisible absolute inset-0 overflow-hidden"
       >
-        {opItems.map((item) => renderChip(item, true))}
+        <div ref={measureRef} className="flex w-max items-center gap-1.5">
+          {opItems.map((item) => renderChip(item, true))}
+        </div>
       </div>
 
       {showPrev && (

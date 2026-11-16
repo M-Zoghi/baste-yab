@@ -546,7 +546,7 @@ export default function Page() {
   const unitLong = metric === "pergb" ? "تومان بر گیگابایت" : "تومان بر (گیگابایت × روز)";
 
   return (
-    <div className="min-h-dvh flex flex-col bg-background text-foreground">
+    <div className="min-h-dvh flex flex-col overflow-x-clip bg-background text-foreground">
       {/* ── Top Bar: Native App Top Bar (< lg) + 3-zone Desktop Bar (lg+) ── */}
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 shadow-xs backdrop-blur-md">
         <div className="mx-auto flex h-[52px] w-full max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
