@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useSyncExternalStore } from "react";
-import { MotionConfig, motion } from "framer-motion";
 import {
   ArrowUp,
   Calculator,
@@ -9,7 +8,6 @@ import {
   Gift,
   Home,
   LayoutGrid,
-  Monitor,
   Moon,
   Percent,
   RotateCcw,
@@ -96,7 +94,7 @@ const getScrollSnapshot = () => window.scrollY > 480;
 const getScrollServerSnapshot = () => false;
 
 export default function Page() {
-  const { theme, resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -109,36 +107,16 @@ export default function Page() {
   );
   const dark = mounted ? resolvedTheme === "dark" : false;
 
-  const cycleTheme = () => {
-    const osDark =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const osTheme = osDark ? "dark" : "light";
-    const oppositeTheme = osDark ? "light" : "dark";
-    if (theme === "system") {
-      setTheme(oppositeTheme);
-    } else if (theme === oppositeTheme) {
-      setTheme(osTheme);
-    } else {
-      setTheme("system");
-    }
+  const toggleTheme = () => {
+    setTheme(dark ? "light" : "dark");
   };
 
-  const themeLabel = !mounted
-    ? "پوسته"
-    : theme === "system"
-      ? "خودکار"
-      : theme === "dark"
-        ? "تاریک"
-        : "روشن";
-
+  const themeLabel = !mounted ? "پوسته" : dark ? "تاریک" : "روشن";
   const themeAriaLabel = !mounted
     ? "تغییر پوسته"
-    : theme === "system"
-      ? "پوسته: خودکار مطابق دستگاه (کلیک برای تغییر)"
-      : theme === "dark"
-        ? "پوسته: تاریک (کلیک برای تغییر)"
-        : "پوسته: روشن (کلیک برای تغییر)";
+    : dark
+      ? "پوسته تاریک (تغییر به روشن)"
+      : "پوسته روشن (تغییر به تاریک)";
 
   const [state, updateState] = useBasteYabState();
   const {
@@ -565,7 +543,6 @@ export default function Page() {
   const unitLong = metric === "pergb" ? "تومان بر گیگابایت" : "تومان بر (گیگابایت × روز)";
 
   return (
-    <MotionConfig reducedMotion="user">
     <div className="min-h-dvh flex flex-col bg-background text-foreground">
       {/* ── Top Bar: Native App Top Bar (< lg) + 3-zone Desktop Bar (lg+) ── */}
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 shadow-xs backdrop-blur-md">
@@ -658,20 +635,14 @@ export default function Page() {
               variant="outline"
               size="sm"
               className="h-8 sm:h-9 w-8 sm:w-auto sm:px-2.5 gap-1.5 border-border bg-card text-foreground hover:bg-muted cursor-pointer"
-              onClick={cycleTheme}
+              onClick={toggleTheme}
               title={themeAriaLabel}
               aria-label={themeAriaLabel}
             >
               {mounted ? (
-                theme === "system" ? (
-                  <Monitor className="h-4 w-4" />
-                ) : theme === "dark" ? (
-                  <Moon className="h-4 w-4" />
-                ) : (
-                  <Sun className="h-4 w-4" />
-                )
+                dark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />
               ) : (
-                <Monitor className="h-4 w-4 opacity-0" />
+                <Sun className="h-4 w-4 opacity-0" />
               )}
               <span className="hidden md:inline text-xs font-bold">{themeLabel}</span>
             </Button>
@@ -685,24 +656,18 @@ export default function Page() {
           aria-label="معرفی بسته‌یاب"
           className={mobileSubTab === "browse" ? "mt-3 sm:mt-4" : "hidden lg:block mt-4"}
         >
-          <h1 className="text-[16.5px] sm:text-xl font-extrabold tracking-tight text-foreground leading-snug">
-            مقایسه‌ی قیمت واقعی بسته‌های اینترنت ایران
+          <h1 className="text-[16px] sm:text-xl font-extrabold tracking-tight text-foreground leading-snug">
+            مقایسه قیمت واقعی بسته‌های اینترنت
           </h1>
           <p className="mt-0.5 text-[12px] sm:text-[13px] leading-5 text-muted-foreground">
-            هر گیگابایت چند تومان می‌شود؟ بسته‌های همراه اول، ایرانسل، رایتل، سامانتل و آپتل را از ارزان‌ترین به گران‌ترین مقایسه کنید.
+            مقایسه و رتبه‌بندی ارزان‌ترین بسته‌ها بر اساس قیمت هر گیگابایت
           </p>
         </section>
 
-        {/* ── Mobile Native Browse Top Controls (< lg) ── */}
+        {/* ── Mobile Native Browse Top Controls (< lg — instant paint, zero hydration opacity delay) ── */}
         {mobileSubTab === "browse" && (
-          <motion.div
-            key={`browse-${cat}`}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.16, ease: "easeOut" }}
-            className="mt-3 space-y-2.5 lg:hidden"
-          >
-            {/* Native Search Input + Filter Sheet Trigger */}
+          <div className="mt-3 space-y-2.5 lg:hidden">
+            {/* Search Input + Filter Sheet Trigger */}
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -756,165 +721,130 @@ export default function Page() {
               </button>
             </div>
 
-            {/* Single-Row Scrollable Chip Rail: Operators + VAT Pill + Sort Pill */}
-            <div
-              role="group"
-              aria-label="فیلتر سریع اپراتور و مرتب‌سازی"
-              className="flex items-center gap-1.5 overflow-x-auto pb-0.5 rail"
-            >
-              {liveEntries.length > 0 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setVisibleLimit(PAGE_STEP);
-                      updateState((prev) => ({ ...prev, provSel: new Set(liveKeysOf(prev.cat)) }));
-                    }}
-                    aria-pressed={provSel.size === liveEntries.length}
-                    className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
-                      provSel.size === liveEntries.length
-                        ? "border-primary bg-primary text-primary-foreground shadow-xs"
-                        : "border-border bg-card text-foreground"
-                    }`}
-                  >
-                    <span>همه</span>
-                    <span className="fa-num text-[11px] opacity-85">{faDigits(inCat.length)}</span>
-                  </button>
-                  {liveEntries.map((e) => {
-                    const isFocused = provSel.size === 1 && provSel.has(e.key);
-                    const isSubsetSelected =
-                      provSel.size < liveEntries.length && provSel.has(e.key);
-                    return (
-                      <button
-                        key={e.key}
-                        type="button"
-                        onClick={() => {
-                          setVisibleLimit(PAGE_STEP);
-                          updateState((prev) => ({
-                            ...prev,
-                            provSel: isFocused ? new Set(liveKeysOf(prev.cat)) : new Set([e.key]),
-                          }));
-                        }}
-                        aria-pressed={isFocused || isSubsetSelected}
-                        className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
-                          isFocused
-                            ? "border-foreground bg-foreground text-background shadow-xs"
-                            : isSubsetSelected
-                              ? "border-primary/60 bg-primary/15 text-foreground shadow-xs"
-                              : "border-border bg-card text-foreground"
-                        }`}
-                      >
-                        <span
-                          className="h-2 w-2 shrink-0 rounded-full ring-1 ring-black/15 dark:ring-white/25"
-                          style={{ backgroundColor: e.accent }}
-                        />
-                        <span>{e.nameFa}</span>
-                      </button>
-                    );
-                  })}
-                  <span aria-hidden="true" className="mx-0.5 h-5 w-px shrink-0 bg-border" />
-                </>
-              )}
-
-              <button
-                type="button"
-                onClick={() =>
-                  updateState((prev) => ({ ...prev, vat: !prev.vat }), { persistPrefs: true })
-                }
-                aria-pressed={vat}
-                className={`inline-flex min-h-[36px] items-center gap-1 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
-                  vat
-                    ? "border-amber-600/50 bg-amber-500/15 text-amber-800 dark:border-amber-400/50 dark:text-amber-300"
-                    : "border-border bg-card text-foreground"
-                }`}
+            {/* Clean Operator Chip Rail */}
+            {liveEntries.length > 0 && (
+              <div
+                role="group"
+                aria-label="انتخاب اپراتور"
+                className="flex items-center gap-1.5 overflow-x-auto pb-0.5 rail"
               >
-                <Percent className="h-3.5 w-3.5" />
-                <span>مالیات {vat ? "+۱۰٪" : "بدون"}</span>
-              </button>
-
-              <Select
-                value={sort}
-                onValueChange={(v) =>
-                  updateState((prev) => ({ ...prev, sort: v as SortKey }))
-                }
-              >
-                <SelectTrigger
-                  aria-label="مرتب‌سازی"
-                  className="h-9 w-auto min-w-[125px] shrink-0 rounded-full border-border bg-card px-3 text-[11.5px] font-bold"
-                  dir="rtl"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVisibleLimit(PAGE_STEP);
+                    updateState((prev) => ({ ...prev, provSel: new Set(liveKeysOf(prev.cat)) }));
+                  }}
+                  aria-pressed={provSel.size === liveEntries.length}
+                  className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
+                    provSel.size === liveEntries.length
+                      ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                      : "border-border bg-card text-foreground"
+                  }`}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent dir="rtl">
-                  <SelectItem value="best">بهترین ارزش</SelectItem>
-                  <SelectItem value="price">کمترین قیمت</SelectItem>
-                  <SelectItem value="gb">بیشترین حجم</SelectItem>
-                  <SelectItem value="days">بیشترین مدت</SelectItem>
-                </SelectContent>
-              </Select>
+                  <span>همه</span>
+                  <span className="fa-num text-[11px] opacity-85">{faDigits(inCat.length)}</span>
+                </button>
+                {liveEntries.map((e) => {
+                  const isFocused = provSel.size === 1 && provSel.has(e.key);
+                  const isSubsetSelected =
+                    provSel.size < liveEntries.length && provSel.has(e.key);
+                  return (
+                    <button
+                      key={e.key}
+                      type="button"
+                      onClick={() => {
+                        setVisibleLimit(PAGE_STEP);
+                        updateState((prev) => ({
+                          ...prev,
+                          provSel: isFocused ? new Set(liveKeysOf(prev.cat)) : new Set([e.key]),
+                        }));
+                      }}
+                      aria-pressed={isFocused || isSubsetSelected}
+                      className={`inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer ${
+                        isFocused
+                          ? "border-foreground bg-foreground text-background shadow-xs"
+                          : isSubsetSelected
+                            ? "border-primary/60 bg-primary/15 text-foreground shadow-xs"
+                            : "border-border bg-card text-foreground"
+                      }`}
+                    >
+                      <span
+                        className="h-2 w-2 shrink-0 rounded-full ring-1 ring-black/15 dark:ring-white/25"
+                        style={{ backgroundColor: e.accent }}
+                      />
+                      <span>{e.nameFa}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
-              <button
-                type="button"
-                onClick={() =>
-                  updateState(
-                    (prev) => ({ ...prev, view: prev.view === "grid" ? "table" : "grid" }),
-                    { persistPrefs: true },
-                  )
-                }
-                aria-label={view === "grid" ? "تغییر به نمای جدولی" : "تغییر به نمای کارتی"}
-                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-bold text-foreground transition-transform active:scale-[0.96] whitespace-nowrap shrink-0 cursor-pointer"
-              >
-                {view === "grid" ? (
-                  <>
-                    <Table2 className="h-3.5 w-3.5 text-primary" />
-                    <span>جدولی</span>
-                  </>
-                ) : (
-                  <>
-                    <LayoutGrid className="h-3.5 w-3.5 text-primary" />
-                    <span>کارتی</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Quiet 1-line Mobile Status Strip */}
-            <div className="flex flex-wrap items-center justify-between gap-2 px-0.5 text-[11.5px] text-muted-foreground">
-              <div className="min-w-0 truncate">
+            {/* Quiet Utility Bar: Count + Sort + View Toggle */}
+            <div className="flex items-center justify-between gap-2 pt-0.5">
+              <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
                 <span className="fa-num font-bold text-foreground">
                   {faDigits(rows.length)} بسته
                 </span>
-                {bestPaid && (
-                  <>
-                    <span> · بهترین: </span>
-                    <span className="font-bold text-foreground">{bestPaid.providerName}</span>{" "}
-                    <span className="fa-num font-extrabold text-primary">
-                      ({fmtValue(bestPaid.value)} {unitShort})
-                    </span>
-                  </>
+                {activeFilters > 0 && (
+                  <button
+                    type="button"
+                    onClick={reset}
+                    className="font-bold text-primary hover:underline cursor-pointer"
+                  >
+                    پاک‌کردن فیلتر
+                  </button>
                 )}
               </div>
-              {activeFilters > 0 && (
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Select
+                  value={sort}
+                  onValueChange={(v) =>
+                    updateState((prev) => ({ ...prev, sort: v as SortKey }))
+                  }
+                >
+                  <SelectTrigger
+                    aria-label="مرتب‌سازی"
+                    className="h-8 w-auto min-w-[116px] rounded-xl border-border bg-card px-2.5 text-[11.5px] font-bold"
+                    dir="rtl"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent dir="rtl">
+                    <SelectItem value="best">بهترین ارزش</SelectItem>
+                    <SelectItem value="price">کمترین قیمت</SelectItem>
+                    <SelectItem value="gb">بیشترین حجم</SelectItem>
+                    <SelectItem value="days">بیشترین مدت</SelectItem>
+                  </SelectContent>
+                </Select>
+
                 <button
                   type="button"
-                  onClick={reset}
-                  className="shrink-0 font-bold text-primary hover:underline cursor-pointer"
+                  onClick={() =>
+                    updateState(
+                      (prev) => ({ ...prev, view: prev.view === "grid" ? "table" : "grid" }),
+                      { persistPrefs: true },
+                    )
+                  }
+                  aria-label={view === "grid" ? "تغییر به نمای جدولی" : "تغییر به نمای کارتی"}
+                  title={view === "grid" ? "نمای جدولی" : "نمای کارتی"}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-transform active:scale-[0.95] cursor-pointer"
                 >
-                  پاک‌کردن فیلترها
+                  {view === "grid" ? (
+                    <Table2 className="h-4 w-4 text-primary" />
+                  ) : (
+                    <LayoutGrid className="h-4 w-4 text-primary" />
+                  )}
                 </button>
-              )}
+              </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* ── Mobile Dedicated Calculator Screen (< lg) ── */}
         {mobileSubTab === "calc" && (
-          <motion.section
-            key="mobile-calc"
+          <section
             aria-label="محاسبه‌گر بسته مناسب"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
             className="mt-3 space-y-3 lg:hidden"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -976,17 +906,13 @@ export default function Page() {
                 title={cat === "home" ? "بسته‌های اینترنت ثابت" : "بسته‌های اینترنت همراه"}
               />
             )}
-          </motion.section>
+          </section>
         )}
 
         {/* ── Mobile Dedicated Compare Screen (< lg) ── */}
         {mobileSubTab === "compare" && (
-          <motion.section
-            key="mobile-compare"
+          <section
             aria-label="مقایسه کنار هم بسته‌ها"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
             className="mt-3 space-y-3 lg:hidden"
           >
             <div className="flex items-center justify-between gap-2">
@@ -1015,17 +941,13 @@ export default function Page() {
               onClear={() => setCompareIds([])}
               onBrowse={() => setMobileSubTab("browse")}
             />
-          </motion.section>
+          </section>
         )}
 
         {/* ── Mobile Dedicated Info & Settings Screen (< lg) ── */}
         {mobileSubTab === "info" && (
-          <motion.section
-            key="mobile-info"
+          <section
             aria-label="تنظیمات و اطلاعات برنامه"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
             className="mt-3 space-y-4 lg:hidden"
           >
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xs divide-y divide-border">
@@ -1033,38 +955,43 @@ export default function Page() {
                 تنظیمات و نمایش
               </div>
 
-              {/* Theme Selector Row */}
+              {/* Theme Selector Row — Light / Dark only (auto OS by default) */}
               <div className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-foreground">ظاهر برنامه</div>
-                  <div className="text-[11px] text-muted-foreground">هماهنگ با دستگاه یا انتخابی</div>
+                  <div className="text-[11px] text-muted-foreground">روشن یا تاریک</div>
                 </div>
                 <div
                   role="group"
                   aria-label="انتخاب پوسته"
                   className="inline-flex shrink-0 items-center rounded-xl border border-border bg-muted p-0.5"
                 >
-                  {(
-                    [
-                      { k: "system", l: "خودکار" },
-                      { k: "light", l: "روشن" },
-                      { k: "dark", l: "تاریک" },
-                    ] as const
-                  ).map((opt) => (
-                    <button
-                      key={opt.k}
-                      type="button"
-                      onClick={() => setTheme(opt.k)}
-                      aria-pressed={mounted && theme === opt.k}
-                      className={`min-h-[34px] rounded-lg px-2.5 text-[11.5px] font-bold transition-colors cursor-pointer ${
-                        mounted && theme === opt.k
-                          ? "bg-card text-foreground shadow-xs"
-                          : "text-foreground/75"
-                      }`}
-                    >
-                      {opt.l}
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setTheme("light")}
+                    aria-pressed={mounted && !dark}
+                    className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-lg px-3 text-[11.5px] font-bold transition-colors cursor-pointer ${
+                      mounted && !dark
+                        ? "bg-card text-foreground shadow-xs"
+                        : "text-foreground/75"
+                    }`}
+                  >
+                    <Sun className="h-3.5 w-3.5" />
+                    <span>روشن</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheme("dark")}
+                    aria-pressed={mounted && dark}
+                    className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-lg px-3 text-[11.5px] font-bold transition-colors cursor-pointer ${
+                      mounted && dark
+                        ? "bg-card text-foreground shadow-xs"
+                        : "text-foreground/75"
+                    }`}
+                  >
+                    <Moon className="h-3.5 w-3.5" />
+                    <span>تاریک</span>
+                  </button>
                 </div>
               </div>
 
@@ -1168,7 +1095,7 @@ export default function Page() {
                 </div>
               </div>
             </div>
-          </motion.section>
+          </section>
         )}
 
         {/* ── Summary Strip (Desktop/Large 4-cell KPI bar) ── */}
@@ -1711,6 +1638,5 @@ export default function Page() {
         </button>
       )}
     </div>
-    </MotionConfig>
   );
 }

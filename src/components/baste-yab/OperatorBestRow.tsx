@@ -46,7 +46,7 @@ export function OperatorBestRow({
   return (
     <section
       aria-label="بهترین بسته هر اپراتور"
-      className="rounded-2xl sm:rounded-xl border border-border bg-card p-3 sm:p-3.5 shadow-xs"
+      className="hidden lg:block rounded-xl border border-border bg-card p-3.5 shadow-xs"
     >
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">

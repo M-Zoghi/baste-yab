@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Award, Check, Copy, ExternalLink, Gift, Info, Phone, Scale, ShieldAlert, Smartphone } from "lucide-react";
+import { Award, Check, Copy, ExternalLink, Gift, Phone, Scale, ShieldAlert, Smartphone } from "lucide-react";
 
 import {
-  PORTAL_AVAILABILITY_NOTE,
   VAT_RATE,
   faDigits,
   fmtGB,
@@ -14,7 +13,7 @@ import {
   type Row,
 } from "@/lib/providers";
 import { useToast } from "@/hooks/use-toast";
-import { KIND_LABEL, accentBadgeStyle, accentDividerColor, ussdTelHref, valueBadgeStyle, valueColor } from "./helpers";
+import { KIND_LABEL, accentBadgeStyle, ussdTelHref, valueBadgeStyle, valueColor } from "./helpers";
 
 interface PkgCardProps {
   r: Row & { t?: number };
@@ -129,53 +128,39 @@ export function PkgCard({
         </div>
       </div>
 
-      {/* Title + Traffic scope / Note */}
+      {/* Title + Concise Flags / Note */}
       <div className="mt-3">
         <h3 className="text-[15.5px] font-bold leading-7 text-foreground">{r.title}</h3>
         {(r.domesticOnly || r.portalOnly) && (
-          <div className="mt-2 flex flex-col items-start gap-2">
+          <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
             {r.domesticOnly && (
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
+              <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/12 px-2 py-0.5 font-semibold text-amber-700 dark:text-amber-300">
                 <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
                 <span>فقط اینترنت داخلی</span>
               </span>
             )}
             {r.portalOnly && (
-              <div
-                className="w-full rounded-lg border px-2.5 py-1.5 text-xs"
+              <span
+                className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-semibold"
                 style={accentBadgeStyle(r.providerAccent, dark)}
               >
-                <div className="flex items-center gap-1.5 font-semibold leading-5">
-                  <Smartphone className="h-3.5 w-3.5 shrink-0" />
-                  <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
-                </div>
-                <div
-                  className="mt-1 flex items-center gap-1.5 border-t pt-1 text-[11px] font-medium leading-4 opacity-90"
-                  style={{ borderColor: accentDividerColor(r.providerAccent, dark) }}
-                >
-                  <Info className="h-3 w-3 shrink-0" />
-                  <span>{r.portalNote ?? PORTAL_AVAILABILITY_NOTE}</span>
-                </div>
-              </div>
+                <Smartphone className="h-3 w-3 shrink-0" />
+                <span>{r.portalLabel ?? "فروش فقط از اپ اپراتور"}</span>
+              </span>
             )}
           </div>
         )}
         {r.note && (
-          <p className="mt-1.5 text-[12.5px] leading-6 text-muted-foreground">
+          <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
             {r.note}
           </p>
-        )}
-        {r.group && (
-          <div className="mt-1.5 truncate text-xs text-muted-foreground">
-            دسته: <span className="font-medium text-foreground/85">{r.group}</span>
-          </div>
         )}
       </div>
 
       {/* Bottom-aligned specs + Value & Price section so boxes line up across grid rows */}
       <div className="mt-auto pt-4">
-        {/* Readable 2-cell specs bar right above the price/unit-value line */}
-        <div className="grid grid-cols-2 divide-x divide-x-reverse divide-border rounded-lg border border-border bg-muted/70 py-2.5 text-center">
+        {/* Clean borderless 2-cell specs pill right above the price/unit-value line */}
+        <div className="grid grid-cols-2 divide-x divide-x-reverse divide-border/70 rounded-xl bg-muted/65 py-2 text-center">
           <div className="px-3">
             <div className="text-[11px] font-medium text-muted-foreground">حجم بسته</div>
             <div className="fa-num mt-0.5 text-sm font-bold text-foreground">
@@ -190,7 +175,7 @@ export function PkgCard({
           </div>
         </div>
 
-        <div className="mt-3.5 border-t border-border pt-3.5">
+        <div className="mt-3 border-t border-border/75 pt-3">
           {/* Row 1: Unit value & Total price on the exact same line */}
           <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <div className="flex flex-wrap items-baseline gap-1.5 min-w-0">
@@ -262,48 +247,48 @@ export function PkgCard({
           </div>
         </div>
 
-        {/* Footer metadata + USSD quick copy & direct dial */}
-        <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-border/75 pt-2.5 text-[11px] text-muted-foreground">
-          {r.ussd ? (
-            <div className="inline-flex min-w-0 items-center gap-1.5">
-              <button
-                type="button"
-                onClick={handleCopyUssd}
-                className="inline-flex min-h-[34px] items-center gap-1.5 rounded-md border border-border bg-muted px-2.5 py-0.5 font-mono text-xs text-foreground transition-colors hover:bg-secondary cursor-pointer"
-                dir="ltr"
-                title="کپی کد دستوری"
-              >
-                {copied ? (
-                  <Check className="h-3.5 w-3.5 text-primary" />
-                ) : (
-                  <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                )}
-                <span>{r.ussd}</span>
-              </button>
-              {ussdTelHref(r.ussd) && (
-                <a
-                  href={ussdTelHref(r.ussd)!}
-                  title={`شماره‌گیری ${r.ussd}`}
-                  aria-label={`شماره‌گیری کد دستوری ${r.ussd}`}
-                  className="inline-flex min-h-[34px] items-center gap-1 rounded-md border border-primary/30 bg-primary/12 px-2.5 py-0.5 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+        {/* Footer row: shown only when USSD or secondary perGB metric is present */}
+        {(r.ussd || metric !== "pergb") && (
+          <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/60 pt-2.5 text-[11px] text-muted-foreground">
+            {r.ussd ? (
+              <div className="inline-flex min-w-0 items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleCopyUssd}
+                  className="inline-flex min-h-[34px] items-center gap-1.5 rounded-lg bg-muted px-2.5 py-0.5 font-mono text-xs text-foreground transition-colors hover:bg-secondary cursor-pointer"
+                  dir="ltr"
+                  title="کپی کد دستوری"
                 >
-                  <Phone className="h-3 w-3 shrink-0" />
-                  <span>شماره‌گیری</span>
-                </a>
-              )}
-            </div>
-          ) : (
-            <span dir="ltr" className="truncate font-mono opacity-85">
-              {r.regulatoryCode ? `REG: ${r.regulatoryCode}` : r.sourceKind === "api" ? "API" : "capture"}
-            </span>
-          )}
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 text-primary" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                  <span>{r.ussd}</span>
+                </button>
+                {ussdTelHref(r.ussd) && (
+                  <a
+                    href={ussdTelHref(r.ussd)!}
+                    title={`شماره‌گیری ${r.ussd}`}
+                    aria-label={`شماره‌گیری کد دستوری ${r.ussd}`}
+                    className="inline-flex min-h-[34px] items-center gap-1 rounded-lg bg-primary/12 px-2.5 py-0.5 text-[11px] font-bold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                  >
+                    <Phone className="h-3 w-3 shrink-0" />
+                    <span>شماره‌گیری</span>
+                  </a>
+                )}
+              </div>
+            ) : (
+              <span />
+            )}
 
-          {metric !== "pergb" && (
-            <span className="fa-num shrink-0 font-medium text-muted-foreground">
-              {r.perGB >= 1000 ? `${fmtToman(r.perGB)} ت/گیگ` : `${fmtValue(r.perGB)} ت/گیگ`}
-            </span>
-          )}
-        </div>
+            {metric !== "pergb" && (
+              <span className="fa-num shrink-0 font-medium text-muted-foreground">
+                {r.perGB >= 1000 ? `${fmtToman(r.perGB)} ت/گیگ` : `${fmtValue(r.perGB)} ت/گیگ`}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
