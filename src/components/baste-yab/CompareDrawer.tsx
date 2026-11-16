@@ -240,7 +240,7 @@ export function CompareBody({
               {(item.note || item.portalOnly || item.domesticOnly) && (
                 <p className="mt-2 border-t border-border/70 pt-2 text-[11px] leading-5 text-muted-foreground">
                   {item.portalOnly
-                    ? `${item.portalLabel ?? "فروش فقط از اپ اپراتور"} · `
+                    ? `${item.portalLabel ?? "فروش فقط از اپ اپراتور"} (${item.portalNote ?? PORTAL_AVAILABILITY_NOTE}) · `
                     : ""}
                   {item.domesticOnly ? "فقط اینترنت داخلی · " : ""}
                   {item.note ?? ""}

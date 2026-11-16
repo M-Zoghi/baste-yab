@@ -1432,7 +1432,7 @@ export default function Page() {
                 />
 
                 {view === "grid" ? (
-                  <div className="grid grid-cols-1 gap-2.5 sm:gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-2.5 sm:gap-3 md:grid-cols-2 xl:grid-cols-3">
                     {visibleRows.map((r) => {
                       const uid = `${r.entryKey}:${r.id}`;
                       return (

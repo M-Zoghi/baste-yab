@@ -248,10 +248,10 @@ export function PkgTable({
                       onClick={() => onToggleCompare(uid)}
                       disabled={!isCompared && !canCompare}
                       aria-pressed={isCompared}
-                      className={`inline-flex h-8 items-center gap-1 rounded-xl border px-2.5 text-[11px] font-bold transition-transform active:scale-[0.96] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
+                      className={`inline-flex h-8 items-center gap-1 rounded-xl border px-2.5 text-[11px] font-bold transition-colors active:scale-[0.96] cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
                         isCompared
                           ? "border-primary/60 bg-primary/12 text-primary"
-                          : "border-border bg-card text-foreground"
+                          : "border-border bg-card text-foreground hover:bg-muted"
                       }`}
                     >
                       {isCompared ? (
@@ -265,7 +265,8 @@ export function PkgTable({
                       href={r.buyUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex h-8 items-center gap-1 rounded-xl bg-primary px-3 text-[11px] font-bold text-primary-foreground active:scale-[0.96] transition-transform"
+                      title={r.portalOnly ? (r.portalHint ?? "خرید از اپلیکیشن اپراتور") : undefined}
+                      className="inline-flex h-8 items-center gap-1 rounded-xl bg-primary px-3 text-[11px] font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.96]"
                     >
                       <span>خرید</span>
                       <ExternalLink className="h-3 w-3" />
@@ -506,10 +507,10 @@ export function PkgTable({
                               ? "افزودن به مقایسه"
                               : "حداکثر ۳ بسته قابل مقایسه است"
                         }
-                        className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
+                        className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
                           isCompared
-                            ? "border-primary/50 bg-primary/10 text-primary"
-                            : "border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            ? "border-primary/60 bg-primary/12 text-primary"
+                            : "border-border bg-card text-foreground/80 hover:bg-muted hover:text-foreground"
                         }`}
                       >
                         {isCompared ? (
@@ -522,7 +523,8 @@ export function PkgTable({
                         href={r.buyUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex h-8 items-center gap-1 rounded-lg bg-secondary px-2.5 text-xs font-bold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                        title={r.portalOnly ? (r.portalHint ?? "خرید از اپلیکیشن اپراتور") : undefined}
+                        className="inline-flex h-8 items-center gap-1 rounded-xl bg-primary px-3 text-xs font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary/90 active:scale-[0.96]"
                       >
                         <span>خرید</span>
                         <ExternalLink className="h-3 w-3" />

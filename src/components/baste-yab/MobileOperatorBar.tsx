@@ -146,33 +146,49 @@ export function MobileOperatorBar({
         })}
       </div>
 
-      {/* Right edge fade + ">" arrow (shown only when scrolled away from start) */}
-      {edges.canPrev && (
-        <div className="pointer-events-none absolute inset-y-0 start-0 z-10 flex items-center bg-gradient-to-l from-background via-background/85 to-transparent pe-6">
-          <button
-            type="button"
-            onClick={() => scrollByStep("prev")}
-            aria-label="اپراتورهای قبلی"
-            className="pointer-events-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-sm backdrop-blur-xs transition-transform active:scale-[0.92] hover:bg-muted cursor-pointer"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+      {/* Right edge fade + ">" arrow (fades in smoothly when scrolled away from start) */}
+      <div
+        aria-hidden={!edges.canPrev}
+        className={`pointer-events-none absolute inset-y-0 start-0 z-10 flex items-center bg-gradient-to-l from-background via-background/85 to-transparent pe-6 transition-opacity duration-200 ease-out ${
+          edges.canPrev ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <button
+          type="button"
+          tabIndex={edges.canPrev ? 0 : -1}
+          onClick={() => scrollByStep("prev")}
+          aria-label="اپراتورهای قبلی"
+          className={`inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-sm backdrop-blur-xs transition-all duration-200 ease-out hover:bg-muted active:scale-[0.92] ${
+            edges.canPrev
+              ? "pointer-events-auto scale-100 cursor-pointer"
+              : "pointer-events-none scale-90"
+          }`}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
 
-      {/* Left edge fade + "<" arrow (shown only when more operators overflow to the left) */}
-      {edges.canNext && (
-        <div className="pointer-events-none absolute inset-y-0 end-0 z-10 flex items-center bg-gradient-to-r from-background via-background/85 to-transparent ps-6">
-          <button
-            type="button"
-            onClick={() => scrollByStep("next")}
-            aria-label="اپراتورهای بعدی"
-            className="pointer-events-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-sm backdrop-blur-xs transition-transform active:scale-[0.92] hover:bg-muted cursor-pointer"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+      {/* Left edge fade + "<" arrow (fades in smoothly when more operators overflow left) */}
+      <div
+        aria-hidden={!edges.canNext}
+        className={`pointer-events-none absolute inset-y-0 end-0 z-10 flex items-center bg-gradient-to-r from-background via-background/85 to-transparent ps-6 transition-opacity duration-200 ease-out ${
+          edges.canNext ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <button
+          type="button"
+          tabIndex={edges.canNext ? 0 : -1}
+          onClick={() => scrollByStep("next")}
+          aria-label="اپراتورهای بعدی"
+          className={`inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card/95 text-foreground shadow-sm backdrop-blur-xs transition-all duration-200 ease-out hover:bg-muted active:scale-[0.92] ${
+            edges.canNext
+              ? "pointer-events-auto scale-100 cursor-pointer"
+              : "pointer-events-none scale-90"
+          }`}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+      </div>
     </div>
   );
 }
