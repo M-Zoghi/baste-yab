@@ -145,7 +145,7 @@ export default function Page() {
   const [compareOpen, setCompareOpen] = useState(false);
   const [calcOpen, setCalcOpen] = useState(false);
   const [mobileSubTab, setMobileSubTab] = useState<"browse" | "calc" | "compare" | "info">("browse");
-  const [opPageByCat, setOpPageByCat] = useState<Record<Category, number>>({ mobile: 0, home: 0 });
+  const [opResetKey, setOpResetKey] = useState(0);
   const [visibleLimit, setVisibleLimit] = useState(PAGE_STEP);
 
   const vatFactor = vat ? 1 + VAT_RATE : 1;
@@ -384,7 +384,7 @@ export default function Page() {
 
   const reset = () => {
     setVisibleLimit(PAGE_STEP);
-    setOpPageByCat({ mobile: 0, home: 0 });
+    setOpResetKey((k) => k + 1);
     updateState((prev) => ({
       ...prev,
       homeTech: "all",
@@ -722,18 +722,13 @@ export default function Page() {
               )}
             </div>
 
-            {/* Dynamic Free-Size Operator Bar with Needed Left/Right Arrows */}
+            {/* Smooth-Scrolling Free-Size Operator Bar with Edge-Faded Arrows */}
             <MobileOperatorBar
+              category={cat}
               entries={liveEntries}
               totalCount={inCat.length}
               provSel={provSel}
-              page={opPageByCat[cat] ?? 0}
-              onPageChange={(nextPage) =>
-                setOpPageByCat((prev) => ({
-                  ...prev,
-                  [cat]: nextPage,
-                }))
-              }
+              resetKey={opResetKey}
               onSelectAll={() => {
                 setVisibleLimit(PAGE_STEP);
                 updateState((prev) => ({
