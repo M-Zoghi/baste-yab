@@ -743,20 +743,21 @@ export default function Page() {
                   aria-label="انتخاب اپراتور"
                   className="flex items-center gap-1.5"
                 >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpPageByCat((prev) => ({
-                        ...prev,
-                        [cat]: Math.max(0, safeOpPage - 1),
-                      }))
-                    }
-                    disabled={safeOpPage === 0}
-                    aria-label="اپراتورهای قبلی"
-                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-xs transition-transform active:scale-[0.94] hover:bg-muted disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+                  {safeOpPage > 0 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpPageByCat((prev) => ({
+                          ...prev,
+                          [cat]: Math.max(0, safeOpPage - 1),
+                        }))
+                      }
+                      aria-label="اپراتورهای قبلی"
+                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-xs transition-transform active:scale-[0.94] hover:bg-muted cursor-pointer"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  )}
 
                   <div className="grid flex-1 min-w-0 grid-cols-2 gap-1.5">
                     {visibleOpItems.map((item) => {
@@ -825,20 +826,21 @@ export default function Page() {
                     })}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpPageByCat((prev) => ({
-                        ...prev,
-                        [cat]: Math.min(totalOpPages - 1, safeOpPage + 1),
-                      }))
-                    }
-                    disabled={safeOpPage >= totalOpPages - 1}
-                    aria-label="اپراتورهای بعدی"
-                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-xs transition-transform active:scale-[0.94] hover:bg-muted disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
+                  {safeOpPage < totalOpPages - 1 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpPageByCat((prev) => ({
+                          ...prev,
+                          [cat]: Math.min(totalOpPages - 1, safeOpPage + 1),
+                        }))
+                      }
+                      aria-label="اپراتورهای بعدی"
+                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-xs transition-transform active:scale-[0.94] hover:bg-muted cursor-pointer"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               );
             })()}
