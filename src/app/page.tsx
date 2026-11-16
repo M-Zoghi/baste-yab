@@ -4,8 +4,6 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   ArrowUp,
   Calculator,
-  ChevronLeft,
-  ChevronRight,
   Database,
   Gift,
   Home,
@@ -72,6 +70,7 @@ import {
   ProviderSourcesSection,
 } from "@/components/baste-yab/InfoSections";
 import { MobileBottomNav, type MobileTab } from "@/components/baste-yab/MobileBottomNav";
+import { MobileOperatorBar } from "@/components/baste-yab/MobileOperatorBar";
 import { NeedCalculator } from "@/components/baste-yab/NeedCalculator";
 import { OperatorBestRow } from "@/components/baste-yab/OperatorBestRow";
 import { PkgCard } from "@/components/baste-yab/PkgCard";
@@ -723,127 +722,35 @@ export default function Page() {
               )}
             </div>
 
-            {/* Arrow-Navigated Operator Bar (no horizontal scroll) */}
-            {liveEntries.length > 0 && (() => {
-              const OP_PAGE_SIZE = 2;
-              const opItems = [
-                { type: "all" as const },
-                ...liveEntries.map((entry) => ({ type: "entry" as const, entry })),
-              ];
-              const totalOpPages = Math.max(1, Math.ceil(opItems.length / OP_PAGE_SIZE));
-              const safeOpPage = Math.min(opPageByCat[cat] ?? 0, totalOpPages - 1);
-              const visibleOpItems = opItems.slice(
-                safeOpPage * OP_PAGE_SIZE,
-                safeOpPage * OP_PAGE_SIZE + OP_PAGE_SIZE,
-              );
-
-              return (
-                <div
-                  role="group"
-                  aria-label="انتخاب اپراتور"
-                  className="flex items-center gap-1.5"
-                >
-                  {safeOpPage > 0 && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpPageByCat((prev) => ({
-                          ...prev,
-                          [cat]: Math.max(0, safeOpPage - 1),
-                        }))
-                      }
-                      aria-label="اپراتورهای قبلی"
-                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-xs transition-transform active:scale-[0.94] hover:bg-muted cursor-pointer"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  )}
-
-                  <div className="grid flex-1 min-w-0 grid-cols-2 gap-1.5">
-                    {visibleOpItems.map((item) => {
-                      if (item.type === "all") {
-                        const allSelected = provSel.size === liveEntries.length;
-                        return (
-                          <button
-                            key="all"
-                            type="button"
-                            onClick={() => {
-                              setVisibleLimit(PAGE_STEP);
-                              updateState((prev) => ({
-                                ...prev,
-                                provSel: new Set(liveKeysOf(prev.cat)),
-                              }));
-                            }}
-                            aria-pressed={allSelected}
-                            className={`inline-flex h-9 w-full min-w-0 items-center justify-center gap-1.5 rounded-full border px-2.5 text-xs font-bold transition-transform active:scale-[0.96] cursor-pointer ${
-                              allSelected
-                                ? "border-primary bg-primary text-primary-foreground shadow-xs"
-                                : "border-border bg-card text-foreground hover:bg-muted"
-                            }`}
-                          >
-                            <span className="truncate">همه</span>
-                            <span className="fa-num shrink-0 text-[11px] opacity-85">
-                              {faDigits(inCat.length)}
-                            </span>
-                          </button>
-                        );
-                      }
-
-                      const { entry } = item;
-                      const isFocused = provSel.size === 1 && provSel.has(entry.key);
-                      const isSubsetSelected =
-                        provSel.size < liveEntries.length && provSel.has(entry.key);
-
-                      return (
-                        <button
-                          key={entry.key}
-                          type="button"
-                          onClick={() => {
-                            setVisibleLimit(PAGE_STEP);
-                            updateState((prev) => ({
-                              ...prev,
-                              provSel: isFocused
-                                ? new Set(liveKeysOf(prev.cat))
-                                : new Set([entry.key]),
-                            }));
-                          }}
-                          aria-pressed={isFocused || isSubsetSelected}
-                          className={`inline-flex h-9 w-full min-w-0 items-center justify-center gap-1.5 rounded-full border px-2.5 text-xs font-bold transition-transform active:scale-[0.96] cursor-pointer ${
-                            isFocused
-                              ? "border-foreground bg-foreground text-background shadow-xs"
-                              : isSubsetSelected
-                                ? "border-primary/60 bg-primary/15 text-foreground shadow-xs"
-                                : "border-border bg-card text-foreground hover:bg-muted"
-                          }`}
-                        >
-                          <span
-                            className="h-2 w-2 shrink-0 rounded-full ring-1 ring-black/15 dark:ring-white/25"
-                            style={{ backgroundColor: entry.accent }}
-                          />
-                          <span className="truncate">{entry.nameFa}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {safeOpPage < totalOpPages - 1 && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpPageByCat((prev) => ({
-                          ...prev,
-                          [cat]: Math.min(totalOpPages - 1, safeOpPage + 1),
-                        }))
-                      }
-                      aria-label="اپراتورهای بعدی"
-                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-xs transition-transform active:scale-[0.94] hover:bg-muted cursor-pointer"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              );
-            })()}
+            {/* Dynamic Free-Size Operator Bar with Needed Left/Right Arrows */}
+            <MobileOperatorBar
+              entries={liveEntries}
+              totalCount={inCat.length}
+              provSel={provSel}
+              page={opPageByCat[cat] ?? 0}
+              onPageChange={(nextPage) =>
+                setOpPageByCat((prev) => ({
+                  ...prev,
+                  [cat]: nextPage,
+                }))
+              }
+              onSelectAll={() => {
+                setVisibleLimit(PAGE_STEP);
+                updateState((prev) => ({
+                  ...prev,
+                  provSel: new Set(liveKeysOf(prev.cat)),
+                }));
+              }}
+              onToggleSingle={(entryKey, isFocused) => {
+                setVisibleLimit(PAGE_STEP);
+                updateState((prev) => ({
+                  ...prev,
+                  provSel: isFocused
+                    ? new Set(liveKeysOf(prev.cat))
+                    : new Set([entryKey]),
+                }));
+              }}
+            />
 
             {/* Quiet Utility Bar: Count + Sort + View Toggle */}
             <div className="flex items-center justify-between gap-2 pt-0.5">
