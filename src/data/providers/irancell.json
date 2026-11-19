@@ -16,12 +16,12 @@
   "source": {
     "kind": "api",
     "endpoint": "ادغام دو منبع: کاتالوگ عمومی irancell.ir/e/products (خودکار) + اپلیکیشن ایرانسل‌من my.irancell.ir (فقط HAR از داخل ایران)",
-    "fetchedAt": "2026-11-18T11:42:43.904Z",
+    "fetchedAt": "2026-11-19T11:40:28.073Z",
     "parts": {
       "web": {
         "kind": "api",
         "endpoint": "GET irancell.ir/e/products/5e16bf95d11fd7209ba56b20 (public catalog JSON)",
-        "fetchedAt": "2026-11-18T11:42:43.904Z"
+        "fetchedAt": "2026-11-19T11:40:28.073Z"
       },
       "portal": {
         "kind": "har",
@@ -906,6 +906,20 @@
       "note": "فقط از وب‌سایت قابل خرید است — در اپلیکیشن ایرانسل عرضه نمی‌شود"
     },
     {
+      "id": "irancell-6afda4b86cd547f3000a6274",
+      "title": "ترکیبی اولیه ۴۰ گیگ و ۶۰۰ دقیقه مکالمه ایرانسلی و ۶۰۰ پیامک",
+      "kind": "combo",
+      "gb": 40,
+      "days": 90,
+      "price": 499000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ترکیبی: ۶۰۰ دقیقه مکالمه ایرانسلی و ۶۰۰ پیامک"
+    },
+    {
       "id": "irancell-5e4d3989aaad7304ae9fb7e6",
       "title": "۳.۵ گیگابایت",
       "kind": "internet",
@@ -1231,6 +1245,20 @@
       "regulatoryCode": null,
       "ussd": "555*5*2#",
       "note": null
+    },
+    {
+      "id": "irancell-6afd9ebf6cd547f3000a6272",
+      "title": "ترکیبی اولیه ۴۵ گیگ و ۱۰۰۰ دقیقه مکالمه ایرانسلی و ۱۰۰۰ پیامک",
+      "kind": "combo",
+      "gb": 45,
+      "days": 90,
+      "price": 900000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": "ترکیبی: ۱۰۰۰ دقیقه مکالمه ایرانسلی و ۱۰۰۰ پیامک"
     },
     {
       "id": "irancell-5e4d38c0aaad7304ae9fb7e2",
