@@ -16,12 +16,12 @@
   "source": {
     "kind": "api",
     "endpoint": "ادغام دو منبع: فروشگاه رسمی shop.mci.ir/api/search/v1/products?category=19 + پنل همراه‌من my.mci.ir (کاتالوگ عمومی، بدون احراز هویت)",
-    "fetchedAt": "2026-11-15T22:57:52.410Z",
+    "fetchedAt": "2026-11-28T09:20:15.641Z",
     "parts": {
       "shop": {
         "kind": "api",
         "endpoint": "GET shop.mci.ir/api/search/v1/products?category=19 (paginated) — فروشگاه رسمی همراه اول",
-        "fetchedAt": "2026-11-15T22:57:52.410Z"
+        "fetchedAt": "2026-11-28T09:20:15.641Z"
       },
       "portal": {
         "kind": "api",

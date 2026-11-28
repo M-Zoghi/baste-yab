@@ -16,12 +16,12 @@
   "source": {
     "kind": "api",
     "endpoint": "GET www.aptel.ir/api/ep/query?scope=public",
-    "fetchedAt": "2026-11-27T12:20:15.485Z",
+    "fetchedAt": "2026-11-28T09:20:12.041Z",
     "parts": {
       "public": {
         "kind": "api",
         "endpoint": "GET www.aptel.ir/api/ep/query?scope=public (کاتالوگ عمومی، بدون ورود)",
-        "fetchedAt": "2026-11-27T12:20:15.485Z"
+        "fetchedAt": "2026-11-28T09:20:12.041Z"
       },
       "portal": {
         "kind": "har",
