@@ -16,17 +16,17 @@
   "source": {
     "kind": "api",
     "endpoint": "ادغام دو منبع: فروشگاه رسمی shop.mci.ir/api/search/v1/products?category=19 + پنل همراه‌من my.mci.ir (کاتالوگ عمومی، بدون احراز هویت)",
-    "fetchedAt": "2026-11-28T09:27:45.350Z",
+    "fetchedAt": "2026-11-28T09:38:05.096Z",
     "parts": {
       "shop": {
         "kind": "api",
         "endpoint": "GET shop.mci.ir/api/search/v1/products?category=19 (paginated) — فروشگاه رسمی همراه اول",
-        "fetchedAt": "2026-11-28T09:27:45.350Z"
+        "fetchedAt": "2026-11-28T09:38:05.096Z"
       },
       "portal": {
         "kind": "api",
         "endpoint": "GET my.mci.ir/api/unit/v1/customer/units/normal/internet — پنل همراه‌من (کاتالوگ عمومی، بدون احراز هویت؛ شماره خط فقط از تنظیمات محلی و در خروجی ثبت نمی‌شود)",
-        "fetchedAt": "2026-11-28T09:27:45.350Z"
+        "fetchedAt": "2026-11-28T09:38:05.096Z"
       }
     }
   },
@@ -49,9 +49,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "مصرف نامحدود (سقف مصرف منصفانه ۱۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
-      "buyUrl": "https://my.mci.ir/panel/packages/list/internet",
-      "lastSeen": "2026-11-14T19:55:55.376Z"
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-ff1dd158",
@@ -66,9 +66,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "مصرف نامحدود (سقف مصرف منصفانه ۲۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
-      "buyUrl": "https://my.mci.ir/panel/packages/list/internet",
-      "lastSeen": "2026-11-14T19:55:55.376Z"
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-my-e63919e3",
@@ -83,9 +83,9 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "مصرف نامحدود (سقف مصرف منصفانه ۸۰ گیگابایت) · قابل استفاده از ۲ تا ۹ صبح",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
-      "buyUrl": "https://my.mci.ir/panel/packages/list/internet",
-      "lastSeen": "2026-11-14T19:55:55.376Z"
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-735485",
@@ -114,7 +114,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -131,7 +131,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -148,7 +148,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -165,7 +165,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -182,7 +182,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -199,7 +199,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -216,7 +216,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -233,7 +233,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -308,7 +308,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -340,7 +340,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -388,7 +388,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -405,7 +405,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -467,7 +467,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -500,7 +500,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -517,7 +517,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -648,7 +648,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ترکیبی: اینترنت + مکالمه و پیامک نامحدود (با حد مصرف روزانه و سیاست مصرف منصفانه)",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -694,7 +694,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -754,7 +754,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -813,7 +813,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -830,7 +830,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -904,7 +904,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -936,7 +936,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
-      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },

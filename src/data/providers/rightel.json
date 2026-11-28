@@ -16,7 +16,7 @@
   "source": {
     "kind": "api",
     "endpoint": "GET portal-api.rightel.ir/…/web-site/purchasable-package — پنل رسمی رایتل (ابتدا توکن ناشناس website با POST auth/authenticate، سپس GET با Authorization: Bearer — طبق HAR ۲۰۲۶-۱۱-۱۴)",
-    "fetchedAt": "2026-11-28T09:27:43.255Z"
+    "fetchedAt": "2026-11-28T09:38:03.296Z"
   },
   "prices": {
     "unit": "toman",

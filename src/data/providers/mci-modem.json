@@ -16,7 +16,7 @@
   "source": {
     "kind": "api",
     "endpoint": "GET my.mci.ir/api/unit/v1/customer/units/normal/modem_bundle — پنل همراه‌من (کاتالوگ عمومی، بدون احراز هویت)",
-    "fetchedAt": "2026-11-14T19:55:55.376Z"
+    "fetchedAt": "2026-11-28T09:38:05.096Z"
   },
   "prices": {
     "unit": "toman",
@@ -37,6 +37,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
@@ -53,6 +54,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
@@ -69,6 +71,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
@@ -85,6 +88,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
@@ -101,6 +105,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
@@ -117,6 +122,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
@@ -133,6 +139,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     },
@@ -149,6 +156,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت دیتا/مودم همراه اول",
+      "lastSeen": "2026-11-28T09:38:05.096Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/modem_bundle"
     }
