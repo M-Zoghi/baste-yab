@@ -16,7 +16,7 @@
   "source": {
     "kind": "api",
     "endpoint": "POST /api/mediator/samantel/ (getpackagebyproduct, productId=1)",
-    "fetchedAt": "2026-11-28T09:20:12.035Z"
+    "fetchedAt": "2026-11-28T09:27:36.654Z"
   },
   "prices": {
     "unit": "toman",

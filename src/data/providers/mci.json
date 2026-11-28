@@ -16,17 +16,17 @@
   "source": {
     "kind": "api",
     "endpoint": "ادغام دو منبع: فروشگاه رسمی shop.mci.ir/api/search/v1/products?category=19 + پنل همراه‌من my.mci.ir (کاتالوگ عمومی، بدون احراز هویت)",
-    "fetchedAt": "2026-11-28T09:20:15.641Z",
+    "fetchedAt": "2026-11-28T09:27:45.350Z",
     "parts": {
       "shop": {
         "kind": "api",
         "endpoint": "GET shop.mci.ir/api/search/v1/products?category=19 (paginated) — فروشگاه رسمی همراه اول",
-        "fetchedAt": "2026-11-28T09:20:15.641Z"
+        "fetchedAt": "2026-11-28T09:27:45.350Z"
       },
       "portal": {
         "kind": "api",
         "endpoint": "GET my.mci.ir/api/unit/v1/customer/units/normal/internet — پنل همراه‌من (کاتالوگ عمومی، بدون احراز هویت؛ شماره خط فقط از تنظیمات محلی و در خروجی ثبت نمی‌شود)",
-        "fetchedAt": "2026-11-14T19:55:55.376Z"
+        "fetchedAt": "2026-11-28T09:27:45.350Z"
       }
     }
   },
@@ -50,7 +50,8 @@
       "ussd": null,
       "note": "مصرف نامحدود (سقف مصرف منصفانه ۱۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح",
       "portalOnly": true,
-      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet",
+      "lastSeen": "2026-11-14T19:55:55.376Z"
     },
     {
       "id": "mci-my-ff1dd158",
@@ -66,7 +67,8 @@
       "ussd": null,
       "note": "مصرف نامحدود (سقف مصرف منصفانه ۲۰ گیگابایت) · قابل استفاده از ۲ تا ۷ صبح",
       "portalOnly": true,
-      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet",
+      "lastSeen": "2026-11-14T19:55:55.376Z"
     },
     {
       "id": "mci-my-e63919e3",
@@ -82,7 +84,8 @@
       "ussd": null,
       "note": "مصرف نامحدود (سقف مصرف منصفانه ۸۰ گیگابایت) · قابل استفاده از ۲ تا ۹ صبح",
       "portalOnly": true,
-      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet",
+      "lastSeen": "2026-11-14T19:55:55.376Z"
     },
     {
       "id": "mci-735485",
@@ -111,6 +114,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -127,6 +131,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -143,6 +148,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -159,6 +165,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "قابل استفاده از ۶ تا ۱۲ ظهر",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -175,6 +182,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -191,6 +199,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -207,6 +216,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -223,6 +233,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -297,6 +308,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -328,6 +340,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -375,6 +388,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -391,6 +405,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -452,6 +467,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -484,6 +500,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -500,6 +517,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -630,6 +648,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ترکیبی: اینترنت + مکالمه و پیامک نامحدود (با حد مصرف روزانه و سیاست مصرف منصفانه)",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -675,6 +694,7 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه اپلیکیشن روبیکا — فقط ترافیک داخلی",
+      "lastSeen": "2026-11-28T09:27:45.350Z",
       "portalOnly": true,
       "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
@@ -722,6 +742,23 @@
       "note": null
     },
     {
+      "id": "mci-my-3d1b56b4",
+      "title": "بسته اینترنت ۳۶۵ روزه ۵۰۰ گیگابایت به همراه اشتراک فیلیمو (تا اتمام بسته اینترنت)",
+      "kind": "internet",
+      "gb": 500,
+      "days": 365,
+      "price": 6000000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
+    },
+    {
       "id": "mci-735483",
       "title": "بسته اینترنت ۳۰ روزه ۶ گیگابایت",
       "kind": "internet",
@@ -762,6 +799,40 @@
       "regulatoryCode": "535074266879",
       "ussd": null,
       "note": null
+    },
+    {
+      "id": "mci-my-a511690e",
+      "title": "بسته اینترنت ۱۸۰ روزه ۲۲۰ گیگابایت به همراه اشتراک فیلیمو (تا اتمام بسته اینترنت)",
+      "kind": "internet",
+      "gb": 220,
+      "days": 180,
+      "price": 2823000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
+    },
+    {
+      "id": "mci-my-9ac0d50f",
+      "title": "بسته اینترنت ۳۶۵ روزه ۳۰۰ گیگابایت به همراه اشتراک فیلیمو (تا اتمام بسته اینترنت)",
+      "kind": "internet",
+      "gb": 300,
+      "days": 365,
+      "price": 4100000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-735493",
@@ -821,6 +892,23 @@
       "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی"
     },
     {
+      "id": "mci-my-72d16a96",
+      "title": "بسته اینترنت ۱۸۰ روزه ۱۴۰ گیگابایت به همراه اشتراک فیلیمو (تا اتمام بسته اینترنت)",
+      "kind": "internet",
+      "gb": 140,
+      "days": 180,
+      "price": 2000000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
+    },
+    {
       "id": "mci-153376",
       "title": "بسته اینترنت انارستان ۷ روزه ۱.۵ گیگابایت",
       "kind": "internet",
@@ -834,6 +922,23 @@
       "regulatoryCode": null,
       "ussd": null,
       "note": "ویژه سیم‌کارت انارستان · فقط اینترنت داخلی"
+    },
+    {
+      "id": "mci-my-a1d6f058",
+      "title": "بسته اینترنت ۳۶۵ روزه ۲۰۰ گیگابایت به همراه اشتراک فیلیمو (تا اتمام بسته اینترنت)",
+      "kind": "internet",
+      "gb": 200,
+      "days": 365,
+      "price": 3050000,
+      "oldPrice": null,
+      "discountPct": null,
+      "group": null,
+      "regulatoryCode": null,
+      "ussd": null,
+      "note": null,
+      "lastSeen": "2026-11-28T09:27:45.350Z",
+      "portalOnly": true,
+      "buyUrl": "https://my.mci.ir/panel/packages/list/internet"
     },
     {
       "id": "mci-735497",
